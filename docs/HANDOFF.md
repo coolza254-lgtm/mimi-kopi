@@ -21,11 +21,13 @@
 - บันทึก JSON แบบ atomic ผ่าน `tempfile` เพื่อรักษา backup เก่าหากเขียนไม่สำเร็จ เพิ่มเทสต์ไฟล์จริง 3 กรณี และ Windows CI รัน `cargo test --workspace` แล้ว เพิ่ม Vitest DOM tests ด้วย Testing Library + jsdom (รวม `.test.tsx` ใน config)
 - ตรวจในเครื่องล่าสุดผ่านทั้งหมด: `npm ci`, typecheck, Vitest 106 เทสต์, build, Rust fmt, `cargo test --workspace` (core 56 + ไฟล์ native 3 เทสต์) และ `cargo clippy --workspace --all-targets -- -D warnings` CI ของทุกชิ้นผ่านแล้ว
 - แผนทดสอบไฟล์: `docs/SONG_FILE_TEST_PLAN.md` การทดสอบ UI ผ่านเครื่องมือเบราว์เซอร์ยังทำไม่ได้ (webview ไม่เชื่อมต่อ) ต้องตรวจหน้าต่างเปิด/บันทึกบนแอปจริง
-- ยังไม่เปลี่ยนเลขเวอร์ชันหรือปล่อย Release
+- รอบปล่อยเวอร์ชัน: เจ้าของขอให้ปล่อยอัปเดตในแอปแล้ว เตรียม **v0.3.1** โดยเพิ่มเลขเวอร์ชันทั้ง 3 ไฟล์และ lockfile ย้าย Unreleased ไป 0.3.1 และเขียน release notes ภาษาไทย รวมงานสำรองเพลง หน้า "วันนี้" และความเสถียร
+- เพิ่มด่านรอ CI ของ commit เดียวกันใน workflow Release ก่อน build/sign/publish ป้องกันเผยแพร่ก่อน CI ผ่าน อัปเดต `docs/RELEASING.md` ให้เขียน notes แล้ว push ครั้งเดียว ขั้นตอนลงนามและกุญแจ updater ใช้ชุดเดิม
+- ก่อน push v0.3.1 ตรวจผ่านแล้ว: npm install/ci, typecheck, เว็บ 106 เทสต์, build, Rust fmt, clippy ทั้ง workspace และ Rust 59 เทสต์ เลขเวอร์ชันทั้ง source/lockfile ตรงกัน และ YAML workflow อ่านได้ ต้องติดตาม CI + Release จนสำเร็จ และยืนยัน asset `.exe`, `.sig`, `latest.json` ว่าชี้ไป 0.3.1 ก่อนแจ้งเจ้าของให้กดอัปเดต
 
 ### งานต่อไป
 
-1. ให้เจ้าของทดสอบตัวติดตั้งจาก run 40235043215 ตาม `docs/SONG_FILE_TEST_PLAN.md` และ `docs/MIDI_AUDIO_TEST_PLAN.md` โดยเฉพาะหน้าต่างไฟล์ Windows เสียงโน้ตซ้อน และการฝึกโดยเพลงไม่ถูกแก้
+1. ปล่อย v0.3.1 ให้ครบ CI + Release และตรวจ updater manifest จากนั้นให้เจ้าของกด **ตั้งค่า → ตรวจหาอัปเดต** และทดสอบตาม `docs/SONG_FILE_TEST_PLAN.md` / `docs/MIDI_AUDIO_TEST_PLAN.md`
 2. ขั้นถัดไปที่แนะนำ: ตัวหยุด/เส้นโยงในแกะโน้ต และนำเข้า/ส่งออก MIDI; หากเน้นการฝึกต่อให้เริ่ม metronome และโหมดต่อเนื่องโดยแยกคะแนนจังหวะออกจากโหมดรอ
 3. เครื่องมือแกะโน้ตยังขาดตัวหยุด เส้นโยง beam และไฟล์ MIDI; ระบบฝึกยังขาดโหมดต่อเนื่อง metronome และ SQLite ตามแผนเดิม
 - commit `f4781ff` (เปียโน SFZ) ผ่าน CI ครบ 3 job แล้ว ตัวติดตั้งอยู่ใน CI run 40227101604

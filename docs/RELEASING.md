@@ -16,9 +16,9 @@
 1. เพิ่มเลขเวอร์ชันให้ตรงกันใน 3 ไฟล์: `package.json`, `Cargo.toml` (`[workspace.package]`) และ `src-tauri/tauri.conf.json` แล้วรัน `npm install` เพื่อให้ `package-lock.json` ตรงกัน
    เลขต้องมากกว่าเวอร์ชันล่าสุดที่ปล่อยไปแล้ว ไม่งั้นแอปจะไม่เห็นว่าเป็นของใหม่
 2. ย้ายหัวข้อ "Unreleased" ใน `CHANGELOG.md` ไปเป็นหัวข้อเวอร์ชันนั้น
-3. push แล้วรอ CI เขียวครบ 3 job
-4. เขียนสิ่งที่เปลี่ยนเป็นภาษาไทยสั้น ๆ ใน `.github/release-notes.md` (แอปแสดงข้อความนี้ก่อนอัปเดต)
-5. commit แล้ว push workflow **Release** จะรันเองเมื่อ push แก้ `package.json` หรือ `.github/release-notes.md`
+3. เขียนสิ่งที่เปลี่ยนเป็นภาษาไทยสั้น ๆ ใน `.github/release-notes.md` (แอปแสดงข้อความนี้ก่อนอัปเดต) และอัปเดต `docs/HANDOFF.md`
+4. รันการตรวจตาม `AGENTS.md` ให้ผ่าน แล้ว commit และ push
+5. workflow **Release** จะรันเองเมื่อ push แก้ `package.json` หรือ `.github/release-notes.md` และรอ **CI ของ commit เดียวกัน** เขียวครบ 3 job ก่อน build ลงนามและเผยแพร่ ถ้า CI ล้ม/ถูกยกเลิก หรือหา CI ไม่พบจะไม่เผยแพร่
    และจะสร้าง release ก็ต่อเมื่อเวอร์ชันใน `package.json` ยังไม่เคยปล่อย ถ้าเคยปล่อยแล้วจะข้ามไปเฉย ๆ
    (agent ใน cloud push แท็กไม่ได้ จึงใช้วิธีนี้แทนแท็ก ส่วนปุ่ม Run workflow ในแท็บ Actions ใช้ได้เมื่อ `release.yml` อยู่ใน branch หลักแล้ว)
 6. workflow สร้าง `vX.Y.Z` และ GitHub Release ที่มีตัวติดตั้ง `.exe`, ไฟล์ลายเซ็น `.sig` และ `latest.json`
