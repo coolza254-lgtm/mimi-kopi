@@ -3,7 +3,7 @@
 //! A dedicated thread owns the cpal stream, because streams are not `Send` on
 //! every platform. Note events reach the audio callback through a lock-free
 //! ring buffer and gains are atomics, so the callback never locks, allocates
-//! or does I/O. Changing device or SoundFont rebuilds the stream on that
+//! or does I/O. Changing device or piano sound rebuilds the stream on that
 //! thread; the old stream is dropped first so the device is released.
 
 use std::sync::{mpsc, Arc, Mutex};
@@ -12,6 +12,7 @@ use std::thread;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{FromSample, SampleFormat, SizedSample};
 use mimi_core::audio::{AudioCommand, Gains, Renderer};
+use mimi_core::sampler::{SampleBank, SamplerPiano};
 use mimi_core::synth::{BasicPiano, Instrument, SoundFont, SoundFontPiano};
 use serde::Serialize;
 
@@ -27,8 +28,9 @@ pub struct AudioStatus {
     pub device: Option<String>,
     pub sample_rate: Option<u32>,
     pub channels: Option<u16>,
-    /// "basic" (built-in tone) or "soundfont".
+    /// "basic" (built-in tone), "soundfont" (.sf2) or "sampler" (.sfz).
     pub instrument: &'static str,
+    /// File name of the loaded `.sf2` or `.sfz`.
     pub sound_font: Option<String>,
     pub error: Option<String>,
 }
@@ -53,9 +55,15 @@ impl AudioStatus {
 
 type Reply = mpsc::Sender<AudioStatus>;
 
+/// A piano sound the user chose from a file.
+pub enum Source {
+    SoundFont(Arc<SoundFont>),
+    Sampler(Arc<SampleBank>),
+}
+
 enum Control {
     Open(Option<String>, Reply),
-    SoundFont(Arc<SoundFont>, String, Reply),
+    Instrument(Source, String, Reply),
 }
 
 pub struct AudioEngine {
@@ -99,8 +107,8 @@ impl AudioEngine {
         self.request(|reply| Control::Open(device, reply))
     }
 
-    pub fn set_sound_font(&self, sound_font: Arc<SoundFont>, name: String) -> AudioStatus {
-        self.request(|reply| Control::SoundFont(sound_font, name, reply))
+    pub fn set_instrument(&self, source: Source, name: String) -> AudioStatus {
+        self.request(|reply| Control::Instrument(source, name, reply))
     }
 
     pub fn status(&self) -> AudioStatus {
@@ -135,21 +143,21 @@ fn run(
 ) {
     let mut stream: Option<cpal::Stream> = None;
     let mut device: Option<String> = None;
-    let mut sound_font: Option<(Arc<SoundFont>, String)> = None;
+    let mut source: Option<(Source, String)> = None;
     while let Ok(control) = rx.recv() {
         let reply = match control {
             Control::Open(name, reply) => {
                 device = name;
                 reply
             }
-            Control::SoundFont(font, name, reply) => {
-                sound_font = Some((font, name));
+            Control::Instrument(chosen, name, reply) => {
+                source = Some((chosen, name));
                 reply
             }
         };
         *queue.lock().unwrap() = None;
         drop(stream.take());
-        let result = open_stream(device.as_deref(), sound_font.as_ref(), &gains, &status);
+        let result = open_stream(device.as_deref(), source.as_ref(), &gains, &status);
         let new_status = match result {
             Ok((s, producer, st)) => {
                 stream = Some(s);
@@ -167,7 +175,7 @@ type Opened = (cpal::Stream, rtrb::Producer<AudioCommand>, AudioStatus);
 
 fn open_stream(
     name: Option<&str>,
-    sound_font: Option<&(Arc<SoundFont>, String)>,
+    source: Option<&(Source, String)>,
     gains: &Arc<Gains>,
     status: &Arc<Mutex<AudioStatus>>,
 ) -> Result<Opened, AudioStatus> {
@@ -193,18 +201,25 @@ fn open_stream(
     st.sample_rate = Some(config.sample_rate);
     st.channels = Some(config.channels);
 
-    let instrument: Box<dyn Instrument> = match sound_font {
-        Some((font, font_name)) => match SoundFontPiano::new(font, config.sample_rate) {
-            Ok(piano) => {
-                st.instrument = "soundfont";
-                st.sound_font = Some(font_name.clone());
-                Box::new(piano)
+    let instrument: Box<dyn Instrument> = match source {
+        Some((Source::Sampler(bank), file_name)) => {
+            st.instrument = "sampler";
+            st.sound_font = Some(file_name.clone());
+            Box::new(SamplerPiano::new(bank, config.sample_rate))
+        }
+        Some((Source::SoundFont(font), font_name)) => {
+            match SoundFontPiano::new(font, config.sample_rate) {
+                Ok(piano) => {
+                    st.instrument = "soundfont";
+                    st.sound_font = Some(font_name.clone());
+                    Box::new(piano)
+                }
+                Err(e) => {
+                    st.error = Some(format!("SoundFont could not be used: {e}"));
+                    Box::new(BasicPiano::new(config.sample_rate))
+                }
             }
-            Err(e) => {
-                st.error = Some(format!("SoundFont could not be used: {e}"));
-                Box::new(BasicPiano::new(config.sample_rate))
-            }
-        },
+        }
         None => Box::new(BasicPiano::new(config.sample_rate)),
     };
 

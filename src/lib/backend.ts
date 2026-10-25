@@ -29,7 +29,7 @@ export interface AudioStatus {
   device: string | null;
   sampleRate: number | null;
   channels: number | null;
-  instrument: "basic" | "soundfont";
+  instrument: "basic" | "soundfont" | "sampler";
   soundFont: string | null;
   error: string | null;
 }

@@ -9,11 +9,12 @@ use std::thread;
 use std::time::Duration;
 
 use mimi_core::audio::{AudioCommand, Channel};
+use mimi_core::sampler::{load_sfz, LoadOptions};
 use mimi_core::synth::load_sound_font;
 use serde::Serialize;
 use tauri::{Manager, State};
 
-use audio::{AudioEngine, AudioStatus};
+use audio::{AudioEngine, AudioStatus, Source};
 use midi_io::{MidiService, MidiStatus};
 
 struct AppState {
@@ -96,20 +97,37 @@ fn audio_set_gain(state: State<'_, AppState>, channel: String, value: f32) -> Re
     Ok(())
 }
 
-/// Loads a user-chosen `.sf2`. Nothing is bundled: SoundFont licences vary
+/// Loads a user-chosen `.sf2` SoundFont or `.sfz` sampled instrument, such
+/// as the Salamander Grand Piano. Nothing is bundled: licences vary
 /// (spec §2.2), so the user picks one they are allowed to use.
 #[tauri::command]
 async fn audio_load_soundfont(
     state: State<'_, AppState>,
     path: String,
 ) -> Result<AudioStatus, String> {
-    let file = File::open(&path).map_err(|e| e.to_string())?;
-    let font = load_sound_font(&mut BufReader::new(file))?;
+    let file_path = Path::new(&path).to_path_buf();
+    let is_sfz = file_path
+        .extension()
+        .is_some_and(|e| e.eq_ignore_ascii_case("sfz"));
+    // Decoding a large sample library takes seconds; keep it off the async runtime.
+    let source = tauri::async_runtime::spawn_blocking(move || -> Result<Source, String> {
+        if is_sfz {
+            let bank = load_sfz(&file_path, LoadOptions::default())?;
+            Ok(Source::Sampler(Arc::new(bank)))
+        } else {
+            let file = File::open(&file_path).map_err(|e| e.to_string())?;
+            Ok(Source::SoundFont(load_sound_font(&mut BufReader::new(
+                file,
+            ))?))
+        }
+    })
+    .await
+    .map_err(|e| e.to_string())??;
     let name = Path::new(&path)
         .file_name()
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or(path);
-    Ok(state.audio.set_sound_font(font, name))
+    Ok(state.audio.set_instrument(source, name))
 }
 
 /// Plays a short C major chord on the current output.

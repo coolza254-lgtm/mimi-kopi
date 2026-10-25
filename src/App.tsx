@@ -20,7 +20,7 @@ const navItems: { key: MessageKey; page?: Page }[] = [
   { key: "navSettings" },
 ];
 
-/** Reopens the remembered output device and SoundFont. A device that is not
+/** Reopens the remembered output device and piano sound (.sf2 or .sfz). A device that is not
  * plugged in falls back to the Windows default so the app is never silent. */
 async function restoreAudio() {
   const prefs = loadAudioPrefs();
@@ -31,7 +31,7 @@ async function restoreAudio() {
     }
     if (prefs.soundFontPath) {
       const status = await backend.audioLoadSoundFont(prefs.soundFontPath).catch(() => null);
-      if (status?.instrument !== "soundfont") saveAudioPrefs({ soundFontPath: null });
+      if (!status || status.instrument === "basic") saveAudioPrefs({ soundFontPath: null });
     }
   } catch {
     // The Sound & MIDI page shows the current status and any error.

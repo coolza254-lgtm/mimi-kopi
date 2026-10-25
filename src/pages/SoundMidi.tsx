@@ -48,6 +48,7 @@ export default function SoundMidi({ t }: Props) {
   const [audio, setAudio] = useState<AudioStatus | null>(null);
   const [gains, setGains] = useState<Record<"master" | "piano", number>>({ master: 80, piano: 80 });
   const [error, setError] = useState<string | null>(null);
+  const [loadingSound, setLoadingSound] = useState(false);
   // Keys held with the mouse, so they can be released if the window loses focus.
   const screenHeld = useRef(new Set<number>());
 
@@ -113,12 +114,17 @@ export default function SoundMidi({ t }: Props) {
   };
 
   const chooseSoundFont = async () => {
-    const path = await run(() => open({ multiple: false, directory: false, filters: [{ name: "SoundFont", extensions: ["sf2"] }] }));
+    const path = await run(() =>
+      open({ multiple: false, directory: false, filters: [{ name: "SoundFont / SFZ", extensions: ["sf2", "sfz"] }] }),
+    );
     if (typeof path !== "string") return;
+    // A sampled piano such as Salamander takes several seconds to decode.
+    setLoadingSound(true);
     const status = await run(() => backend.audioLoadSoundFont(path));
+    setLoadingSound(false);
     if (!status) return;
     setAudio(status);
-    if (status.instrument === "soundfont") saveAudioPrefs({ soundFontPath: path });
+    if (status.instrument !== "basic") saveAudioPrefs({ soundFontPath: path });
   };
 
   const applyOutput = async () => {
@@ -235,15 +241,16 @@ export default function SoundMidi({ t }: Props) {
             <dt>{t("channels")}</dt>
             <dd>{audio?.channels ?? "—"}</dd>
             <dt>{t("instrument")}</dt>
-            <dd>{audio?.instrument === "soundfont" ? audio.soundFont : t("instrumentBasic")}</dd>
+            <dd>{loadingSound ? t("soundLoading") : audio && audio.instrument !== "basic" ? audio.soundFont : t("instrumentBasic")}</dd>
             <dt>{t("latency")}</dt>
             <dd>{t("latencyNotMeasured")}</dd>
           </dl>
           {audio?.error && <p className="muted small">{audio.error}</p>}
-          <button type="button" className="btn" disabled={!desktop} onClick={() => void chooseSoundFont()}>
+          <button type="button" className="btn" disabled={!desktop || loadingSound} onClick={() => void chooseSoundFont()}>
             {t("soundFontChoose")}
           </button>
           <p className="muted small">{t("soundFontHint")}</p>
+          <p className="muted small">{t("soundSalamanderHint")}</p>
         </section>
 
         <section className="card" aria-labelledby="volume">

@@ -12,12 +12,24 @@
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) เฟสและเกณฑ์ผ่านของแต่ละเฟส
 - [`docs/decisions/`](docs/decisions/) บันทึกการตัดสินใจเชิงสถาปัตยกรรม (ADR)
 - [`CHANGELOG.md`](CHANGELOG.md) บันทึกการเปลี่ยนแปลง
+- [`AGENTS.md`](AGENTS.md) และ [`docs/HANDOFF.md`](docs/HANDOFF.md) กฎสำหรับ AI agent และสถานะงานล่าสุดที่ส่งต่อกัน
 
 ## ข้อจำกัดสำคัญ
 
 - ความสามารถของ Badger C-918 (velocity, sustain CC64, ชื่อ MIDI device) **ยังไม่ได้ยืนยัน** จนกว่าจะทดสอบกับเครื่องจริง
 - เพลงเป้าหมายไม่ได้รวมมาในแอป ผู้ใช้ต้องนำเข้าไฟล์ที่มีสิทธิ์ใช้เอง
 - ไม่มีบัญชีผู้ใช้ ไม่มี telemetry และไม่มีการส่งข้อมูลการฝึกออกไปภายนอก
+
+## เสียงเปียโน
+
+แอปไม่แถมไฟล์เสียงเปียโน ถ้ายังไม่เลือกจะใช้เสียงพื้นฐานในตัว เปียโนฟรีที่แนะนำคือ
+**Salamander Grand Piano V3** โดย Alexander Holm (ใบอนุญาต [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/))
+
+1. ดาวน์โหลดจาก <https://github.com/sfzinstruments/SalamanderGrandPiano> (ปุ่ม Code → Download ZIP) แล้วแตกไฟล์
+2. ในแอป ไปที่ **เสียงและ MIDI** → **เลือกเสียงเปียโน** แล้วเลือกไฟล์ `Salamander Grand Piano V3.sfz` (ต้องอยู่คู่กับโฟลเดอร์ `Samples` และ `Data`)
+3. รอโหลดไม่กี่วินาที ใช้หน่วยความจำประมาณ 400–500 MB แอปจะจำไฟล์ไว้เปิดให้เองครั้งต่อไป
+
+ใช้ไฟล์ SoundFont (.sf2) หรือ SFZ อื่นที่ใช้ sample แบบ FLAC/WAV ได้ด้วย
 
 ## การพัฒนา
 

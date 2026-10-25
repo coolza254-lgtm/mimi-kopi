@@ -1,69 +1,55 @@
 # Handoff
 
-สมุดส่งต่องานระหว่าง agent ที่ทำงานในรีโปนี้ (เขียนทับส่วน "สถานะล่าสุด" ทุกครั้งที่จบรอบ) กฎทั่วไปดูที่ [`AGENTS.md`](../AGENTS.md)
+สมุดส่งต่องานระหว่าง agent ที่ทำงานในรีโปนี้ (Claude Code, Codex หรือตัวอื่น) กฎทั่วไปดูที่ [`AGENTS.md`](../AGENTS.md)
+
+**เจ้าของขอให้ทำแบบนี้ทุกครั้ง:** ทำงานเสร็จแต่ละชิ้นให้อัปเดตไฟล์นี้ทันที (ไม่ต้องรอจบรอบ) โดยเขียนทับหัวข้อ "สถานะล่าสุด" และ "งานต่อไป"
+แล้ว commit พร้อมโค้ด agent ตัวถัดไปจะได้ทำต่อได้ทันทีแม้โควตาของตัวก่อนหมดกลางคัน
 
 ## สถานะล่าสุด (2026-10-25)
 
 - branch: `claude/new-session-1jl58s` ยังไม่ได้ merge เข้า `main`
-- commit ล่าสุดที่ผ่าน CI ทั้ง 3 job (web, core, windows): `13504d4` "remember the chosen audio output and SoundFont"
+- commit ล่าสุดที่ผ่าน CI ครบ 3 job คือ `13504d4` ส่วน commit ที่ตามมา (handoff และเปียโน SFZ) ให้ดูผล CI ล่าสุดใน GitHub Actions ก่อนเริ่มงาน
 - เจ้าของทดสอบบนเครื่องจริงแล้ว: Windows เห็นเปียโนชื่อ "Digital Piano", note on/off, velocity และ polyphony ใช้ได้ ยังไม่ได้ทดสอบ sustain pedal
   เสียงออกทางหูฟัง Bluetooth (latency สูง แนะนำให้ใช้แบบมีสาย)
-- **ปัญหาที่เจ้าของแจ้ง:** ไม่ชอบเสียงเปียโนพื้นฐานในตัว (`BasicPiano`) อยากได้เสียงเปียโนจริงที่ฟรี
-- **เจ้าของเลือกแล้ว:** ใช้ Salamander Grand Piano V3 ฉบับ SFZ ต้นฉบับ ให้แอปเปิดไฟล์ `.sfz` ได้โดยตรง ← **งานที่ต้องทำต่อ** (ดูหัวข้อถัดไป)
+- เจ้าของพอใจกับแอปตอนนี้ ขอให้**ทำให้ใช้ฝึกช่วงแรกได้ดีจริงก่อน** แล้วค่อยอัปเดตเพิ่มทีละน้อย
 
-## งานต่อไป: เปิดเปียโน SFZ (Salamander Grand Piano V3)
+### เพิ่งทำเสร็จ: เปียโนเสียงจริงจากไฟล์ SFZ
 
-ยังไม่ได้เขียนโค้ดส่วนนี้เลย มีแค่ผลสำรวจไฟล์ด้านล่าง
+เจ้าของไม่ชอบเสียงพื้นฐานในตัว เลยเลือกใช้ Salamander Grand Piano V3 (Alexander Holm, CC BY 3.0) ฉบับ SFZ + FLAC
+ที่ผู้ใช้ดาวน์โหลดเองจาก <https://github.com/sfzinstruments/SalamanderGrandPiano> (ปุ่ม Code → Download ZIP) **ห้าม commit sample ลงรีโป**
 
-### ข้อมูลของ Salamander ที่ตรวจแล้ว
+- `crates/mimi-core/src/sfz.rs`: parser รองรับ `#define`, `#include` กลางบรรทัด, การสืบทอด header, keyswitch (ใช้เฉพาะ `sw_default`),
+  เงื่อนไข CC (ตัดสินจาก `set_cc`/`set_hdcc` ใน `<control>`), `_onccN` ของ `ampeg_release` และ `amp_veltrack`, round robin เก็บแค่ตัวแรก, ข้าม region ที่ CC เป็นตัวสั่งเล่น (เสียงเหยียบ pedal)
+  และ `thin_velocity_layers` ลดเหลือ 8 layer ต่อช่วงคีย์ (Salamander มี 16)
+- `crates/mimi-core/src/sampler.rs`: `load_sfz` ถอด FLAC (claxon) และ WAV (hound) แบบขนาน ตัดแต่ละ sample ไม่เกิน 10 วินาทีแล้ว fade out เก็บเป็น i16 stereo
+  `SamplerPiano` (implement `Instrument`) เล่นแบบเลื่อน pitch, velocity curve, release envelope, sustain, เสียงตอนปล่อยคีย์ (`trigger=release` + `rt_decay`), กดคีย์เดิมซ้ำจะ fade เสียงเก่า, 64 voice
+- ตรวจกับไฟล์ Salamander จริงแล้ว: parse ได้ 480 → 240 region เสียงโน้ต + 157 region เสียงตอนปล่อย ถอด FLAC 24-bit ได้ถูกต้อง
+  คาดว่าใช้ RAM ประมาณ 400–500 MB (ยังไม่ได้วัดกับชุดเต็มบน Windows)
+- ตัวช่วยตรวจไฟล์: `cargo run -p mimi-core --example sfz_info -- "<file.sfz>"` และ `cargo run --release -p mimi-core --example sfz_load -- "<file.sfz>"`
+- `src-tauri`: คำสั่ง `audio_load_soundfont` รับทั้ง `.sf2` และ `.sfz` (เลือกตามนามสกุล, โหลดใน `spawn_blocking`) `AudioStatus.instrument` มีค่าใหม่ `"sampler"`
+- UI หน้า **เสียงและ MIDI**: เลือกไฟล์ .sf2/.sfz ได้, แสดง "กำลังโหลดเสียงเปียโน…", มีคำแนะนำ Salamander พร้อมเครดิต แอปจำไฟล์แล้วโหลดคืนตอนเปิดแอป
 
-- ที่มา: <https://github.com/sfzinstruments/SalamanderGrandPiano> (Alexander Holm, license **CC BY 3.0**) ต้องใส่เครดิตในแอปและเอกสาร
-  **ห้าม commit sample ลงรีโป** ให้ผู้ใช้ดาวน์โหลดเองแล้วเลือกไฟล์ `Salamander Grand Piano V3.sfz`
-- sample เป็น FLAC 24-bit stereo 48 kHz อยู่ในโฟลเดอร์ `Samples/` (`default_path=Samples/`)
-  ตัวอย่างขนาด: `A0v16.flac` ยาว 1,241,406 frame (~26 วินาที), `C4v8.flac` 776,976 frame, `C8v1.flac` 148,834 frame, `rel40.flac` 21,900 frame
-- ชื่อไฟล์: `{A0,C1,D#1,F#1,A1,…,C8}v{1..16}.flac` (30 โน้ต × 16 ระดับ velocity), `rel{1..88}.flac` (เสียงค้อนตอนปล่อย), `harm{L,S,V3}{note}.flac` (เสียงสายก้อง), `pedal{D,U}{1,2}.flac`
-- โครงไฟล์ SFZ (v2 + ARIA extensions):
-  - ไฟล์หลักใช้ `#define $NAME value` แล้วแทนค่า `$NAME` ในบรรทัดอื่น และใช้ `#include "Data/xxx.txt"` (path อิงจากโฟลเดอร์ของไฟล์ .sfz)
-  - `#include` อาจอยู่กลางบรรทัด เช่น `<group> #include "Data/vel_01.txt" lovel=1 hivel=26 #include "Data/region.txt"`
-  - header ที่ใช้: `<control>`, `<global>`, `<master>`, `<group>`, `<region>` ค่าที่ตั้งในระดับบนสืบทอดลงไปถึง region
-  - มี `<master>` 2 ชุด แยกด้วย keyswitch (`sw_last=C0` = Natural, `sw_last=C#0` = Retuned) และ `sw_default=C0` **ให้ใช้เฉพาะชุด Natural** (`sw_last` ตรงกับ `sw_default`)
-  - region ของโน้ต: `lokey/hikey/pitch_keycenter`, `tune=` (cent), `lovel/hivel` จาก group, `ampeg_release=` (บางโน้ต), `offset_oncc98=` (ข้ามได้)
-  - `hammer.txt`, `str_res.txt` ใช้ `trigger=release` และ `rt_decay=` (dB ต่อวินาทีที่กดค้างไว้), `volume=` (dB), `amp_veltrack=`
-  - `pedal.txt` ใช้ `lokey=-1` และเงื่อนไข CC (`on_locc64` ฯลฯ) ข้ามได้ในรุ่นแรก
-  - region ที่มีเงื่อนไข `locc/hicc` ที่ไม่ตรงกับค่าเริ่มต้น หรือมี `lorand/hirand` ให้ข้ามหรือเลือกตัวแรกไปก่อน
-  - ค่าใน `<global>`: `amp_veltrack_oncc99=-100`, `set_hdcc99=0.73` (คือ veltrack ประมาณ 27%), `ampeg_release_oncc72=2` กับ `set_hdcc72=0.5` (release ประมาณ 1 วินาที), `note_polyphony=1`
-    ไม่ต้องรองรับ CC ทั้งหมด ใช้ค่าเริ่มต้นที่คำนวณไว้ก็พอ
+**ยังต้องให้เจ้าของทดสอบบนเครื่องจริง:** โหลด Salamander แล้วเสียงไม่แตก ไม่กระตุก, เวลาโหลด, RAM ที่ใช้ (ดู `docs/MIDI_AUDIO_TEST_PLAN.md`)
+ถ้าเสียงดังหรือเบาเกินไป ปรับค่า `LEVEL` ใน `sampler.rs` ถ้า RAM มากไป ลด `LoadOptions::default()` (`max_seconds` หรือ `max_velocity_layers`)
 
-### ปัญหาหน่วยความจำ (ต้องตัดสินใจในโค้ด)
+## งานต่อไป: เครื่องมือแกะโน้ตแบบง่าย (เจ้าของขอเป็นโหมดแรกนอกจากการฝึก)
 
-ถ้าถอด sample ทั้งหมดเป็น f32 stereo จะใช้หลาย GB ข้อเสนอ:
+คำขอของเจ้าของ (2026-10-25): เครื่องมือสร้างโน้ตแบบง่าย **คลิกวางตัวโน้ตบนบรรทัด 5 เส้นได้เลย และลากย้ายได้อย่างอิสระ**
+เจ้าของจะดูโน้ตที่คนแจกใน YouTube แล้วกรอกเองทีละตัว เพื่อเก็บไว้ฝึกเวลาว่างหรือฝึกเฉพาะท่อนที่อยากเล่น **ใช้ส่วนตัว ไม่แชร์ต่อ**
+ตัวอย่างโน้ตที่จะกรอก: เปียโน 2 บรรทัด (กุญแจซอลมือขวา + กุญแจฟามือซ้าย), 4/4, มีเครื่องหมายแปลงเสียงประจำกุญแจ (เช่น F#), โน้ตเขบ็ต 1 ชั้น, โน้ตประจุด, เส้นโยง (tie), ตัวหยุด, คอร์ดหลายเสียง และเส้นน้อยเหนือบรรทัด
 
-- เก็บเป็น `i16` interleaved stereo (ลดจาก 24 bit ได้ ฟังไม่ต่าง)
-- ตัดความยาวแต่ละ sample ไม่เกินประมาณ 10–12 วินาที แล้ว fade out ช่วงท้าย
-- เลือกใช้ velocity layer บางส่วน (เช่น 8 จาก 16) แล้วขยายช่วง `lovel/hivel` ของ layer ที่เก็บไว้ให้ครอบช่วงที่ตัดทิ้ง
-- ถอดไฟล์ FLAC ซ้ำกันแค่ครั้งเดียว (cache ตาม path) ทำในเธรดโหลด ไม่ใช่ใน audio callback
-- แสดงความคืบหน้าหรือสถานะ "กำลังโหลด" ใน UI เพราะอาจใช้เวลาหลายวินาที
+ข้อเสนอสำหรับรุ่นแรก (ทำทีละชิ้น เล็กและทดสอบได้):
 
-### แผนการเขียนโค้ด
+1. โมเดลข้อมูลใน TypeScript (`src/features/score/`): เพลง = คีย์, จังหวะ, ห้อง[], แต่ละห้องมี 2 มือ, แต่ละตัวโน้ตมี pitch (MIDI), จุดเริ่ม (tick), ความยาว, tie
+   เขียน unit test: แปลงตำแหน่งบนบรรทัด ↔ pitch ตามกุญแจและเครื่องหมายประจำกุญแจ, ความยาวห้องไม่เกิน, การ snap ตามความยาวที่เลือก
+2. หน้าแก้ไขแบบ SVG: แถบเครื่องมือเลือกความยาว (1, 1/2, 1/4, 1/8, 1/16, จุด, ตัวหยุด), ♯ ♭ ♮, คลิกบนบรรทัดเพื่อวาง, ลากขึ้นลงเพื่อเปลี่ยน pitch และลากซ้ายขวาเพื่อเลื่อนจังหวะ, ลบด้วยปุ่ม Delete หรือคลิกขวา, Undo/Redo
+   กดคีย์บนเปียโน MIDI เพื่อใส่โน้ตได้ด้วยจะเร็วกว่าคลิก (ใช้ `onMidiEvent` เดิม)
+3. เล่นฟังผ่าน `SamplerPiano`/เสียงเดิม (ส่ง note on/off ตามเวลา) และวนเฉพาะช่วงห้องที่เลือก
+4. บันทึกเป็นไฟล์ในเครื่องของผู้ใช้ (JSON ของแอป และส่งออก MIDI ได้) ห้ามบันทึกเพลงของผู้ใช้ลงรีโป
+5. ใช้เพลงที่กรอกเป็นบทฝึกในโหมดรอ (`src/features/lessons/waitMode.ts`) แยกมือซ้าย/ขวา/สองมือ
 
-1. `crates/mimi-core/src/sfz.rs`: parser ที่รับข้อความและฟังก์ชันอ่านไฟล์ include (ส่งเป็น closure เพื่อให้เทสต์ได้โดยไม่ต้องมีไฟล์จริง)
-   คืนค่าเป็นรายการ region ที่รวมค่าที่สืบทอดมาแล้ว (sample path, key range, keycenter, vel range, tune, volume, amp_veltrack, trigger, rt_decay, ampeg_release)
-   เขียนเทสต์ด้วยข้อความ SFZ สังเคราะห์: define, include กลางบรรทัด, การสืบทอด, keyswitch, ชื่อโน้ตแบบ `C#0` และตัวเลข
-2. `crates/mimi-core/src/sampler.rs`: `SamplerPiano` ที่ implement trait `Instrument` ใน `synth.rs`
-   voice เล่น sample แบบเลื่อน pitch (linear interpolation, อัตรา `2^((key-keycenter)*100+tune)/1200 * sample_rate/output_rate`), velocity curve, release envelope, sustain (CC64),
-   region `trigger=release` เล่นตอนปล่อยคีย์ (ความดังลดตาม `rt_decay` × เวลาที่กดค้าง), จำกัดจำนวน voice และ steal ตัวที่เบาที่สุด
-   ห้าม allocate ใน `render` (จองบัฟเฟอร์ voice ไว้ล่วงหน้า, sample เก็บใน `Arc`)
-3. ถอด FLAC: แนะนำ crate `claxon` (pure Rust) ใส่ไว้ใน `mimi-core` หรือ `src-tauri` ตามความเหมาะสม
-4. `src-tauri/src/audio.rs` + `lib.rs`: คำสั่งใหม่ `audio_load_sfz(path)` (async) ที่โหลดในเธรดแยกแล้วส่ง instrument ไปที่เธรด `audio-control` แบบเดียวกับ `set_sound_font`
-   เพิ่ม `instrument: "sfz"` ใน `AudioStatus` และ filter `.sfz` ใน dialog ของหน้า **เสียงและ MIDI** (`src/pages/SoundMidi.tsx`)
-5. `src/lib/audioPrefs.ts`: จำ path ของ `.sfz` และโหลดคืนตอนเปิดแอปใน `restoreAudio()` (`src/App.tsx`) เหมือน SoundFont
-6. ข้อความ UI 3 ภาษา, เครดิต "Salamander Grand Piano V3 โดย Alexander Holm (CC BY 3.0)" และวิธีดาวน์โหลดใน README
-7. อัปเดต CHANGELOG, test plan (เพิ่มข้อทดสอบมือ: โหลด Salamander แล้วเสียงไม่แตก, ใช้ RAM เท่าไร) แล้ว push และดู CI ให้เขียวทั้ง 3 job
-
-## ลำดับความสำคัญจากเจ้าของ
-
-เจ้าของพอใจกับแอปตอนนี้แล้ว ขอให้**ทำให้ใช้ฝึกช่วงแรกได้ดีจริงก่อน** แล้วค่อยอัปเดตเพิ่มทีละน้อย
-งานที่ทำให้การฝึกพื้นฐานดีขึ้น (เสียงเปียโน, บทเรียน, บันทึกผล) จึงมาก่อนฟีเจอร์ใหญ่อย่าง Song Studio หรือ Ear Copy
+ก่อนหน้านี้เคยออกแบบหน้าตาไว้ใน Artifact (หน้า "เครื่องมือช่วยแกะ", โหมดโน้ตตก และหน้าอื่นที่ 1920×1080) ถ้าเจ้าของส่งภาพแบบเข้ามาในรีโป ให้ยึดตามนั้น
+ห้ามลอกหน้าตาของแอปอื่น (MuseScore, Synthesia ฯลฯ)
 
 ## งานที่ยังไม่เริ่ม (เรียงตามสเปก)
 

@@ -4,4 +4,6 @@
 pub mod audio;
 pub mod capability;
 pub mod midi;
+pub mod sampler;
+pub mod sfz;
 pub mod synth;
