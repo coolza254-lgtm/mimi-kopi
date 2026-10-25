@@ -3,18 +3,23 @@ import { isBlackKey, noteName, PIANO_HIGH, PIANO_LOW } from "../features/midi/no
 
 interface Props {
   held: readonly number[];
+  /** Keys the player should press next, drawn with an outline. */
+  targets?: readonly number[];
   onPress: (pitch: number) => void;
   onRelease: (pitch: number) => void;
   low?: number;
   high?: number;
 }
 
-export default function PianoKeyboard({ held, onPress, onRelease, low = PIANO_LOW, high = PIANO_HIGH }: Props) {
+export default function PianoKeyboard({ held, targets = [], onPress, onRelease, low = PIANO_LOW, high = PIANO_HIGH }: Props) {
   const down = useRef(new Set<number>());
   const pitches = Array.from({ length: high - low + 1 }, (_, i) => low + i);
   const whites = pitches.filter((p) => !isBlackKey(p));
   const whiteWidth = 100 / whites.length;
   const heldSet = new Set(held);
+  const targetSet = new Set(targets);
+  const classes = (base: string, p: number) =>
+    `${base}${heldSet.has(p) ? " on" : ""}${targetSet.has(p) ? " target" : ""}`;
 
   const press = (p: number) => {
     if (down.current.has(p)) return;
@@ -57,11 +62,11 @@ export default function PianoKeyboard({ held, onPress, onRelease, low = PIANO_LO
           return (
             <button
               key={p}
-              className={`white-key${heldSet.has(p) ? " on" : ""}`}
+              className={classes("white-key", p)}
               style={{ left: `${whiteIndex * whiteWidth}%`, width: `${whiteWidth}%` }}
               {...keyProps(p)}
             >
-              {p % 12 === 0 ? noteName(p) : ""}
+              {p % 12 === 0 || targetSet.has(p) ? noteName(p) : ""}
             </button>
           );
         }
@@ -69,7 +74,7 @@ export default function PianoKeyboard({ held, onPress, onRelease, low = PIANO_LO
         return (
           <button
             key={p}
-            className={`black-key${heldSet.has(p) ? " on" : ""}`}
+            className={classes("black-key", p)}
             style={{ left: `${(whiteIndex + 1) * whiteWidth - width / 2}%`, width: `${width}%` }}
             {...keyProps(p)}
           />

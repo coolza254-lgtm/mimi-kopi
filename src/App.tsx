@@ -3,14 +3,15 @@ import brandMark from "./assets/brand-mark.png";
 import { localeNames, locales, type Locale, type MessageKey } from "./i18n/messages";
 import { backend, inDesktopApp, type AppInfo } from "./lib/backend";
 import { loadSettings, saveSettings, type Settings, type Theme } from "./lib/settings";
+import Practice from "./pages/Practice";
 import SoundMidi from "./pages/SoundMidi";
 import Today from "./pages/Today";
 
-type Page = "today" | "sound";
+type Page = "today" | "practice" | "sound";
 
 const navItems: { key: MessageKey; page?: Page }[] = [
   { key: "navToday", page: "today" },
-  { key: "navPractice" },
+  { key: "navPractice", page: "practice" },
   { key: "navSongs" },
   { key: "navEarCopy" },
   { key: "navProgress" },
@@ -79,7 +80,15 @@ export default function App() {
           </label>
         </div>
       </aside>
-      <main className="main">{page === "sound" ? <SoundMidi t={t} /> : <Today t={t} info={info} />}</main>
+      <main className="main">
+        {page === "sound" ? (
+          <SoundMidi t={t} />
+        ) : page === "practice" ? (
+          <Practice t={t} locale={settings.locale} />
+        ) : (
+          <Today t={t} info={info} />
+        )}
+      </main>
     </div>
   );
 }

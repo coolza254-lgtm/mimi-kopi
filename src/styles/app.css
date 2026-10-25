@@ -355,3 +355,45 @@ th {
 .black-key.on {
   background: #c94a7e;
 }
+
+.white-key.target {
+  box-shadow: inset 0 0 0 3px var(--blue);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.black-key.target {
+  box-shadow: inset 0 0 0 3px var(--blue);
+}
+
+.white-key.on.target,
+.black-key.on.target {
+  box-shadow: inset 0 0 0 3px var(--text);
+}
+
+.meter {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.meter i {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+}
+
+.target-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 18px;
+}
+
+.badge.wrong {
+  border-color: var(--pink);
+  background: var(--pink-soft);
+  font-size: 13px;
+}
