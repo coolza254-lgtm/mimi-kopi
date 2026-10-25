@@ -1,0 +1,19 @@
+[package]
+name = "mimi-kopi"
+description = "耳コピー (Mimi Kopi) desktop piano practice app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+name = "mimi_kopi_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7", features = [] }
+
+[dependencies]
+mimi-core = { path = "../crates/mimi-core" }
+tauri = { version = "2.12", features = [] }
+serde = { version = "1", features = ["derive"] }

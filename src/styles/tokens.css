@@ -1,0 +1,41 @@
+/* Design tokens from spec §12.2 (provisional). Pink is a fill and indicator
+   colour only: as text on white it fails WCAG contrast. */
+:root {
+  --bg: #f9faff;
+  --surface: #ffffff;
+  --text: #25324d;
+  --muted: #55607a;
+  --line: #e3e8f5;
+  --pink: #f47fa8;
+  --blue: #8bb9fa;
+  --violet: #aaa1e8;
+  --pink-soft: #fce4ee;
+  --blue-soft: #e3effd;
+  --violet-soft: #ece9fb;
+  --on-pink: #25324d;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+
+  --font-sans: "Noto Sans Thai", "Noto Sans JP", "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="dark"] {
+  --bg: #151b2b;
+  --surface: #20283a;
+  --text: #eaf0ff;
+  --muted: #a9b4cf;
+  --line: #323c55;
+  --pink: #f18db5;
+  --blue: #83aefa;
+  --violet: #b3a7f2;
+  --pink-soft: #3a2a3a;
+  --blue-soft: #243450;
+  --violet-soft: #2e2a4a;
+}

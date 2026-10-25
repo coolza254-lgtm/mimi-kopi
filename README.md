@@ -19,7 +19,18 @@
 
 ## การพัฒนา
 
-ยังไม่มีคำสั่งพัฒนาในรีโปนี้ จะเพิ่มเมื่อโครงโปรเจกต์ Tauri 2 + React + TypeScript + Rust พร้อม
+ต้องมี Node.js 22, Rust (stable) และสำหรับ Windows ต้องมี Microsoft C++ Build Tools กับ WebView2 Runtime โครงสร้างโค้ดอธิบายไว้ใน [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+
+```sh
+npm install
+npm run tauri dev        # เปิดแอปแบบพัฒนา
+npm run typecheck        # ตรวจ TypeScript
+npm test                 # unit test ฝั่ง UI
+cargo test -p mimi-core  # unit test ตรรกะ MIDI
+npm run tauri build      # สร้างตัวติดตั้ง Windows (NSIS)
+```
+
+ไม่มีคอมก็ได้: ทุกครั้งที่ push ไปที่ GitHub, CI จะรันการตรวจทั้งหมดและสร้างตัวติดตั้ง Windows ให้ดาวน์โหลดจากหน้า Actions (artifact ชื่อ `mimi-kopi-windows-installer`)
 
 ## ลิขสิทธิ์
 

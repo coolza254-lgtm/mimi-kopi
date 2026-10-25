@@ -1,0 +1,9 @@
+[package]
+name = "mimi-core"
+description = "Platform-independent MIDI, practice and scoring logic for Mimi Kopi"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
