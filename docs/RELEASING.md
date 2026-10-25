@@ -23,6 +23,7 @@
    (agent ใน cloud push แท็กไม่ได้ จึงใช้วิธีนี้แทนแท็ก ส่วนปุ่ม Run workflow ในแท็บ Actions ใช้ได้เมื่อ `release.yml` อยู่ใน branch หลักแล้ว)
 6. workflow สร้าง `vX.Y.Z` และ GitHub Release ที่มีตัวติดตั้ง `.exe`, ไฟล์ลายเซ็น `.sig` และ `latest.json`
    แอปที่ติดตั้งไว้จะเห็นเวอร์ชันใหม่ตอนเปิดครั้งถัดไป หรือเมื่อกด **ตั้งค่า → ตรวจหาอัปเดต**
+7. ก่อนแจ้งว่าอัปเดตในแอปพร้อมแล้ว ให้ตรวจ CI และ Release สำเร็จ ตรวจ URL `releases/latest/download/latest.json` ว่าส่งเลขเวอร์ชันใหม่และ Windows URL ถูกต้อง มี `.exe`/`.sig` ครบ ลายเซ็นใน manifest ตรงกับ `.sig` และตรวจลายเซ็นตัวติดตั้งกับ public key ของแอปเดิมได้ แล้วบันทึกผลใน `docs/HANDOFF.md`
 
 ## หมายเหตุ
 
