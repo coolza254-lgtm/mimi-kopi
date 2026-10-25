@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตั้งค่า · Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:28px 32px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:12px}
+.h1{margin:0;font-size:26px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:15px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg span{padding:5px 14px;border-radius:999px;font-size:13px}
+.seg .on{background:var(--blue-soft);font-weight:600;box-shadow:inset 0 0 0 1px var(--blue)}
+.field{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:0}
+.field small{display:block;color:var(--muted);font-size:12px}
+.toggle{width:44px;height:24px;border-radius:999px;background:var(--line);position:relative}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff}
+.toggle.on{background:var(--pink)}
+.toggle.on::after{left:23px}
+.slider{display:flex;align-items:center;gap:10px}
+.slider input{width:180px;accent-color:var(--pink)}
+.keys{width:100%;border-collapse:collapse;font-size:13px}
+.keys td{padding:7px 0;border-bottom:1px solid var(--line)}
+.keys td:last-child{text-align:right}
+kbd{font-family:inherit;font-size:12px;padding:2px 7px;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;background:var(--bg)}
+@media (max-width:1000px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}.grid2{grid-template-columns:minmax(0,1fr)}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav" href="#">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+<a class="nav on" href="#" aria-current="page">ตั้งค่า <small>Settings</small></a>
+</nav>
+<div class="foot"><div>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div><div>เวอร์ชัน 0.1 · ออฟไลน์</div></div>
+</aside>
+<main class="main">
+<header class="row between">
+<div><h1 class="h1">ตั้งค่า</h1><div class="muted">การตั้งค่าทั้งหมดเก็บไว้ในเครื่องนี้ ไม่มีบัญชีหรือการส่งข้อมูลออก</div></div>
+<span class="tag">ตัวอย่างการออกแบบ</span>
+</header>
+<div class="grid2">
+<section class="card" aria-labelledby="lang">
+<h2 id="lang" class="h2">ภาษา</h2>
+<div class="seg" role="radiogroup" aria-label="ภาษา"><span class="on" role="radio" aria-checked="true">ไทย</span><span role="radio" aria-checked="false">English</span><span role="radio" aria-checked="false">日本語</span></div>
+<p class="muted" style="margin:0;font-size:12px">ข้อความบางส่วนยังแปลไม่ครบ จะแสดงเป็นภาษาไทยแทน</p>
+</section>
+<section class="card" aria-labelledby="theme">
+<h2 id="theme" class="h2">ธีม</h2>
+<div class="seg" role="radiogroup" aria-label="ธีม"><span role="radio" aria-checked="false">สว่าง</span><span class="on" role="radio" aria-checked="true">มืด</span><span role="radio" aria-checked="false">ตามระบบ</span></div>
+<div class="field"><div>ความคมชัดสูง<small>เพิ่มความต่างของสีตัวอักษรและขอบ</small></div><button class="toggle" type="button" role="switch" aria-checked="false" aria-label="ความคมชัดสูง"></button></div>
+</section>
+<section class="card" aria-labelledby="ui">
+<h2 id="ui" class="h2">การแสดงผล</h2>
+<div class="field"><div>ขนาดตัวอักษร<small>ปรับได้ตั้งแต่ 90% ถึง 130%</small></div><div class="slider"><input type="range" min="90" max="130" value="100" aria-label="ขนาดตัวอักษร"><span class="muted">100%</span></div></div>
+<div class="field"><div>แสดงป้ายคีย์บนคีย์บอร์ด<small>แสดงชื่อโน้ตบนแต่ละคีย์</small></div><button class="toggle on" type="button" role="switch" aria-checked="true" aria-label="แสดงป้ายคีย์"></button></div>
+<div class="field"><div>ลดการเคลื่อนไหว<small>ปิดแอนิเมชันโน้ตตกและการเรืองแสง</small></div><button class="toggle" type="button" role="switch" aria-checked="false" aria-label="ลดการเคลื่อนไหว"></button></div>
+</section>
+<section class="card" aria-labelledby="audio">
+<h2 id="audio" class="h2">เสียงและการฝึก</h2>
+<div class="field"><div>เมโทรนอมเริ่มต้น<small>เปิดเมื่อเริ่มแบบฝึกใหม่</small></div><button class="toggle on" type="button" role="switch" aria-checked="true" aria-label="เมโทรนอมเริ่มต้น"></button></div>
+<div class="field"><div>นับถอยหลังก่อนเริ่ม<small>จำนวนห้องที่นับก่อนเริ่มเล่น</small></div><div class="seg" role="radiogroup" aria-label="นับถอยหลัง"><span role="radio" aria-checked="false">ไม่นับ</span><span class="on" role="radio" aria-checked="true">1 ห้อง</span><span role="radio" aria-checked="false">2 ห้อง</span></div></div>
+<div class="field"><div>ไปที่เสียงและ MIDI<small>เลือกอุปกรณ์เสียงและทดสอบ latency</small></div><button class="btn" type="button">เปิดหน้า</button></div>
+</section>
+<section class="card" aria-labelledby="data">
+<h2 id="data" class="h2">ข้อมูลและการสำรอง</h2>
+<div class="field"><div>สำรองข้อมูลทั้งหมด<small>ไฟล์ .zip รวมความก้าวหน้า การตั้งค่า และเพลงที่นำเข้า (ไม่รวมไฟล์เพลงต้นฉบับ)</small></div><button class="btn pri" type="button">สำรองข้อมูล</button></div>
+<div class="field"><div>นำเข้าข้อมูลสำรอง<small>จะเขียนทับข้อมูลปัจจุบัน ต้องยืนยันก่อน</small></div><button class="btn" type="button">เลือกไฟล์</button></div>
+<div class="field"><div>ส่งออกผลการฝึก (CSV)<small>ใช้สำหรับดูหรือวิเคราะห์เอง</small></div><button class="btn" type="button">ส่งออก</button></div>
+</section>
+<section class="card" aria-labelledby="keys" style="grid-column:1 / -1">
+<h2 id="keys" class="h2">คีย์ลัด</h2>
+<table class="keys"><tbody>
+<tr><td>เล่น / หยุด</td><td><kbd>Space</kbd></td></tr>
+<tr><td>ลบโน้ตที่เลือก</td><td><kbd>Delete</kbd></td></tr>
+<tr><td>เลื่อนไปห้องถัดไป</td><td><kbd>→</kbd></td></tr>
+<tr><td>ตั้งจุด A / B ของลูป</td><td><kbd>A</kbd> / <kbd>B</kbd></td></tr>
+<tr><td>เปิดหรือปิดเมโทรนอม</td><td><kbd>M</kbd></td></tr>
+</tbody></table>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

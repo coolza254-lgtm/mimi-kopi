@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ฝึกซ้อม · Practice</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:24px 28px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.side-r{flex:0 0 288px;background:var(--surface);border-left:1px solid var(--line);padding:20px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;overflow:auto}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-sizing:border-box;min-width:0}
+.h1{margin:0;font-size:22px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:15px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.btn.ic{width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:50%}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg span{padding:5px 12px;border-radius:999px;font-size:13px}
+.seg .on{background:var(--blue-soft);font-weight:600}
+.roll{position:relative;height:250px;border:1px solid var(--line);border-radius:12px;background:repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px 72px),repeating-linear-gradient(to bottom,transparent 0 24px,var(--line) 24px 25px);overflow:hidden}
+.note{position:absolute;height:20px;border-radius:6px;background:var(--pink);color:#25324D;font-size:11px;font-weight:600;padding:2px 6px;box-sizing:border-box}
+.note.l{background:var(--surface);border:2px dashed var(--blue);color:var(--text)}
+.note.miss{background:transparent;border:2px dotted var(--text);color:var(--text)}
+.playhead{position:absolute;top:0;bottom:0;left:216px;width:2px;background:var(--violet)}
+.keys{display:flex;height:96px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.wk{flex:1;border-right:1px solid var(--line);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:11px;color:var(--muted)}
+.wk.hit{background:var(--pink-soft);color:var(--text);font-weight:700;box-shadow:inset 0 -4px 0 var(--pink)}
+.transport{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.ctl{display:flex;align-items:center;gap:8px}
+.list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.list li{padding:8px 10px;border:1px solid var(--line);border-radius:10px}
+@media (max-width:1100px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}.side-r{flex-basis:auto;border-left:0;border-top:1px solid var(--line)}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav on" href="#" aria-current="page">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav" href="#">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot"><div>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div><div>TH · EN · 日本語</div></div>
+</aside>
+<main class="main">
+<header class="row between">
+<div>
+<h1 class="h1">Kokoro no Placard · ท่อนฮุก (ฉบับง่าย)</h1>
+<div class="muted">ห้อง 1–4 · มือขวา · โหมดต่อเนื่อง (วัดจังหวะ)</div>
+</div>
+<div class="row"><span class="tag">ข้อมูลตัวอย่าง</span><span class="tag">MIDI: จำลอง</span></div>
+</header>
+<section class="card" aria-label="Piano roll">
+<div class="row between" style="margin-bottom:10px"><span class="muted">Piano Roll · เส้นสีชมพู = โน้ตที่ต้องเล่น</span><span class="muted">ห้อง 1 · 2 · 3 · 4</span></div>
+<div class="roll" role="img" aria-label="ตัวอย่างโน้ตท่อนฮุก 4 ห้อง">
+<div class="note" style="left:8px;top:40px;width:64px">C4 · ♩</div>
+<div class="note" style="left:80px;top:40px;width:64px">E4 · ♩</div>
+<div class="note" style="left:152px;top:40px;width:64px">G4 · ♩</div>
+<div class="note l" style="left:8px;top:150px;width:136px">L · C3 ♪♪</div>
+<div class="note l" style="left:152px;top:150px;width:136px">L · G2 ♩</div>
+<div class="note miss" style="left:296px;top:88px;width:64px">ขาด · E4</div>
+<div class="note" style="left:296px;top:40px;width:64px">D4 · ♩</div>
+<div class="playhead" aria-hidden="true"></div>
+</div>
+<p class="muted" style="margin:8px 0 0;font-size:12px">มือซ้ายใช้เส้นประและตัวอักษร L เพื่อไม่พึ่งสีอย่างเดียว · โน้ตที่ขาดแสดงเป็นกรอบจุด</p>
+</section>
+<section class="card" aria-label="คีย์บอร์ด">
+<div class="row between" style="margin-bottom:10px"><span class="h2">คีย์บอร์ดจำลอง</span><span class="muted">ตำแหน่งกด: C4 · E4 · G4</span></div>
+<div class="keys" role="img" aria-label="คีย์บอร์ดสองออคเตฟ เน้น C4 E4 G4">
+<div class="wk hit">C4</div><div class="wk">D4</div><div class="wk hit">E4</div><div class="wk">F4</div><div class="wk hit">G4</div><div class="wk">A4</div><div class="wk">B4</div><div class="wk">C5</div><div class="wk">D5</div><div class="wk">E5</div><div class="wk">F5</div><div class="wk">G5</div>
+</div>
+</section>
+<div class="transport" role="toolbar" aria-label="ควบคุมการเล่น">
+<div class="ctl">
+<button class="btn pri ic" type="button" aria-label="เล่น">▶</button>
+<button class="btn ic" type="button" aria-label="หยุดชั่วคราว">❚❚</button>
+<button class="btn" type="button" aria-label="วนลูป A/B">วน A–B</button>
+<button class="btn" type="button" aria-pressed="false">Count-in</button>
+</div>
+<div class="ctl"><span class="muted">BPM</span><button class="btn ic" type="button" aria-label="ลด BPM">−</button><strong style="font-size:18px">60</strong><button class="btn ic" type="button" aria-label="เพิ่ม BPM">+</button></div>
+<div class="ctl"><span class="seg" role="radiogroup" aria-label="โหมด"><span class="on" role="radio" aria-checked="true">รอ (เรียน)</span><span role="radio" aria-checked="false">ต่อเนื่อง (วัด)</span></span></div>
+<div class="ctl"><span class="seg" role="radiogroup" aria-label="มือ"><span role="radio" aria-checked="false">L</span><span class="on" role="radio" aria-checked="true">R</span><span role="radio" aria-checked="false">LR</span></span><button class="btn" type="button" aria-pressed="true">Metronome</button></div>
+</div>
+</main>
+<aside class="side-r" aria-label="ข้อมูลประกอบ">
+<section>
+<h2 class="h2">โฟกัสวันนี้</h2>
+<p class="muted" style="margin:6px 0 0">ท่อนนี้ยังไม่มีผลที่เทียบได้ ลองเล่นให้ครบ 4 ห้องก่อน แล้วจึงวัดซ้ำที่ BPM เดิม</p>
+</section>
+<section class="card">
+<h2 class="h2">ผลรอบล่าสุด</h2>
+<p class="muted" style="margin:6px 0 0;font-size:13px">ยังไม่มีการบันทึกรอบวัดผลในท่อนนี้</p>
+<ul class="list">
+<li>โน้ตที่ขาด: <em>ยังไม่มีข้อมูล</em></li>
+<li>โน้ตที่กดเกิน: <em>ยังไม่มีข้อมูล</em></li>
+<li>ความเร็วต่อจังหวะ: <em>ยังไม่ได้วัด</em></li>
+</ul>
+</section>
+<section>
+<h2 class="h2">เคล็ดลับท่อน</h2>
+<p class="muted" style="margin:6px 0 0;font-size:13px">ห้อง 3 มือซ้ายตามจังหวะช้า ลองแยกมือซ้าย 4 รอบที่ BPM ต่ำกว่า</p>
+</section>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

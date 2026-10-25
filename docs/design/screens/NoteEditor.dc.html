@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แกะโน้ต · Note Editor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--staff:#8A93A8;--pink:#F47FA8;--pink-ink:#C2386B;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:720px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--staff:#6F7A94;--pink:#F18DB5;--pink-ink:#F7A8C8;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:24px 28px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.work{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;min-height:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:12px}
+.h1{margin:0;font-size:26px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:15px;font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.btn.ic{width:40px;padding:0;justify-content:center}
+.btn svg{width:18px;height:18px}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.title-in{font:inherit;font-size:15px;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 12px;min-width:260px}
+.tools{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.grp{display:flex;flex-direction:column;gap:4px}
+.grp>span{font-size:11px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:13px;color:var(--text);background:transparent;border:0;border-radius:9px;padding:4px 10px;min-height:38px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button[aria-pressed="true"],.seg button[aria-checked="true"]{background:var(--blue-soft);font-weight:600;box-shadow:inset 0 0 0 1px var(--blue)}
+.seg .glyph{width:22px;height:26px}
+.vr{width:1px;align-self:stretch;background:var(--line)}
+.paper{background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:auto}
+.paper svg{display:block;width:100%;height:auto;min-width:880px}
+.st line{stroke:var(--staff);stroke-width:1.3}
+.bar{stroke:var(--text);stroke-width:1.6}
+.ink{fill:var(--text);stroke:var(--text)}
+.hollow{fill:none;stroke:var(--text);stroke-width:2}
+.stem{stroke:var(--text);stroke-width:1.6}
+.sel{fill:var(--pink-ink);stroke:var(--pink-ink)}
+.ghost{fill:var(--pink);opacity:.55}
+.lbl{fill:var(--muted);font-size:13px;font-family:'Noto Sans Thai',system-ui,sans-serif}
+.mnum{fill:var(--muted);font-size:12px;font-family:system-ui,sans-serif}
+.clef{fill:var(--text);font-family:'Noto Music','Segoe UI Symbol',serif}
+.measures{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.measures button{font:inherit;font-size:13px;min-width:44px;min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer}
+.measures .done{background:var(--blue-soft)}
+.measures .loop{box-shadow:inset 0 -3px 0 var(--pink);font-weight:600}
+.measures .part{background:repeating-linear-gradient(135deg,var(--surface) 0 6px,var(--pink-soft) 6px 12px)}
+.prop{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px;margin:0}
+.prop dt{color:var(--muted)}
+.prop dd{margin:0;font-weight:600}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;margin:0}
+.keys dt{margin:0}
+.keys dd{margin:0;color:var(--muted)}
+kbd{font-family:inherit;font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 6px;background:var(--bg)}
+.note{padding:10px 12px;border-radius:12px;background:var(--blue-soft);font-size:13px}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:13px}
+.switch input{width:38px;height:22px;accent-color:var(--pink)}
+@media (max-width:1200px){.work{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}.title-in{min-width:0;width:100%}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav" href="#">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav on" href="#" aria-current="page">แกะโน้ต <small>Note Editor</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot"><div>MIDI: Digital Piano · เชื่อมต่อแล้ว</div><div>TH · EN · 日本語</div></div>
+</aside>
+
+<main class="main">
+<header class="row between">
+<div>
+<h1 class="h1">แกะโน้ต</h1>
+<div class="muted">คลิกวางโน้ตบนบรรทัด แล้วลากย้ายได้อิสระ · ใช้ฝึกส่วนตัว เก็บไว้ในเครื่องนี้เท่านั้น</div>
+</div>
+<div class="row">
+<label class="row" style="gap:8px"><span class="muted small">ชื่อเพลง</span><input class="title-in" type="text" value="[ชื่อเพลงของคุณ]"></label>
+<span class="tag">บันทึกอัตโนมัติ · เก็บในเครื่อง</span>
+</div>
+</header>
+
+<section class="card" aria-label="เครื่องมือ" style="padding:12px 16px">
+<div class="tools">
+<div class="grp"><span>เครื่องมือ</span>
+<div class="seg" role="group" aria-label="เครื่องมือ">
+<button type="button" aria-pressed="false">เลือก / ลาก</button>
+<button type="button" aria-pressed="true">วางโน้ต</button>
+<button type="button" aria-pressed="false">ตัวหยุด</button>
+<button type="button" aria-pressed="false">ลบ</button>
+</div></div>
+<div class="vr" aria-hidden="true"></div>
+<div class="grp"><span>ความยาว (กด 1–5)</span>
+<div class="seg" role="radiogroup" aria-label="ความยาวโน้ต">
+<button type="button" role="radio" aria-checked="false" aria-label="ตัวกลม 4 จังหวะ"><svg class="glyph" viewBox="0 0 22 26" aria-hidden="true"><ellipse cx="11" cy="15" rx="7" ry="4.8" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>1</button>
+<button type="button" role="radio" aria-checked="false" aria-label="ตัวขาว 2 จังหวะ"><svg class="glyph" viewBox="0 0 22 26" aria-hidden="true"><ellipse cx="9" cy="19" rx="6" ry="4.2" fill="none" stroke="currentColor" stroke-width="2" transform="rotate(-20 9 19)"/><line x1="14.5" y1="18" x2="14.5" y2="2" stroke="currentColor" stroke-width="1.6"/></svg>1/2</button>
+<button type="button" role="radio" aria-checked="true" aria-label="ตัวดำ 1 จังหวะ"><svg class="glyph" viewBox="0 0 22 26" aria-hidden="true"><ellipse cx="9" cy="19" rx="6" ry="4.2" fill="currentColor" transform="rotate(-20 9 19)"/><line x1="14.5" y1="18" x2="14.5" y2="2" stroke="currentColor" stroke-width="1.6"/></svg>1/4</button>
+<button type="button" role="radio" aria-checked="false" aria-label="เขบ็ต 1 ชั้น ครึ่งจังหวะ"><svg class="glyph" viewBox="0 0 22 26" aria-hidden="true"><ellipse cx="9" cy="19" rx="6" ry="4.2" fill="currentColor" transform="rotate(-20 9 19)"/><line x1="14.5" y1="18" x2="14.5" y2="2" stroke="currentColor" stroke-width="1.6"/><path d="M14.5 2 q2 6 7 9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>1/8</button>
+<button type="button" role="radio" aria-checked="false" aria-label="เขบ็ต 2 ชั้น เศษหนึ่งส่วนสี่จังหวะ"><svg class="glyph" viewBox="0 0 22 26" aria-hidden="true"><ellipse cx="9" cy="19" rx="6" ry="4.2" fill="currentColor" transform="rotate(-20 9 19)"/><line x1="14.5" y1="18" x2="14.5" y2="2" stroke="currentColor" stroke-width="1.6"/><path d="M14.5 2 q2 5 7 8 M14.5 7 q2 5 7 8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>1/16</button>
+</div></div>
+<div class="grp"><span>เพิ่มเติม</span>
+<div class="seg" role="group" aria-label="เครื่องหมายเพิ่มเติม">
+<button type="button" aria-pressed="false">จุด ·</button>
+<button type="button" aria-pressed="false">โยง ⁀</button>
+</div></div>
+<div class="grp"><span>แปลงเสียง</span>
+<div class="seg" role="group" aria-label="เครื่องหมายแปลงเสียง">
+<button type="button" aria-pressed="false" aria-label="ชาร์ป">♯</button>
+<button type="button" aria-pressed="false" aria-label="แฟลต">♭</button>
+<button type="button" aria-pressed="false" aria-label="เนเชอรัล">♮</button>
+</div></div>
+<div class="vr" aria-hidden="true"></div>
+<div class="grp"><span>วางลงมือ</span>
+<div class="seg" role="radiogroup" aria-label="มือ">
+<button type="button" role="radio" aria-checked="true">ตามบรรทัด</button>
+<button type="button" role="radio" aria-checked="false">ขวา</button>
+<button type="button" role="radio" aria-checked="false">ซ้าย</button>
+</div></div>
+<label class="switch"><input type="checkbox" checked> ใส่โน้ตจากเปียโน MIDI</label>
+<div class="row" style="margin-left:auto">
+<button class="btn ic" type="button" aria-label="ย้อนกลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+<button class="btn ic" type="button" aria-label="ทำซ้ำ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+</div>
+</div>
+</section>
+
+<div class="work">
+<div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+<section class="card" aria-labelledby="score">
+<div class="row between">
+<h2 id="score" class="h2">ห้อง 1–4 จาก 16</h2>
+<div class="row">
+<span class="muted small">คีย์ G (F♯) · 4/4 · ♩ = 90</span>
+<button class="btn" type="button">‹ ก่อนหน้า</button>
+<button class="btn" type="button">ถัดไป ›</button>
+</div>
+</div>
+<div class="paper">
+<svg viewBox="0 0 1320 300" role="img" aria-label="บรรทัดโน้ตคู่ มือขวากุญแจซอล มือซ้ายกุญแจฟา 4 ห้อง โน้ตตัวหนึ่งในห้อง 3 ถูกเลือกอยู่ และมีโน้ตเงาบอกตำแหน่งที่จะวางในห้อง 4">
+<text class="lbl" x="6" y="108">ขวา</text>
+<text class="lbl" x="6" y="228">ซ้าย</text>
+<g class="st">
+<line x1="40" x2="1270" y1="80" y2="80"/><line x1="40" x2="1270" y1="92" y2="92"/><line x1="40" x2="1270" y1="104" y2="104"/><line x1="40" x2="1270" y1="116" y2="116"/><line x1="40" x2="1270" y1="128" y2="128"/>
+<line x1="40" x2="1270" y1="200" y2="200"/><line x1="40" x2="1270" y1="212" y2="212"/><line x1="40" x2="1270" y1="224" y2="224"/><line x1="40" x2="1270" y1="236" y2="236"/><line x1="40" x2="1270" y1="248" y2="248"/>
+</g>
+<line class="bar" x1="40" x2="40" y1="80" y2="248"/>
+<line class="bar" x1="430" x2="430" y1="80" y2="248"/>
+<line class="bar" x1="710" x2="710" y1="80" y2="248"/>
+<line class="bar" x1="990" x2="990" y1="80" y2="248"/>
+<line class="bar" x1="1270" x2="1270" y1="80" y2="248"/>
+<text class="mnum" x="150" y="68">1</text><text class="mnum" x="434" y="68">2</text><text class="mnum" x="714" y="68">3</text><text class="mnum" x="994" y="68">4</text>
+
+<text class="clef" x="46" y="124" font-size="58" aria-hidden="true">𝄞</text>
+<text class="clef" x="48" y="226" font-size="40" aria-hidden="true">𝄢</text>
+<text class="clef" x="88" y="86" font-size="20" aria-hidden="true">♯</text>
+<text class="clef" x="88" y="218" font-size="20" aria-hidden="true">♯</text>
+<text class="clef" x="112" y="102" font-size="27" font-weight="700" aria-hidden="true">4</text>
+<text class="clef" x="112" y="127" font-size="27" font-weight="700" aria-hidden="true">4</text>
+<text class="clef" x="112" y="222" font-size="27" font-weight="700" aria-hidden="true">4</text>
+<text class="clef" x="112" y="247" font-size="27" font-weight="700" aria-hidden="true">4</text>
+
+<!-- right hand, measure 1: G4 A4 B4 D5 -->
+<ellipse class="ink" cx="180" cy="116" rx="7.5" ry="5.4" transform="rotate(-20 180 116)"/><line class="stem" x1="187" x2="187" y1="115" y2="78"/>
+<ellipse class="ink" cx="242" cy="110" rx="7.5" ry="5.4" transform="rotate(-20 242 110)"/><line class="stem" x1="249" x2="249" y1="109" y2="72"/>
+<ellipse class="ink" cx="305" cy="104" rx="7.5" ry="5.4" transform="rotate(-20 305 104)"/><line class="stem" x1="298" x2="298" y1="105" y2="142"/>
+<ellipse class="ink" cx="367" cy="92" rx="7.5" ry="5.4" transform="rotate(-20 367 92)"/><line class="stem" x1="360" x2="360" y1="93" y2="130"/>
+<!-- measure 2: B4 C5 eighths, D5 quarter, G5 half -->
+<ellipse class="ink" cx="460" cy="104" rx="7.5" ry="5.4" transform="rotate(-20 460 104)"/><line class="stem" x1="453" x2="453" y1="105" y2="140"/>
+<ellipse class="ink" cx="491" cy="98" rx="7.5" ry="5.4" transform="rotate(-20 491 98)"/><line class="stem" x1="484" x2="484" y1="99" y2="140"/>
+<rect class="ink" x="452" y="136" width="33" height="5"/>
+<ellipse class="ink" cx="522" cy="92" rx="7.5" ry="5.4" transform="rotate(-20 522 92)"/><line class="stem" x1="515" x2="515" y1="93" y2="130"/>
+<ellipse class="hollow" cx="585" cy="74" rx="7.2" ry="5" transform="rotate(-20 585 74)"/><line class="stem" x1="578" x2="578" y1="76" y2="112"/>
+<!-- measure 3: E5 dotted quarter, D5 eighth (selected), C5, B4 -->
+<ellipse class="ink" cx="740" cy="86" rx="7.5" ry="5.4" transform="rotate(-20 740 86)"/><line class="stem" x1="733" x2="733" y1="87" y2="124"/><circle class="ink" cx="755" cy="84" r="2.4"/>
+<rect x="818" y="58" width="32" height="90" rx="8" fill="var(--pink-soft)" stroke="var(--pink)" stroke-width="1.5"/>
+<ellipse class="sel" cx="834" cy="92" rx="7.5" ry="5.4" transform="rotate(-20 834 92)"/><line class="stem sel" x1="827" x2="827" y1="93" y2="130"/><path d="M827 130 q3 -10 12 -16" fill="none" stroke="var(--pink-ink)" stroke-width="2"/>
+<path d="M834 50 l-5 6 h10 z M834 156 l-5 -6 h10 z" fill="var(--pink-ink)"/>
+<ellipse class="ink" cx="865" cy="98" rx="7.5" ry="5.4" transform="rotate(-20 865 98)"/><line class="stem" x1="858" x2="858" y1="99" y2="136"/>
+<ellipse class="ink" cx="927" cy="104" rx="7.5" ry="5.4" transform="rotate(-20 927 104)"/><line class="stem" x1="920" x2="920" y1="105" y2="142"/>
+<g>
+<rect x="770" y="16" width="150" height="28" rx="8" fill="var(--text)"/>
+<text x="845" y="35" text-anchor="middle" font-size="13" fill="var(--surface)" font-family="'Noto Sans Thai',system-ui,sans-serif">D5 · ลากขึ้น-ลง / ซ้าย-ขวา</text>
+</g>
+<!-- measure 4: A4 half, quarter rest, empty beat with ghost note -->
+<ellipse class="hollow" cx="1020" cy="110" rx="7.2" ry="5" transform="rotate(-20 1020 110)"/><line class="stem" x1="1027" x2="1027" y1="108" y2="72"/>
+<path class="ink" d="M1141 88 l7 9 l-6 7 l7 9 q-10 -4 -6 7 q-8 -7 2 -9 l-6 -7 l6 -7 z" stroke-width="0.8"/>
+<rect x="1186" y="66" width="44" height="76" rx="8" fill="none" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="4 4"/>
+<line x1="1166" x2="1248" y1="104" y2="104" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="3 3"/>
+<ellipse class="ghost" cx="1207" cy="104" rx="7.5" ry="5.4" transform="rotate(-20 1207 104)"/><line x1="1200" x2="1200" y1="105" y2="142" stroke="var(--pink)" stroke-width="1.6" opacity=".7"/>
+<g>
+<rect x="1128" y="16" width="160" height="28" rx="8" fill="var(--pink-soft)" stroke="var(--pink)"/>
+<text x="1208" y="35" text-anchor="middle" font-size="13" fill="var(--text)" font-family="'Noto Sans Thai',system-ui,sans-serif">คลิกเพื่อวาง B4 (ที) ♩</text>
+</g>
+<text class="lbl" x="1186" y="160" font-size="12">ว่าง 1 จังหวะ</text>
+
+<!-- left hand -->
+<ellipse class="hollow" cx="180" cy="248" rx="8.5" ry="5.4"/><ellipse class="hollow" cx="180" cy="224" rx="8.5" ry="5.4"/>
+<ellipse class="hollow" cx="460" cy="230" rx="7.2" ry="5" transform="rotate(-20 460 230)"/><ellipse class="hollow" cx="460" cy="206" rx="7.2" ry="5" transform="rotate(-20 460 206)"/><line class="stem" x1="453" x2="453" y1="206" y2="266"/>
+<ellipse class="hollow" cx="585" cy="224" rx="7.2" ry="5" transform="rotate(-20 585 224)"/><ellipse class="hollow" cx="585" cy="200" rx="7.2" ry="5" transform="rotate(-20 585 200)"/><line class="stem" x1="578" x2="578" y1="200" y2="260"/>
+<ellipse class="ink" cx="740" cy="230" rx="7.5" ry="5.4" transform="rotate(-20 740 230)"/><line class="stem" x1="747" x2="747" y1="229" y2="192"/>
+<ellipse class="ink" cx="802" cy="206" rx="7.5" ry="5.4" transform="rotate(-20 802 206)"/><line class="stem" x1="795" x2="795" y1="207" y2="244"/>
+<ellipse class="hollow" cx="865" cy="218" rx="7.2" ry="5" transform="rotate(-20 865 218)"/><line class="stem" x1="858" x2="858" y1="219" y2="256"/>
+<ellipse class="hollow" cx="1020" cy="224" rx="7.2" ry="5" transform="rotate(-20 1020 224)"/><ellipse class="hollow" cx="1020" cy="200" rx="7.2" ry="5" transform="rotate(-20 1020 200)"/><line class="stem" x1="1013" x2="1013" y1="200" y2="260"/>
+<rect class="ink" x="1136" y="218" width="18" height="6"/>
+
+<text class="lbl" x="40" y="290" font-size="12">ตัวอย่างโน้ตที่แต่งขึ้นเพื่อแสดงหน้าจอ ไม่ได้มาจากเพลงใด</text>
+</svg>
+</div>
+<div class="row between">
+<div class="row">
+<button class="btn pri" type="button"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>ฟังที่วางไว้</button>
+<button class="btn" type="button" aria-pressed="true">วนห้อง 2–3</button>
+<span class="seg" role="radiogroup" aria-label="ความเร็ว"><button type="button" role="radio" aria-checked="false">50%</button><button type="button" role="radio" aria-checked="true">75%</button><button type="button" role="radio" aria-checked="false">100%</button></span>
+</div>
+<button class="btn" type="button">ฝึกเพลงนี้ในโหมดรอ ›</button>
+</div>
+</section>
+
+<section class="card" aria-labelledby="bars">
+<div class="row between"><h2 id="bars" class="h2">ห้องทั้งหมด</h2><span class="muted small">ลากบนแถบเพื่อเลือกช่วงวน · ห้องลายทาง = จังหวะยังไม่ครบ</span></div>
+<div class="measures">
+<button type="button" class="done">1</button><button type="button" class="done loop">2</button><button type="button" class="done loop">3</button><button type="button" class="part" aria-label="ห้อง 4 จังหวะยังไม่ครบ">4</button>
+<button type="button">5</button><button type="button">6</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button">10</button><button type="button">11</button><button type="button">12</button><button type="button">13</button><button type="button">14</button><button type="button">15</button><button type="button">16</button>
+<button class="btn" type="button">+ เพิ่มห้อง</button>
+</div>
+</section>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+<section class="card" aria-labelledby="selected">
+<h2 id="selected" class="h2">โน้ตที่เลือก</h2>
+<dl class="prop">
+<dt>เสียง</dt><dd>D5 · เร</dd>
+<dt>ความยาว</dt><dd>เขบ็ต 1 ชั้น (½ จังหวะ)</dd>
+<dt>มือ</dt><dd>ขวา</dd>
+<dt>ตำแหน่ง</dt><dd>ห้อง 3 · จังหวะที่ 2½</dd>
+</dl>
+<div class="row">
+<button class="btn" type="button">โยงกับตัวถัดไป</button>
+<button class="btn" type="button">ย้ายไปมือซ้าย</button>
+<button class="btn" type="button">ลบ</button>
+</div>
+</section>
+
+<section class="card" aria-labelledby="song">
+<h2 id="song" class="h2">ตั้งค่าเพลง</h2>
+<dl class="prop">
+<dt>คีย์</dt><dd>G major (F♯)</dd>
+<dt>จังหวะ</dt><dd>4/4</dd>
+<dt>ความเร็ว</dt><dd>♩ = 90</dd>
+<dt>กรอกแล้ว</dt><dd>3 ห้องครบ · 1 ห้องยังไม่ครบ</dd>
+</dl>
+<button class="btn" type="button" style="align-self:flex-start">แก้คีย์และจังหวะ</button>
+</section>
+
+<section class="card" aria-labelledby="shortcuts">
+<h2 id="shortcuts" class="h2">คีย์ลัด</h2>
+<dl class="keys">
+<dt><kbd>1</kbd>–<kbd>5</kbd></dt><dd>เลือกความยาวโน้ต</dd>
+<dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>เลื่อนเสียงทีละขั้น</dd>
+<dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>เลื่อนตำแหน่งในห้อง</dd>
+<dt><kbd>.</kbd></dt><dd>ใส่หรือเอาจุดออก</dd>
+<dt><kbd>Delete</kbd></dt><dd>ลบโน้ตที่เลือก</dd>
+<dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>ย้อนกลับ</dd>
+<dt><kbd>Space</kbd></dt><dd>ฟังหรือหยุด</dd>
+</dl>
+<div class="note">กดคีย์บนเปียโนได้เลย โน้ตจะไปวางที่ตำแหน่งถัดไปด้วยความยาวที่เลือกไว้</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

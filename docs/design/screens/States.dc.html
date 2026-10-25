@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สถานะและข้อผิดพลาด · States</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:28px 32px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:10px}
+.h1{margin:0;font-size:26px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:15px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.banner{padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.banner.warn{border-color:var(--pink)}
+.ico{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--pink-soft)}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:20px;text-align:center}
+.log{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;white-space:pre-wrap;margin:0}
+@media (max-width:1000px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav" href="#">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot"><div>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div><div>TH · EN · 日本語</div></div>
+</aside>
+<main class="main">
+<header class="row between">
+<div><h1 class="h1">สถานะและข้อผิดพลาด</h1><div class="muted">ทุกสถานะที่ผู้ใช้อาจพบ พร้อมข้อความและทางออกที่ชัดเจน</div></div>
+<span class="tag">ตัวอย่างการออกแบบ</span>
+</header>
+<section class="grid" aria-label="สถานะต่าง ๆ">
+
+<article class="card" aria-labelledby="st1">
+<h2 id="st1" class="h2">MIDI หลุดการเชื่อมต่อ</h2>
+<div class="banner warn" role="status"><span class="ico" aria-hidden="true">!</span><div><strong>อุปกรณ์ MIDI หลุดการเชื่อมต่อ</strong><div class="muted" style="font-size:13px">โน้ตที่ค้างถูกล้างแล้ว · เสียบ USB ใหม่หรือรอให้ระบบเชื่อมต่ออัตโนมัติ</div></div><button class="btn" type="button">เชื่อมต่อใหม่</button></div>
+<p class="muted" style="margin:0;font-size:12px">การฝึกที่กำลังทำอยู่จะหยุดชั่วคราวและบันทึกผลที่ทำไปแล้ว</p>
+</article>
+
+<article class="card" aria-labelledby="st2">
+<h2 id="st2" class="h2">อุปกรณ์เสียงออกไม่พร้อม</h2>
+<div class="banner" role="alert"><span class="ico" aria-hidden="true">×</span><div><strong>หาอุปกรณ์เสียงที่เลือกไม่พบ</strong><div class="muted" style="font-size:13px">ใช้ลำโพงเริ่มต้นของ Windows แทนได้ทันที</div></div><button class="btn pri" type="button">ใช้ค่าเริ่มต้น</button></div>
+<p class="muted" style="margin:0;font-size:12px">ไม่หยุดการฝึกถ้าผู้ใช้ยอมรับทางเลือก</p>
+</article>
+
+<article class="card" aria-labelledby="st3">
+<h2 id="st3" class="h2">คลังเพลงว่าง</h2>
+<div class="empty"><strong>ยังไม่มีเพลงในคลัง</strong><p class="muted" style="margin:6px 0 12px;font-size:13px">นำเข้า .mid หรือ WAV/MP3 ที่คุณมีสิทธิ์ใช้ เพื่อเริ่มฝึกทีละท่อน</p><button class="btn pri" type="button">นำเข้าไฟล์ของฉัน</button></div>
+</article>
+
+<article class="card" aria-labelledby="st4">
+<h2 id="st4" class="h2">ออฟไลน์</h2>
+<div class="banner"><span class="ico" aria-hidden="true">○</span><div><strong>ออฟไลน์อยู่ · ใช้งานได้ตามปกติ</strong><div class="muted" style="font-size:13px">ฝึกและดูความก้าวหน้าย้อนหลังได้ · ไม่มีการส่งข้อมูลออก</div></div></div>
+<p class="muted" style="margin:0;font-size:12px">ไม่มีฟีเจอร์ใดที่ต้องพึ่งอินเทอร์เน็ตใน MVP</p>
+</article>
+
+<article class="card" aria-labelledby="st5">
+<h2 id="st5" class="h2">ไฟล์ต้นทางหายไป</h2>
+<div class="banner warn" role="alert"><span class="ico" aria-hidden="true">?</span><div><strong>หาไฟล์เพลงต้นทางไม่พบ</strong><div class="muted" style="font-size:13px">ย้ายหรือเปลี่ยนชื่อไฟล์หรือไม่ · ระบุตำแหน่งใหม่เพื่อเชื่อมกลับ</div></div><div class="row"><button class="btn" type="button">ระบุตำแหน่ง</button></div></div>
+<p class="muted" style="margin:0;font-size:12px">ประวัติการฝึกของเพลงนี้ยังอยู่ครบ</p>
+</article>
+
+<article class="card" aria-labelledby="st6">
+<h2 id="st6" class="h2">นำเข้า MIDI ไม่สำเร็จ</h2>
+<div class="banner warn" role="alert"><span class="ico" aria-hidden="true">×</span><div><strong>ไฟล์นี้อ่านไม่ได้</strong><div class="muted" style="font-size:13px">โครงสร้างไฟล์ไม่ตรงกับ Standard MIDI File</div></div><button class="btn" type="button">ดูรายละเอียด</button></div>
+<pre class="log" aria-label="ตัวอย่างบันทึกข้อผิดพลาด">[ตัวอย่าง] import: unexpected chunk "MTrk" at byte 14
+ไม่มีข้อมูลส่วนตัวถูกแนบในบันทึกนี้</pre>
+</article>
+
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

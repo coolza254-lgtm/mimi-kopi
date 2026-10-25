@@ -1,0 +1,212 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "วันนี้ · Today",
+      "w": 1920,
+      "x": 0,
+      "y": 0
+    },
+    "Practice.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "ฝึกซ้อม · Practice",
+      "w": 1920,
+      "x": 2000,
+      "y": 0
+    },
+    "PracticeFalling.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "ฝึกแบบโน้ตตก · Falling Notes",
+      "w": 1920,
+      "x": 4000,
+      "y": 0
+    },
+    "NoteReading.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "ฝึกอ่านโน้ต · Note Reading",
+      "w": 1920,
+      "x": 0,
+      "y": 1400
+    },
+    "RhythmChords.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "ฝึกจังหวะและคอร์ด · Rhythm & Chords",
+      "w": 1920,
+      "x": 2000,
+      "y": 1400
+    },
+    "LearningPath.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "เส้นทางเรียน · Learning Path",
+      "w": 1920,
+      "x": 4000,
+      "y": 1400
+    },
+    "Songs.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "เพลงของฉัน · My Songs",
+      "w": 1920,
+      "x": 0,
+      "y": 2800
+    },
+    "SongWorkspace.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "พื้นที่ท่อนเพลง · Song Workspace",
+      "w": 1920,
+      "x": 2000,
+      "y": 2800
+    },
+    "EarCopy.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "ฟังแล้วแกะ · Ear Copy",
+      "w": 1920,
+      "x": 4000,
+      "y": 2800
+    },
+    "Progress.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "ความก้าวหน้า · Progress",
+      "w": 1920,
+      "x": 0,
+      "y": 4200
+    },
+    "SoundMidi.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "เสียงและ MIDI · Sound & MIDI",
+      "w": 1920,
+      "x": 2000,
+      "y": 4200
+    },
+    "Diagnostics.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "วินิจฉัย · Diagnostics",
+      "w": 1920,
+      "x": 4000,
+      "y": 4200
+    },
+    "Onboarding.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "ตั้งค่าครั้งแรก · Onboarding",
+      "w": 1920,
+      "x": 0,
+      "y": 5600
+    },
+    "States.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "สถานะและข้อผิดพลาด · States",
+      "w": 1920,
+      "x": 2000,
+      "y": 5600
+    },
+    "Settings.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "ตั้งค่า · Settings",
+      "w": 1920,
+      "x": 4000,
+      "y": 5600
+    },
+    "NoteEditor.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "title": "แกะโน้ต · Note Editor",
+      "w": 1920,
+      "x": 6000,
+      "y": 2800
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-25T09:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "g1": {
+      "kind": "title1",
+      "maxW": 1920,
+      "text": "1 · ฝึกประจำวัน · Daily",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "g2": {
+      "kind": "title1",
+      "maxW": 1920,
+      "text": "2 · ฝึกพื้นฐาน · Fundamentals",
+      "w": 240,
+      "x": 0,
+      "y": 1140
+    },
+    "g3": {
+      "kind": "title1",
+      "maxW": 7920,
+      "text": "3 · เพลงและการแกะ · Songs & Ear",
+      "w": 240,
+      "x": 0,
+      "y": 2540
+    },
+    "g4": {
+      "kind": "title1",
+      "maxW": 1920,
+      "text": "4 · ความก้าวหน้าและเครื่องมือ · Progress & Tools",
+      "w": 240,
+      "x": 0,
+      "y": 3940
+    },
+    "g5": {
+      "kind": "title1",
+      "maxW": 1920,
+      "text": "5 · เริ่มต้นและตั้งค่า · Setup",
+      "w": 240,
+      "x": 0,
+      "y": 5340
+    },
+    "title": {
+      "kind": "title1",
+      "maxW": 4400,
+      "text": "耳コピー — หน้าจอหลัก (สลับ Light / Dark ได้ที่ Tweaks)",
+      "w": 240,
+      "x": 0,
+      "y": -460
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Practice.dc.html",
+    "PracticeFalling.dc.html",
+    "NoteReading.dc.html",
+    "RhythmChords.dc.html",
+    "LearningPath.dc.html",
+    "Songs.dc.html",
+    "SongWorkspace.dc.html",
+    "EarCopy.dc.html",
+    "NoteEditor.dc.html",
+    "Progress.dc.html",
+    "SoundMidi.dc.html",
+    "Diagnostics.dc.html",
+    "Onboarding.dc.html",
+    "States.dc.html",
+    "Settings.dc.html"
+  ],
+  "pages": [],
+  "title": "耳コピー Mimi Kopi UI Design"
+}

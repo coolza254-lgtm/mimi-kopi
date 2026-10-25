@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เสียงและ MIDI · Sound & MIDI</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:28px 32px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:20px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:12px}
+.h1{margin:0;font-size:26px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:16px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;color:var(--muted)}
+.select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.slider{display:grid;grid-template-columns:120px 1fr 44px;gap:12px;align-items:center}
+.slider input{width:100%;accent-color:var(--pink)}
+.badge{font-size:12px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);white-space:nowrap}
+.cap{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+@media (max-width:1000px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}.grid2{grid-template-columns:minmax(0,1fr)}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav" href="#">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav on" href="#" aria-current="page">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot"><div>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div><div>TH · EN · 日本語</div></div>
+</aside>
+<main class="main">
+<header class="row between">
+<div><h1 class="h1">เสียงและ MIDI</h1><div class="muted">อุปกรณ์อินพุต เสียงออก และการวัด latency</div></div>
+<div class="row"><button class="btn" type="button">ส่งออกการวินิจฉัย (JSON)</button></div>
+</header>
+<div class="grid2">
+<section class="card" aria-labelledby="midi">
+<div class="row between"><h2 id="midi" class="h2">อินพุต MIDI</h2><span class="badge">ไม่พบอุปกรณ์</span></div>
+<div class="field">
+<label for="midi-dev">อุปกรณ์ MIDI</label>
+<select id="midi-dev" class="select"><option>ยังไม่พบอุปกรณ์ — ตรวจสอบสาย USB-C → USB-A</option><option>โหมดจำลอง (Simulator)</option></select>
+</div>
+<p class="muted" style="margin:0;font-size:13px">ชื่ออุปกรณ์จะแสดงที่นี่เมื่อ Windows มองเห็น USB MIDI endpoint ของเปียโน · ยังไม่ยืนยันกับ Badger C-918</p>
+<div class="row"><button class="btn pri" type="button">เชื่อมต่อใหม่</button><button class="btn" type="button">ทดสอบกดคีย์ C4 ×3</button></div>
+<h3 class="h2" style="margin-top:8px;font-size:14px">ความสามารถที่ตรวจพบ</h3>
+<div class="cap">
+<span>Note on / off</span><span class="badge">ยังไม่ทดสอบ</span>
+<span>หลายโน้ตพร้อมกัน (คอร์ด)</span><span class="badge">ยังไม่ทดสอบ</span>
+<span>Velocity</span><span class="badge">ยังไม่ทราบ</span>
+<span>Sustain (CC64)</span><span class="badge">ยังไม่ทราบ</span>
+</div>
+<p class="muted" style="margin:0;font-size:12px">สถานะ: รองรับ / ไม่รองรับ / ยังไม่ทดสอบ · ไม่สรุปความสามารถก่อนทดสอบจริง</p>
+</section>
+<section class="card" aria-labelledby="monitor">
+<div class="row between"><h2 id="monitor" class="h2">ตัวตรวจสอบเหตุการณ์</h2><span class="tag">ข้อมูลตัวอย่าง</span></div>
+<table>
+<thead><tr><th scope="col">เวลา (ms)</th><th scope="col">สถานะ</th><th scope="col">โน้ต</th><th scope="col">ช่อง</th><th scope="col">ความแรง</th></tr></thead>
+<tbody>
+<tr><td>0.000</td><td>Note on</td><td>C4 (60)</td><td>—</td><td>ยังไม่ทราบ</td></tr>
+<tr><td>412.800</td><td>Note off</td><td>C4 (60)</td><td>—</td><td>—</td></tr>
+<tr><td>655.100</td><td>Note on</td><td>E4 (64)</td><td>—</td><td>ยังไม่ทราบ</td></tr>
+</tbody>
+</table>
+<p class="muted" style="margin:0;font-size:12px">ตารางนี้แสดงโครงสร้างเท่านั้น ค่าจริงจะมาจากเครื่องเมื่อทดสอบแล้ว</p>
+</section>
+<section class="card" aria-labelledby="out">
+<div class="row between"><h2 id="out" class="h2">เอาต์พุตเสียง</h2><span class="muted" style="font-size:13px">ค่าเริ่มต้นของ Windows</span></div>
+<div class="field">
+<label for="out-dev">อุปกรณ์เสียงออก</label>
+<select id="out-dev" class="select"><option>ลำโพงเริ่มต้นของ Windows</option><option>หูฟัง (ระบุเอง)</option></select>
+</div>
+<div class="field">
+<label for="sf">SoundFont</label>
+<select id="sf" class="select"><option>ยังไม่ได้เลือก SoundFont</option></select>
+</div>
+<div class="slider"><span>Master</span><input type="range" min="0" max="100" value="80" aria-label="ระดับเสียงรวม"><span class="muted">80</span></div>
+<div class="slider"><span>เปียโน</span><input type="range" min="0" max="100" value="70" aria-label="ระดับเสียงเปียโน"><span class="muted">70</span></div>
+<div class="slider"><span>Metronome</span><input type="range" min="0" max="100" value="50" aria-label="ระดับเสียง metronome"><span class="muted">50</span></div>
+<div class="slider"><span>เพลงประกอบ</span><input type="range" min="0" max="100" value="60" aria-label="ระดับเสียงเพลงประกอบ"><span class="muted">60</span></div>
+<div class="row"><button class="btn" type="button">ทดสอบเสียง</button></div>
+</section>
+<section class="card" aria-labelledby="lat">
+<div class="row between"><h2 id="lat" class="h2">Latency</h2><span class="badge">ยังไม่ได้วัด</span></div>
+<p class="muted" style="margin:0;font-size:13px">แสดงค่าที่วัดได้จริงเท่านั้น ยังไม่มีค่าที่วัดในอุปกรณ์นี้ ค่าความหน่วงของ MIDI กับเสียงลำโพง/บลูทูธไม่เท่ากัน</p>
+<div class="row"><button class="btn pri" type="button">เริ่มวัด latency</button><span class="muted" style="font-size:12px">ผลจะแยกเก็บตามอุปกรณ์เสียงออกและอินพุต</span></div>
+<p class="muted" style="margin:0;font-size:12px">ตัวเลือก: หูฟังมีสาย (แนะนำเป็นค่าเริ่มต้น) · USB · ลำโพง · บลูทูธ (ยังไม่แนะนำ)</p>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

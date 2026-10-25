@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>พื้นที่ท่อนเพลง · Song Workspace</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:28px 32px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-sizing:border-box;min-width:0}
+.h1{margin:0;font-size:24px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:15px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.badge{font-size:12px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);white-space:nowrap}
+.tl{display:grid;grid-template-columns:repeat(32,1fr);gap:3px}
+.tl span{height:28px;border-radius:4px;background:var(--line);font-size:10px;display:grid;place-items:center;color:var(--muted)}
+.tl span.sec{background:var(--blue-soft)}
+.tl span.loop{background:var(--pink-soft);box-shadow:inset 0 -3px 0 var(--pink)}
+.sections{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.sections li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.sections li.on{box-shadow:inset 3px 0 0 var(--pink)}
+.meter{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--blue)}
+.ex{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.note{padding:10px 12px;border-radius:12px;background:var(--violet-soft);font-size:13px}
+@media (max-width:1100px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}.grid2{grid-template-columns:minmax(0,1fr)}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav on" href="#" aria-current="page">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot"><div>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div><div>TH · EN · 日本語</div></div>
+</aside>
+<main class="main">
+<header class="row between">
+<div>
+<a href="#" class="muted" style="font-size:13px">← เพลงของฉัน</a>
+<h1 class="h1">Kokoro no Placard</h1>
+<div class="muted" style="font-size:13px">AKB48 · ระดับ L2 · arrangement ของคุณ: "ฉบับฝึกมือขวา v1" · 32 ห้อง</div>
+</div>
+<div class="row"><span class="tag">ข้อมูลตัวอย่าง</span><button class="btn" type="button">แก้ไขการแบ่งท่อน</button><button class="btn pri" type="button">ฝึกท่อนที่เลือก</button></div>
+</header>
+<section class="card" aria-labelledby="tl">
+<div class="row between" style="margin-bottom:12px"><h2 id="tl" class="h2">ไทม์ไลน์ห้อง 1–32</h2><span class="muted" style="font-size:12px">ช่วงวน A–B: ห้อง 9–12</span></div>
+<div class="tl" role="img" aria-label="ไทม์ไลน์ 32 ห้อง ท่อนฮุกที่เลือกอยู่ห้อง 9 ถึง 12">
+<span>1</span><span>2</span><span>3</span><span>4</span><span class="sec">5</span><span class="sec">6</span><span class="sec">7</span><span class="sec">8</span><span class="loop">9</span><span class="loop">10</span><span class="loop">11</span><span class="loop">12</span><span class="sec">13</span><span class="sec">14</span><span class="sec">15</span><span class="sec">16</span><span>17</span><span>18</span><span>19</span><span>20</span><span class="sec">21</span><span class="sec">22</span><span class="sec">23</span><span class="sec">24</span><span>25</span><span>26</span><span>27</span><span>28</span><span class="sec">29</span><span class="sec">30</span><span class="sec">31</span><span class="sec">32</span>
+</div>
+<div class="row" style="margin-top:10px;font-size:12px" aria-hidden="true"><span class="badge">A = ห้อง 9</span><span class="badge">B = ห้อง 12</span><span class="badge">BPM 60</span><span class="badge">4/4</span></div>
+</section>
+<div class="grid2">
+<section class="card" aria-labelledby="secs">
+<h2 id="secs" class="h2">ท่อนเพลง</h2>
+<ul class="sections" style="margin-top:12px">
+<li><span class="badge">Intro</span><div><strong>ห้อง 1–4</strong><div class="muted" style="font-size:12px">ยังไม่ได้เล่น</div></div><span class="muted" style="font-size:12px">ยังไม่มีข้อมูล</span></li>
+<li class="on"><span class="badge">Chorus</span><div><strong>ห้อง 9–12 · ฮุก</strong><div class="muted" style="font-size:12px">มือขวา · ทำนองหลัก · ระดับ L2</div><div class="meter" role="img" aria-label="ความชำนาญ 0 เปอร์เซ็นต์ (ยังไม่มีข้อมูลที่เทียบได้)" style="margin-top:6px"><i></i></div></div><span class="muted" style="font-size:12px">ยังไม่มีผลที่เทียบได้</span></li>
+<li><span class="badge">Verse</span><div><strong>ห้อง 5–8</strong><div class="muted" style="font-size:12px">ยังไม่ระบุมือ</div></div><button class="btn" type="button" style="padding:4px 10px">ระบุมือ</button></li>
+<li><span class="badge">Bridge</span><div><strong>ห้อง 25–28</strong><div class="muted" style="font-size:12px">ยังไม่ระบุมือ</div></div><button class="btn" type="button" style="padding:4px 10px">ระบุมือ</button></li>
+</ul>
+</section>
+<section class="card" aria-labelledby="ex">
+<h2 id="ex" class="h2">แบบฝึกของท่อนนี้</h2>
+<div class="ex" style="margin-top:8px"><span>แยกมือขวา 4 รอบ ที่ 50 BPM</span><span class="muted">0 / 4</span></div>
+<div class="ex"><span>รวมสองมือ ห้อง 9–10</span><span class="muted">ล็อกไว้</span></div>
+<div class="ex"><span>วนท่อน A–B ช้า ๆ 3 รอบ</span><span class="muted">0 / 3</span></div>
+<div class="ex" style="border-bottom:0"><span>ฟังแกะ 2 วลีแรก (ไม่มีเฉลย)</span><span class="muted">ไม่ได้รับการยืนยัน</span></div>
+<div class="note" style="margin-top:12px"><strong>จุดที่ยาก:</strong> ห้อง 11 การกระโดดมือซ้ายที่คอร์ดเปลี่ยน (ปักหมุดโดยคุณ)</div>
+</section>
+</div>
+<section class="card" aria-labelledby="notes">
+<div class="row between"><h2 id="notes" class="h2">บันทึกของคุณ</h2><span class="muted" style="font-size:12px">บันทึกในเครื่องเท่านั้น</span></div>
+<p class="muted" style="margin:8px 0 0;font-size:13px">ห้อง 9 ให้นับ "1 และ 2 และ" ตอนเปลี่ยนคอร์ด ตัวอย่างบันทึก</p>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

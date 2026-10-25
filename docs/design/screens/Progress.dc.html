@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ความก้าวหน้า · Progress</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:28px 32px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-sizing:border-box;min-width:0}
+.h1{margin:0;font-size:26px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:16px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.metric .v{font-size:28px;font-weight:700;margin:6px 0 2px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:20px}
+.chart{height:200px;border-radius:12px;border:1px dashed var(--line);position:relative;display:flex;align-items:flex-end;gap:10px;padding:16px;box-sizing:border-box}
+.chart i{flex:1;background:var(--blue-soft);border:1px solid var(--blue);border-bottom:0;border-radius:6px 6px 0 0}
+.heat{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.heat span{aspect-ratio:1;border-radius:8px;display:grid;place-items:center;font-size:12px;border:1px solid var(--line)}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+@media (max-width:1000px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}.grid2{grid-template-columns:minmax(0,1fr)}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav" href="#">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav on" href="#" aria-current="page">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot"><div>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div><div>TH · EN · 日本語</div></div>
+</aside>
+<main class="main">
+<header class="row between">
+<div><h1 class="h1">ความก้าวหน้า</h1><div class="muted">เทียบเฉพาะแบบฝึกเดิม · เวอร์ชันเดิม · BPM เดิม · โหมดเดิม</div></div>
+<div class="row"><span class="tag">ข้อมูลตัวอย่าง · ยังไม่มีผลจริง</span><button class="btn" type="button">ช่วงเวลา: 30 วัน</button></div>
+</header>
+<section class="metrics" aria-label="ตัวชี้วัด">
+<article class="card metric"><div class="muted" style="font-size:13px">Note F1 · แบบ "ทำนองสั้น C"</div><div class="v" aria-label="ยังไม่มีข้อมูล">—</div><div class="muted" style="font-size:12px">ต้องมีผลจากเงื่อนไขเดียวกันอย่างน้อย 2 ครั้ง</div></article>
+<article class="card metric"><div class="muted" style="font-size:13px">ความคลาดเคลื่อนเวลา (ms)</div><div class="v" aria-label="ยังไม่ได้วัด">—</div><div class="muted" style="font-size:12px">ต้อง calibrate ก่อน · รายงานช้า/เร็วแยก</div></article>
+<article class="card metric"><div class="muted" style="font-size:13px">ความแม่นของคอร์ด</div><div class="v" aria-label="ยังไม่มีข้อมูล">—</div><div class="muted" style="font-size:12px">ยังไม่มีแบบฝึกคอร์ดที่บันทึกไว้</div></article>
+<article class="card metric"><div class="muted" style="font-size:13px">ความวางใจ (Habit)</div><div class="v" style="color:var(--text)">3 / 7 วัน</div><div class="muted" style="font-size:12px">แสดงแยกจากทักษะดนตรี · ไม่มีการลงโทษเมื่อขาดวัน</div></article>
+</section>
+<div class="grid2">
+<section class="card" aria-labelledby="trend">
+<div class="row between"><h2 id="trend" class="h2">แนวโน้มรายสัปดาห์</h2><span class="muted" style="font-size:12px">ข้อมูลตัวอย่าง</span></div>
+<div class="chart" role="img" aria-label="แผนภูมิแท่งตัวอย่าง แสดงการเปลี่ยนแปลงสมมติ ไม่ใช่ผลจริง">
+<i style="height:30%"></i><i style="height:42%"></i><i style="height:38%"></i><i style="height:55%"></i><i style="height:50%"></i><i style="height:64%"></i><i style="height:70%"></i>
+</div>
+<p class="muted" style="margin:10px 0 0;font-size:12px">แผนภูมินี้เป็นตัวอย่างการจัดวางเท่านั้น ตัวเลขจริงจะแสดงเมื่อมีผลที่เทียบได้</p>
+</section>
+<section class="card" aria-labelledby="weak">
+<h2 id="weak" class="h2">จุดอ่อนรายห้อง</h2>
+<p class="muted" style="margin:6px 0 12px;font-size:13px">ห้อง 1–8 · ยิ่งเข้มยิ่งพลาดบ่อย (ตัวอย่าง)</p>
+<div class="heat" role="img" aria-label="ตารางความร้อนห้อง 1 ถึง 8 ตัวอย่าง">
+<span style="background:var(--surface)">1</span><span style="background:var(--blue-soft)">2</span><span style="background:var(--blue-soft)">3</span><span style="background:var(--violet-soft)">4</span><span style="background:var(--surface)">5</span><span style="background:var(--pink-soft)">6</span><span style="background:var(--violet-soft)">7</span><span style="background:var(--surface)">8</span>
+</div>
+<div class="lg"><span>ไม่มีข้อมูล / พื้นขาว</span><span>อ่อน · ฟ้า</span><span>กลาง · ม่วง</span><span>พลาดมาก · ชมพู</span></div>
+<p class="muted" style="margin:12px 0 0;font-size:13px">ห้อง 6 พลาดโน้ตมือซ้ายบ่อยกว่าห้องอื่น</p>
+</section>
+</div>
+<section class="card" aria-labelledby="recap">
+<div class="row between"><h2 id="recap" class="h2">สรุปสัปดาห์นี้</h2><span class="muted" style="font-size:12px">แยกเวลาฝึกออกจากทักษะที่วัดได้</span></div>
+<div class="row" style="margin-top:12px;gap:24px">
+<div><div class="muted" style="font-size:13px">เวลาฝึกรวม</div><strong style="font-size:18px">ยังไม่มีข้อมูล</strong></div>
+<div><div class="muted" style="font-size:13px">ทักษะที่ผ่านเกณฑ์ซ้ำ</div><strong style="font-size:18px">0 รายการ</strong></div>
+<div><div class="muted" style="font-size:13px">ความท้าทายถัดไป</div><strong style="font-size:18px">เล่นท่อนฮุกที่ 60 BPM ให้ผ่าน 3 รอบ</strong></div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

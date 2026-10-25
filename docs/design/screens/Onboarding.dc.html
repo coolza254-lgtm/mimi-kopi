@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตั้งค่าครั้งแรก · Onboarding</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55;align-items:center;justify-content:center;padding:32px;gap:0}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.wiz{width:100%;max-width:1040px;height:100%;max-height:800px;display:grid;grid-template-columns:260px minmax(0,1fr);background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.steps{background:var(--bg);border-right:1px solid var(--line);padding:28px 22px;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;gap:10px;align-items:center;margin-bottom:18px}
+.logo{display:block;width:52px;height:52px;border-radius:14px}
+.bn{font-weight:700;font-size:17px}
+.bs{font-size:12px;color:var(--muted)}
+.st{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;padding:8px 6px;border-radius:10px;font-size:13px}
+.st b{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:12px}
+.st.done b{background:var(--blue-soft)}
+.st.on{background:var(--pink-soft);font-weight:600}
+.st.on b{background:var(--pink);border-color:var(--pink);color:#25324D}
+.st small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+.body{padding:32px 36px;display:flex;flex-direction:column;gap:18px;overflow:auto;box-sizing:border-box}
+.h1{margin:0;font-size:24px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:15px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:9px 18px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.btn.ghost{border-color:transparent;background:transparent}
+.chk{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+.chk small{display:block;color:var(--muted);font-size:12px}
+.badge{font-size:12px;padding:2px 9px;border-radius:6px;border:1px solid var(--line);white-space:nowrap}
+.pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pick span{padding:12px;border:1px solid var(--line);border-radius:12px;text-align:center}
+.pick .on{border:2px solid var(--pink);background:var(--pink-soft)}
+.foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}
+.note{padding:10px 12px;border-radius:12px;background:var(--violet-soft);font-size:13px}
+@media (max-width:820px){.mk{padding:0;align-items:stretch}.wiz{grid-template-columns:1fr;max-height:none;border-radius:0}.steps{flex-direction:row;overflow:auto;padding:14px}.brand{display:none}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<div class="wiz">
+<aside class="steps" aria-label="ขั้นตอนการตั้งค่า">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<div class="st done"><b>1</b><div>ภาษาและธีม<small>เสร็จแล้ว</small></div></div>
+<div class="st on" aria-current="step"><b>2</b><div>ตรวจสอบ MIDI<small>กำลังทำ</small></div></div>
+<div class="st"><b>3</b><div>เสียงออก<small>ยังไม่เริ่ม</small></div></div>
+<div class="st"><b>4</b><div>ทดสอบพื้นฐาน<small>ไม่บังคับ · 10–15 นาที</small></div></div>
+<div class="st"><b>5</b><div>แผนวันแรก<small>ยังไม่เริ่ม</small></div></div>
+</aside>
+<section class="body" aria-labelledby="s2">
+<div class="muted" style="font-size:13px">ขั้นที่ 2 จาก 5</div>
+<h1 id="s2" class="h1">ตรวจสอบว่า Windows เห็นเปียโนหรือไม่</h1>
+<p class="muted" style="margin:0">เสียบ USB-C ฝั่งเปียโน และ USB-A ฝั่งคอมพิวเตอร์ แล้วกดคีย์เปียโนเพื่อดูว่าแอปได้รับข้อมูลหรือไม่ ขั้นนี้ยังไม่ยืนยันว่าเครื่องส่ง velocity หรือ sustain</p>
+<div class="chk"><span class="badge">รอ</span><div>อุปกรณ์ MIDI ที่ Windows พบ<small>ยังไม่พบอุปกรณ์ · ลองเสียบใหม่หรือดูคู่มือเปียโนเรื่องโหมด USB</small></div><button class="btn" type="button">ตรวจอีกครั้ง</button></div>
+<div class="chk"><span class="badge">รอ</span><div>กดคีย์ 3 โน้ต<small>แอปจะแสดง note on / off ที่รับได้</small></div><button class="btn" type="button" disabled>ยังไม่พร้อม</button></div>
+<div class="chk"><span class="badge">ไม่บังคับ</span><div>Sustain pedal<small>ข้ามได้ถ้าไม่มี pedal</small></div><button class="btn ghost" type="button">ข้าม</button></div>
+<div class="note"><strong>ไม่มีเปียโนตอนนี้?</strong> เลือก "โหมดจำลอง" เพื่อลองแอปได้ทันที โดยทุกผลจะติดป้ายว่าจำลองและไม่นับเป็นผลฮาร์ดแวร์</div>
+<div class="foot">
+<button class="btn ghost" type="button">← ย้อนกลับ</button>
+<div class="row"><button class="btn" type="button">ใช้โหมดจำลอง</button><button class="btn pri" type="button">ถัดไป →</button></div>
+</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

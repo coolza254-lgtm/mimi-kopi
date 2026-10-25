@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เส้นทางเรียน · Learning Path</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:28px 32px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-sizing:border-box;min-width:0}
+.h1{margin:0;font-size:26px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:16px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.badge{font-size:12px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);white-space:nowrap}
+.stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.stage{display:flex;flex-direction:column;gap:10px}
+.stage ul{margin:0;padding-left:18px;font-size:13px;display:flex;flex-direction:column;gap:4px}
+.exit{padding:10px 12px;border-radius:12px;background:var(--blue-soft);font-size:13px}
+.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.pillar{padding:12px;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;gap:6px}
+.lvl{display:flex;gap:4px}
+.lvl i{flex:1;height:8px;border-radius:999px;background:var(--line)}
+.lvl i.on{background:var(--blue)}
+.lvl i.cur{background:var(--pink)}
+.rule{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 16px;font-size:13px}
+.rule div{padding:8px 0;border-bottom:1px solid var(--line)}
+@media (max-width:1000px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}.rule{grid-template-columns:minmax(0,1fr)}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav" href="#">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav on" href="#" aria-current="page">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot"><div>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div><div>TH · EN · 日本語</div></div>
+</aside>
+<main class="main">
+<header class="row between">
+<div><h1 class="h1">เส้นทางเรียน</h1><div class="muted">ทักษะที่ควรมี ก่อนเล่นเพลงเป้าหมาย · ระดับเป็นของแต่ละเพลง ไม่ใช่ของคนทั้งหมด</div></div>
+<div class="row"><span class="tag">ข้อมูลตัวอย่าง</span></div>
+</header>
+<section class="card" aria-labelledby="pillars">
+<div class="row between"><h2 id="pillars" class="h2">ห้าเสาหลัก</h2><span class="muted" style="font-size:12px">ทักษะแต่ละด้านมีความคืบหน้าแยกกัน</span></div>
+<div class="pillars" style="margin-top:14px">
+<div class="pillar"><strong>คีย์บอร์ดและโน้ต</strong><div class="muted" style="font-size:12px">ตำแหน่งคีย์ · treble/bass</div><span class="badge">ยังไม่ประเมิน</span></div>
+<div class="pillar"><strong>จังหวะและเวลา</strong><div class="muted" style="font-size:12px">pulse · ตัวโน้ต · หยุด</div><span class="badge">ยังไม่ประเมิน</span></div>
+<div class="pillar"><strong>เทคนิคและประสานมือ</strong><div class="muted" style="font-size:12px">5-finger · มือเดียว → สองมือ</div><span class="badge">ยังไม่ประเมิน</span></div>
+<div class="pillar"><strong>ฮาร์โมนี</strong><div class="muted" style="font-size:12px">triad · การสลับคอร์ด</div><span class="badge">ยังไม่ประเมิน</span></div>
+<div class="pillar"><strong>การฟังและแกะ</strong><div class="muted" style="font-size:12px">ร้องตาม · ช่วงเสียง</div><span class="badge">ยังไม่ประเมิน</span></div>
+</div>
+</section>
+<section class="stages" aria-label="ขั้นของหลักสูตร">
+<article class="card stage" aria-labelledby="sa">
+<div class="row between"><h2 id="sa" class="h2">ขั้น A · สัปดาห์ 1–4</h2><span class="badge">ยังไม่เริ่ม</span></div>
+<ul><li>อ่านชื่อโน้ตและตำแหน่งคีย์</li><li>โน้ต landmark บน treble/bass</li><li>ทำนองสั้น 2–4 ห้อง, 5-finger</li><li>triad เมเจอร์/ไมเนอร์พื้นฐาน</li></ul>
+<div class="exit"><strong>เกณฑ์ผ่าน:</strong> เล่นทำนองสั้นและแบบฝึกจังหวะผ่านเกณฑ์ที่ตั้งไว้</div>
+</article>
+<article class="card stage" aria-labelledby="sb">
+<div class="row between"><h2 id="sb" class="h2">ขั้น B · สัปดาห์ 5–8</h2><span class="badge">ล็อกไว้</span></div>
+<ul><li>โน้ตกว้างขึ้น, rest, eighth note</li><li>สลับคอร์ดและ broken chord</li><li>แยกมือ → สองมือสั้น ๆ</li><li>แบ่งท่อนเพลงเป็น fragment</li></ul>
+<div class="exit"><strong>เกณฑ์ผ่าน:</strong> ท่อน 4–8 ห้องแบบง่ายที่ BPM ที่กำหนด</div>
+</article>
+<article class="card stage" aria-labelledby="sc">
+<div class="row between"><h2 id="sc" class="h2">ขั้น C · เดือน 3–6</h2><span class="badge">ล็อกไว้</span></div>
+<ul><li>อ่านโน้ตเพิ่ม ลดการพึ่ง falling notes</li><li>สองมือ, accompaniment pattern</li><li>แผนเพลง A / B / ฮุก / บริดจ์</li><li>ฟังแกะวลี 2–4 โน้ต</li></ul>
+<div class="exit"><strong>เกณฑ์ผ่าน:</strong> หนึ่ง section ของเพลงเป้าหมายเล่นคล่องแบบ simplified</div>
+</article>
+<article class="card stage" aria-labelledby="sd">
+<div class="row between"><h2 id="sd" class="h2">ขั้น D · เดือน 6–12</h2><span class="badge">ล็อกไว้</span></div>
+<ul><li>ต่อหลาย section เป็นเพลงเต็ม (ฉบับง่าย)</li><li>transition, ความต่อเนื่อง, dynamics</li><li>inversion และ harmony awareness</li></ul>
+<div class="exit"><strong>เกณฑ์ผ่าน:</strong> เล่นเพลงหนึ่งเพลงจบตาม arrangement ที่ตกลงกัน</div>
+</article>
+<article class="card stage" aria-labelledby="se">
+<div class="row between"><h2 id="se" class="h2">ขั้น E · ระยะยาว</h2><span class="badge">ล็อกไว้</span></div>
+<ul><li>บันทึกไอเดียทำนองด้วยหู</li><li>หา root movement จากเสียงที่ฟัง</li><li>transpose, voicing, pattern ballad/pop/bossa</li><li>สร้าง arrangement ของตัวเองใน portfolio</li></ul>
+<div class="exit"><strong>เกณฑ์ผ่าน:</strong> มี arrangement ที่คุณสร้างเองอย่างน้อยหนึ่งชิ้น</div>
+</article>
+</section>
+<section class="card" aria-labelledby="song">
+<div class="row between"><h2 id="song" class="h2">เพลงเป้าหมาย: ระดับของ Kokoro no Placard</h2><span class="badge">ระดับ L2 · ตัวอย่าง</span></div>
+<div class="lvl" role="img" aria-label="ระดับ L0 ถึง L7 ระดับปัจจุบัน L2 ตัวอย่าง" style="margin:14px 0 8px"><i class="on"></i><i class="cur"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="row" style="justify-content:space-between;font-size:12px" aria-hidden="true"><span>L0 ฟัง</span><span>L3 ฮาร์โมนี</span><span>L5 เพลงเต็ม</span><span>L7 แกะเอง</span></div>
+<p class="muted" style="margin:12px 0 0;font-size:13px">ระดับนี้ผูกกับ arrangement ที่คุณเลือกเท่านั้น · ปัจจุบันยังไม่มีการเปรียบเทียบที่ยืนยันได้</p>
+</section>
+<section class="card" aria-labelledby="rules">
+<h2 id="rules" class="h2">ปรับแผนอัตโนมัติจากผลจริง (กฎพื้นฐาน)</h2>
+<p class="muted" style="margin:6px 0 12px;font-size:13px">ทุกข้อเสนอจะแสดงเหตุผลและหลักฐานที่ใช้</p>
+<div class="rule">
+<div>โน้ตผิดบ่อย → ลดขนาดวลี และเพิ่มแบบฝึกจำโน้ต</div>
+<div>โน้ตถูกแต่ช้ากว่าจังหวะ → ฝึกการแบ่งจังหวะที่ BPM ต่ำลง</div>
+<div>คอร์ดผิด → แยกโน้ตของคอร์ด, inversion และการสลับ</div>
+<div>สองมือไม่ตรงกัน → แยกมือก่อน แล้วรวมแบบสั้น</div>
+<div>ท่อนเดิมผ่าน 3 รอบ → เพิ่ม BPM ทีละน้อย</div>
+<div>ฝึกหลายครั้งแล้วไม่ดีขึ้น → เปลี่ยนวิธีฝึก (ไม่ทำซ้ำไม่จบ)</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

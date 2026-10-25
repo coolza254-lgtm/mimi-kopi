@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>วันนี้ · Today</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:28px 32px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:20px}
+.stack{display:flex;flex-direction:column;gap:20px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-sizing:border-box;min-width:0}
+.h1{margin:0;font-size:26px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:16px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:20px}
+.mission{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.mission li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.mission small{display:block;color:var(--muted);font-size:12px}
+@media (max-width:1000px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}.grid2{grid-template-columns:minmax(0,1fr)}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav on" href="#" aria-current="page">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav" href="#">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot">
+<div><span class="dot" aria-hidden="true"></span>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div>
+<div>TH · EN · 日本語</div>
+</div>
+</aside>
+<main class="main">
+<header class="row between">
+<div><h1 class="h1">วันนี้</h1><div class="muted">ภารกิจ 30 นาที · ฝึกแบบเน้นเป้าหมาย</div></div>
+<div class="row"><span class="tag">ข้อมูลตัวอย่าง</span><button class="btn pri" type="button">เริ่มฝึกวันนี้</button></div>
+</header>
+<div class="grid2">
+<section class="card" aria-labelledby="mission">
+<div class="row between"><h2 id="mission" class="h2">ภารกิจ 30 นาที</h2><span class="muted">0 / 5 เสร็จ</span></div>
+<div class="bar" style="margin:14px 0" role="presentation"><i style="width:0%"></i></div>
+<ol class="mission">
+<li><input type="checkbox" id="m1" aria-label="อุ่นเครื่อง"><label for="m1">อุ่นเครื่องและอ่านโน้ตใหม่<small>อ่านโน้ต 2–4 ห้อง</small></label><span class="muted">5 นาที</span></li>
+<li><input type="checkbox" id="m2" aria-label="จังหวะ"><label for="m2">จังหวะ<small>เคาะตาม metronome</small></label><span class="muted">5 นาที</span></li>
+<li><input type="checkbox" id="m3" aria-label="คอร์ด"><label for="m3">คอร์ดและการสลับคอร์ด<small>C – G – Am – F</small></label><span class="muted">5 นาที</span></li>
+<li><input type="checkbox" id="m4" aria-label="เพลงเป้าหมาย"><label for="m4">เพลงเป้าหมาย<small>ฝึก 2–4 ห้อง ที่ BPM ที่ตั้งไว้</small></label><span class="muted">10 นาที</span></li>
+<li><input type="checkbox" id="m5" aria-label="ฟังแล้วแกะ"><label for="m5">ฟังแล้วแกะ / ทบทวน<small>ลองเล่นตามหู ไม่มีเฉลยอัตโนมัติ</small></label><span class="muted">5 นาที</span></li>
+</ol>
+</section>
+<div class="stack">
+<section class="card" aria-labelledby="resume">
+<h2 id="resume" class="h2">ต่อจากเมื่อวาน</h2>
+<p style="margin:10px 0 4px;font-weight:600">Kokoro no Placard · ท่อนฮุก ห้อง 1–4</p>
+<p class="muted" style="margin:0 0 14px">60 BPM · มือขวา · ยังไม่มีผลที่เทียบได้ ทำซ้ำเพื่อวัด</p>
+<button class="btn pri" type="button">ดำเนินการต่อ</button>
+</section>
+<section class="card" aria-labelledby="gain">
+<h2 id="gain" class="h2">วันนี้ดีขึ้นอะไร</h2>
+<p class="muted" style="margin:10px 0 0">ยังไม่มีการเปรียบเทียบ ทำแบบฝึกเดิม ที่ BPM เดิม และโหมดเดิม เพื่อดูว่าดีขึ้นจากครั้งก่อนหรือไม่</p>
+</section>
+<section class="card" aria-labelledby="device">
+<h2 id="device" class="h2">อุปกรณ์</h2>
+<p style="margin:10px 0 4px">ยังไม่พบอุปกรณ์ MIDI</p>
+<p class="muted" style="margin:0 0 14px">ระบบใช้โหมดจำลองอยู่ · ลำโพงหรือหูฟัง: ยังไม่ได้วัด latency</p>
+<button class="btn" type="button">ตรวจสอบ MIDI</button>
+</section>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>

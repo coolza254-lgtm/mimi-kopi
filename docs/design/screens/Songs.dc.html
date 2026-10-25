@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เพลงของฉัน · My Songs</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F9FAFF}
+a{color:inherit;text-decoration:none}
+.mk{--bg:#F9FAFF;--surface:#FFFFFF;--text:#25324D;--muted:#55607A;--line:#E3E8F5;--pink:#F47FA8;--blue:#8BB9FA;--violet:#AAA1E8;--pink-soft:#FCE4EE;--blue-soft:#E3EFFD;--violet-soft:#ECE9FB;display:flex;height:100vh;min-height:640px;box-sizing:border-box;background:var(--bg);color:var(--text);font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;font-size:14px;line-height:1.55}
+.mk.dark{--bg:#151B2B;--surface:#20283A;--text:#EAF0FF;--muted:#A9B4CF;--line:#323C55;--pink:#F18DB5;--blue:#83AEFA;--violet:#B3A7F2;--pink-soft:#3A2A3A;--blue-soft:#243450;--violet-soft:#2E2A4A}
+.side{flex:0 0 232px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;padding:20px 14px;box-sizing:border-box}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.logo{display:block;width:44px;height:44px;border-radius:12px}
+.bn{font-weight:700;font-size:16px}
+.bs{font-size:12px;color:var(--muted)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px}
+.nav small{color:var(--muted);font-size:11px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--pink-soft);font-weight:600;box-shadow:inset 3px 0 0 var(--pink)}
+.foot{margin-top:auto;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.main{flex:999 1 560px;min-width:0;padding:28px 32px;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:10px}
+.h1{margin:0;font-size:26px;font-weight:700;line-height:1.25}
+.h2{margin:0;font-size:16px;font-weight:600}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);padding:7px 14px;border-radius:999px;cursor:pointer}
+.btn.pri{background:var(--pink);border-color:var(--pink);color:#25324D;font-weight:600}
+.tag{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--violet-soft);white-space:nowrap}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs span{padding:6px 14px;border-radius:999px;border:1px solid var(--line)}
+.tabs .on{background:var(--blue-soft);font-weight:600;border-color:var(--blue)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.thumb{height:96px;border-radius:12px;background:repeating-linear-gradient(135deg,var(--line) 0 2px,transparent 2px 12px);border:1px dashed var(--line);display:grid;place-items:center;font-size:12px;color:var(--muted)}
+.lv{display:flex;gap:4px}
+.lv i{flex:1;height:6px;border-radius:999px;background:var(--line)}
+.lv i.on{background:var(--blue)}
+.empty{border:1px dashed var(--line);border-radius:16px;padding:24px;text-align:center}
+@media (max-width:1000px){.mk{flex-direction:column;height:auto}.side{flex-basis:auto}}
+</style>
+</helmet>
+<div class="mk {{themeClass}}">
+<aside class="side" aria-label="เมนูหลัก">
+<div class="brand"><img class="logo" src="/_blob/5126604b282f3fa9e187ec40639c1ac5" alt=""><div><div class="bn">耳コピー</div><div class="bs">Mimi Kopi</div></div></div>
+<nav class="row" style="flex-direction:column;align-items:stretch;gap:4px" aria-label="หน้าจอ">
+<a class="nav" href="#">วันนี้ <small>Today</small></a>
+<a class="nav" href="#">ฝึกซ้อม <small>Practice</small></a>
+<a class="nav on" href="#" aria-current="page">เพลงของฉัน <small>My Songs</small></a>
+<a class="nav" href="#">ฟังแล้วแกะ <small>Ear Copy</small></a>
+<a class="nav" href="#">ความก้าวหน้า <small>Progress</small></a>
+<a class="nav" href="#">เสียงและ MIDI <small>Sound</small></a>
+<a class="nav" href="#">วินิจฉัย <small>Diagnostics</small></a>
+<a class="nav" href="#">เส้นทางเรียน <small>Learning Path</small></a>
+</nav>
+<div class="foot"><div>MIDI: ยังไม่ทดสอบกับเครื่องจริง · โหมดจำลอง</div><div>TH · EN · 日本語</div></div>
+</aside>
+<main class="main">
+<header class="row between">
+<div><h1 class="h1">เพลงของฉัน</h1><div class="muted">เพลงที่คุณนำเข้าเอง · แยกเป็นท่อนเพื่อฝึกทีละส่วน</div></div>
+<div class="row"><span class="tag">ข้อมูลตัวอย่าง</span><button class="btn pri" type="button">นำเข้า MIDI</button></div>
+</header>
+<nav class="tabs" aria-label="หมวดหมู่">
+<span class="on">ทั้งหมด</span><span>Hello! Project</span><span>Morning Musume</span><span>AKB48</span><span>Foundations</span><span>อื่น ๆ</span>
+</nav>
+<section class="cards" aria-label="รายการเพลง">
+<article class="card" aria-labelledby="s1">
+<div class="thumb" aria-hidden="true">ยังไม่มีไฟล์ MIDI</div>
+<h2 id="s1" class="h2">Renai Revolution 21</h2>
+<div class="muted" style="font-size:13px">Morning Musume · ยังไม่ได้นำเข้า</div>
+<div class="lv" role="img" aria-label="ระดับ L1 จาก L0 ถึง L7"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="row"><span class="muted" style="font-size:12px">ระดับ L1 · ทำนองสั้น</span><button class="btn" type="button">นำเข้า</button></div>
+</article>
+<article class="card" aria-labelledby="s2">
+<div class="thumb" aria-hidden="true">ยังไม่มีไฟล์ MIDI</div>
+<h2 id="s2" class="h2">Kokoro no Placard</h2>
+<div class="muted" style="font-size:13px">AKB48 · ฉบับเรียบเรียงของคุณ</div>
+<div class="lv" role="img" aria-label="ระดับ L2 จาก L0 ถึง L7"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="row"><span class="muted" style="font-size:12px">ระดับ L2 · ท่อนฮุก</span><button class="btn pri" type="button">เปิดพื้นที่ท่อน</button></div>
+</article>
+<article class="card" aria-labelledby="s3">
+<div class="thumb" aria-hidden="true">ยังไม่มีไฟล์ MIDI</div>
+<h2 id="s3" class="h2">I WISH</h2>
+<div class="muted" style="font-size:13px">Morning Musume · ยังไม่ได้นำเข้า</div>
+<div class="lv" role="img" aria-label="ระดับ L0 จาก L0 ถึง L7"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="row"><span class="muted" style="font-size:12px">ระดับ L0 · ฟังและจับโครงสร้าง</span><button class="btn" type="button">นำเข้า</button></div>
+</article>
+<article class="card" aria-labelledby="s4">
+<div class="thumb" aria-hidden="true">ยังไม่มีไฟล์ MIDI</div>
+<h2 id="s4" class="h2">Sakura no Ki ni Narou</h2>
+<div class="muted" style="font-size:13px">AKB48 · ยังไม่ได้นำเข้า</div>
+<div class="lv" role="img" aria-label="ระดับ L0 จาก L0 ถึง L7"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="row"><span class="muted" style="font-size:12px">ยังไม่ได้ประเมินระดับ</span><button class="btn" type="button">นำเข้า</button></div>
+</article>
+</section>
+<section class="empty" aria-label="คลังว่าง">
+<h2 class="h2">นำเข้าเฉพาะไฟล์ที่คุณมีสิทธิ์ใช้</h2>
+<p class="muted" style="margin:6px 0 14px">แอปไม่แนบหรือดาวน์โหลดเพลงเชิงพาณิชย์ให้ · รองรับไฟล์ .mid / .midi และ WAV / MP3 ของคุณเอง</p>
+<button class="btn" type="button">เลือกไฟล์…</button>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","default":"light","options":["light","dark"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { themeClass: this.props.theme === 'dark' ? 'dark' : '' };
+}
+}
+</script>
+</body>
+</html>
