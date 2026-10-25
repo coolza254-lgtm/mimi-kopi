@@ -5,16 +5,18 @@ import { loadAudioPrefs, saveAudioPrefs } from "./lib/audioPrefs";
 import { backend, inDesktopApp, type AppInfo } from "./lib/backend";
 import { loadSettings, saveSettings, type Settings } from "./lib/settings";
 import { findUpdate, installUpdate, type UpdateState } from "./lib/updates";
+import FreePlay from "./pages/FreePlay";
 import Practice from "./pages/Practice";
 import SettingsPage from "./pages/Settings";
 import SoundMidi from "./pages/SoundMidi";
 import Today from "./pages/Today";
 
-type Page = "today" | "practice" | "sound" | "settings";
+type Page = "today" | "practice" | "free" | "sound" | "settings";
 
 const navItems: { key: MessageKey; page?: Page }[] = [
   { key: "navToday", page: "today" },
   { key: "navPractice", page: "practice" },
+  { key: "navFreePlay", page: "free" },
   { key: "navSongs" },
   { key: "navEarCopy" },
   { key: "navProgress" },
@@ -22,11 +24,14 @@ const navItems: { key: MessageKey; page?: Page }[] = [
   { key: "navSettings", page: "settings" },
 ];
 
-/** Reopens the remembered output device and piano sound (.sf2 or .sfz). A device that is not
+/** Reopens the remembered output device, volume, tone and piano sound (.sf2 or .sfz). A device that is not
  * plugged in falls back to the Windows default so the app is never silent. */
 async function restoreAudio() {
   const prefs = loadAudioPrefs();
   try {
+    await backend.audioSetGain("master", prefs.master / 100);
+    await backend.audioSetGain("piano", prefs.piano / 100);
+    await backend.audioSetTone(prefs.tone);
     if (prefs.outputDevice) {
       const status = await backend.audioOpen(prefs.outputDevice);
       if (!status.device) await backend.audioOpen(null);
@@ -131,6 +136,8 @@ export default function App() {
             onCheck={() => void checkUpdate()}
             onInstall={() => void install()}
           />
+        ) : page === "free" ? (
+          <FreePlay t={t} onOpenSound={() => setPage("sound")} />
         ) : page === "sound" ? (
           <SoundMidi t={t} />
         ) : page === "practice" ? (

@@ -46,7 +46,10 @@ export default function SoundMidi({ t }: Props) {
   const [outputs, setOutputs] = useState<string[]>([]);
   const [output, setOutput] = useState(() => loadAudioPrefs().outputDevice ?? "");
   const [audio, setAudio] = useState<AudioStatus | null>(null);
-  const [gains, setGains] = useState<Record<"master" | "piano", number>>({ master: 80, piano: 80 });
+  const [gains, setGains] = useState<Record<"master" | "piano", number>>(() => {
+    const { master, piano } = loadAudioPrefs();
+    return { master, piano };
+  });
   const [error, setError] = useState<string | null>(null);
   const [loadingSound, setLoadingSound] = useState(false);
   // Keys held with the mouse, so they can be released if the window loses focus.
@@ -110,6 +113,7 @@ export default function SoundMidi({ t }: Props) {
 
   const setGain = (channel: "master" | "piano", value: number) => {
     setGains((g) => ({ ...g, [channel]: value }));
+    saveAudioPrefs({ [channel]: value });
     if (desktop) void run(() => backend.audioSetGain(channel, value / 100));
   };
 

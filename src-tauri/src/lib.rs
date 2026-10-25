@@ -11,6 +11,7 @@ use std::time::Duration;
 use mimi_core::audio::{AudioCommand, Channel};
 use mimi_core::sampler::{load_sfz, LoadOptions};
 use mimi_core::synth::load_sound_font;
+use mimi_core::tone::Touch;
 use serde::Serialize;
 use tauri::{Manager, State};
 
@@ -130,6 +131,30 @@ async fn audio_load_soundfont(
     Ok(state.audio.set_instrument(source, name))
 }
 
+/// Sound shaping for free play: touch (velocity curve or a fixed level for
+/// every note), reverb and brightness. Takes effect on the next note.
+#[tauri::command]
+fn audio_set_tone(
+    state: State<'_, AppState>,
+    touch: String,
+    fixed_velocity: u8,
+    reverb: f32,
+    brightness: f32,
+) -> Result<(), String> {
+    let touch = Touch::parse(&touch).ok_or_else(|| format!("unknown touch: {touch}"))?;
+    let tone = &state.audio.tone;
+    tone.set_touch(touch, fixed_velocity);
+    tone.set_reverb(reverb);
+    tone.set_brightness(brightness);
+    Ok(())
+}
+
+/// Switches back to the built-in tone from a loaded file.
+#[tauri::command]
+fn audio_use_basic(state: State<'_, AppState>) -> AudioStatus {
+    state.audio.set_instrument(Source::Basic, String::new())
+}
+
 /// Plays a short C major chord on the current output.
 #[tauri::command]
 fn audio_test_sound(state: State<'_, AppState>) {
@@ -176,6 +201,8 @@ pub fn run() {
             audio_status,
             audio_set_gain,
             audio_load_soundfont,
+            audio_set_tone,
+            audio_use_basic,
             audio_test_sound,
         ])
         .run(tauri::generate_context!())

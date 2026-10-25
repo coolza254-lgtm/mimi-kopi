@@ -1,5 +1,6 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import type { TonePrefs } from "./audioPrefs";
 
 // These mirror the Serialize structs in src-tauri/src (lib.rs, audio.rs, midi_io.rs).
 
@@ -61,12 +62,21 @@ export const backend = {
   midiDisconnect: () => invoke<MidiStatus>("midi_disconnect"),
   midiStatus: () => invoke<MidiStatus>("midi_status"),
   midiSimulate: (bytes: number[]) => invoke<void>("midi_simulate", { bytes }),
+  midiReleaseAll: () => invoke<void>("midi_release_all"),
   audioListOutputs: () => invoke<string[]>("audio_list_outputs"),
   audioOpen: (device: string | null) => invoke<AudioStatus>("audio_open", { device }),
   audioStatus: () => invoke<AudioStatus>("audio_status"),
   audioSetGain: (channel: GainChannel, value: number) => invoke<void>("audio_set_gain", { channel, value }),
   audioLoadSoundFont: (path: string) => invoke<AudioStatus>("audio_load_soundfont", { path }),
   audioTestSound: () => invoke<void>("audio_test_sound"),
+  audioSetTone: (tone: TonePrefs) =>
+    invoke<void>("audio_set_tone", {
+      touch: tone.touch,
+      fixedVelocity: tone.fixedVelocity,
+      reverb: tone.reverb / 100,
+      brightness: tone.brightness / 100,
+    }),
+  audioUseBasic: () => invoke<AudioStatus>("audio_use_basic"),
   onMidiEvent: (cb: (e: MidiEvent) => void): Promise<UnlistenFn> => listen<MidiEvent>("midi-event", (e) => cb(e.payload)),
   onMidiReset: (cb: () => void): Promise<UnlistenFn> => listen("midi-reset", () => cb()),
   onMidiStatus: (cb: (s: MidiStatus) => void): Promise<UnlistenFn> => listen<MidiStatus>("midi-status", (e) => cb(e.payload)),

@@ -430,3 +430,224 @@ th {
   text-align: left;
   cursor: pointer;
 }
+
+/* Shared page pieces */
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.page-head .title {
+  margin-bottom: var(--space-1);
+}
+
+.page-head p {
+  margin: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pill {
+  display: inline-block;
+  min-width: 44px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--line);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pill.on {
+  background: var(--pink);
+  color: var(--on-pink);
+}
+
+.link {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* Free piano */
+.free {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.free-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  gap: var(--space-5);
+  align-items: stretch;
+}
+
+.stage {
+  min-height: 300px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-5);
+  border-top: 4px solid var(--pink);
+}
+
+.stage-chord {
+  font-size: clamp(56px, 8vw, 104px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  min-height: 1.1em;
+}
+
+.stage-chord.idle {
+  color: var(--line);
+}
+
+.stage-notes,
+.stage-stats,
+.stage .actions {
+  justify-content: center;
+}
+
+.stage-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-height: 34px;
+  align-items: center;
+}
+
+.note-chip {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--violet-soft);
+  font-weight: 600;
+}
+
+.stage-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin: 0;
+}
+
+.stage-stats dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stage-stats dd {
+  margin: 2px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.tone-panel .group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 0 var(--space-3);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.tone-panel legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-weight: 600;
+}
+
+.choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choice.compact {
+  justify-content: center;
+  border-radius: 999px;
+}
+
+.choice .small {
+  color: var(--muted);
+}
+
+.choice.on {
+  border-color: var(--pink);
+  background: var(--pink-soft);
+  box-shadow: inset 0 0 0 1px var(--pink);
+}
+
+.choice:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.touch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.range {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 14px;
+}
+
+.range > span:first-child {
+  display: flex;
+  justify-content: space-between;
+}
+
+.range input {
+  width: 100%;
+  accent-color: var(--pink);
+}
+
+.range-ends {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 1100px) {
+  .free-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -14,6 +14,7 @@ use cpal::{FromSample, SampleFormat, SizedSample};
 use mimi_core::audio::{AudioCommand, Gains, Renderer};
 use mimi_core::sampler::{SampleBank, SamplerPiano};
 use mimi_core::synth::{BasicPiano, Instrument, SoundFont, SoundFontPiano};
+use mimi_core::tone::ToneSettings;
 use serde::Serialize;
 
 /// Note events queued between callbacks; at 48 kHz a callback runs every few
@@ -57,6 +58,8 @@ type Reply = mpsc::Sender<AudioStatus>;
 
 /// A piano sound the user chose from a file.
 pub enum Source {
+    /// The built-in tone, chosen to go back from a file.
+    Basic,
     SoundFont(Arc<SoundFont>),
     Sampler(Arc<SampleBank>),
 }
@@ -70,6 +73,7 @@ pub struct AudioEngine {
     control: Mutex<mpsc::Sender<Control>>,
     queue: Arc<Mutex<Option<rtrb::Producer<AudioCommand>>>>,
     pub gains: Arc<Gains>,
+    pub tone: Arc<ToneSettings>,
     status: Arc<Mutex<AudioStatus>>,
 }
 
@@ -80,16 +84,17 @@ impl AudioEngine {
             control: Mutex::new(tx),
             queue: Arc::new(Mutex::new(None)),
             gains: Arc::new(Gains::default()),
+            tone: Arc::new(ToneSettings::default()),
             status: Arc::new(Mutex::new(AudioStatus::empty())),
         };
-        let (queue, gains, status) = (
-            engine.queue.clone(),
-            engine.gains.clone(),
-            engine.status.clone(),
-        );
+        let mix = Mix {
+            gains: engine.gains.clone(),
+            tone: engine.tone.clone(),
+        };
+        let (queue, status) = (engine.queue.clone(), engine.status.clone());
         thread::Builder::new()
             .name("audio-control".into())
-            .spawn(move || run(rx, queue, gains, status))
+            .spawn(move || run(rx, queue, mix, status))
             .expect("failed to start the audio control thread");
         engine
     }
@@ -135,10 +140,16 @@ pub fn output_device_names() -> Vec<String> {
     }
 }
 
+/// Settings shared with every stream the control thread opens.
+struct Mix {
+    gains: Arc<Gains>,
+    tone: Arc<ToneSettings>,
+}
+
 fn run(
     rx: mpsc::Receiver<Control>,
     queue: Arc<Mutex<Option<rtrb::Producer<AudioCommand>>>>,
-    gains: Arc<Gains>,
+    mix: Mix,
     status: Arc<Mutex<AudioStatus>>,
 ) {
     let mut stream: Option<cpal::Stream> = None;
@@ -150,6 +161,10 @@ fn run(
                 device = name;
                 reply
             }
+            Control::Instrument(Source::Basic, _, reply) => {
+                source = None;
+                reply
+            }
             Control::Instrument(chosen, name, reply) => {
                 source = Some((chosen, name));
                 reply
@@ -157,7 +172,7 @@ fn run(
         };
         *queue.lock().unwrap() = None;
         drop(stream.take());
-        let result = open_stream(device.as_deref(), source.as_ref(), &gains, &status);
+        let result = open_stream(device.as_deref(), source.as_ref(), &mix, &status);
         let new_status = match result {
             Ok((s, producer, st)) => {
                 stream = Some(s);
@@ -176,7 +191,7 @@ type Opened = (cpal::Stream, rtrb::Producer<AudioCommand>, AudioStatus);
 fn open_stream(
     name: Option<&str>,
     source: Option<&(Source, String)>,
-    gains: &Arc<Gains>,
+    mix: &Mix,
     status: &Arc<Mutex<AudioStatus>>,
 ) -> Result<Opened, AudioStatus> {
     let mut st = AudioStatus::empty();
@@ -220,11 +235,12 @@ fn open_stream(
                 }
             }
         }
-        None => Box::new(BasicPiano::new(config.sample_rate)),
+        Some((Source::Basic, _)) | None => Box::new(BasicPiano::new(config.sample_rate)),
     };
 
     let (producer, consumer) = rtrb::RingBuffer::new(QUEUE);
-    let renderer = Renderer::new(instrument);
+    let renderer = Renderer::new(instrument, config.sample_rate, mix.tone.clone());
+    let gains = &mix.gains;
     let stream = match supported.sample_format() {
         SampleFormat::F32 => build::<f32>(&device, config, renderer, consumer, gains, status),
         SampleFormat::I16 => build::<i16>(&device, config, renderer, consumer, gains, status),

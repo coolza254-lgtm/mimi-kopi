@@ -2,9 +2,11 @@
 //! that turns instrument output into the device's interleaved frames.
 
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::Arc;
 
 use crate::midi::{MidiMessage, CC_SUSTAIN};
 use crate::synth::Instrument;
+use crate::tone::{Effects, ToneSettings};
 
 /// Sent from the MIDI side to the audio callback through a lock-free queue.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -94,14 +96,18 @@ const BLOCK: usize = 1024;
 
 pub struct Renderer {
     instrument: Box<dyn Instrument>,
+    effects: Effects,
+    tone: Arc<ToneSettings>,
     left: Vec<f32>,
     right: Vec<f32>,
 }
 
 impl Renderer {
-    pub fn new(instrument: Box<dyn Instrument>) -> Self {
+    pub fn new(instrument: Box<dyn Instrument>, sample_rate: u32, tone: Arc<ToneSettings>) -> Self {
         Self {
             instrument,
+            effects: Effects::new(sample_rate),
+            tone,
             left: vec![0.0; BLOCK],
             right: vec![0.0; BLOCK],
         }
@@ -109,7 +115,9 @@ impl Renderer {
 
     pub fn apply(&mut self, command: AudioCommand) {
         match command {
-            AudioCommand::NoteOn { pitch, velocity } => self.instrument.note_on(pitch, velocity),
+            AudioCommand::NoteOn { pitch, velocity } => {
+                self.instrument.note_on(pitch, self.tone.velocity(velocity))
+            }
             AudioCommand::NoteOff { pitch } => self.instrument.note_off(pitch),
             AudioCommand::Sustain(on) => self.instrument.set_sustain(on),
             AudioCommand::AllNotesOff => self.instrument.all_notes_off(),
@@ -126,6 +134,8 @@ impl Renderer {
         let gain = gains.get(Channel::Master) * gains.get(Channel::Piano);
         let Self {
             instrument,
+            effects,
+            tone,
             left,
             right,
         } = self;
@@ -133,6 +143,7 @@ impl Renderer {
             let frames = chunk.len() / channels;
             let (l, r) = (&mut left[..frames], &mut right[..frames]);
             instrument.render(l, r);
+            effects.process(l, r, tone);
             for (i, frame) in chunk.chunks_exact_mut(channels).enumerate() {
                 if channels == 1 {
                     frame[0] = ((l[i] + r[i]) * 0.5 * gain).clamp(-1.0, 1.0);
@@ -152,7 +163,11 @@ mod tests {
     use crate::synth::BasicPiano;
 
     fn renderer() -> Renderer {
-        Renderer::new(Box::new(BasicPiano::new(48_000)))
+        Renderer::new(
+            Box::new(BasicPiano::new(48_000)),
+            48_000,
+            Arc::new(ToneSettings::default()),
+        )
     }
 
     #[test]
@@ -264,5 +279,23 @@ mod tests {
         let mut out = vec![0.0; 2 * 4096];
         r.render_interleaved(&mut out, 2, &gains);
         assert!(out.iter().all(|s| (-1.0..=1.0).contains(s)));
+    }
+
+    #[test]
+    fn fixed_touch_plays_soft_and_hard_presses_equally() {
+        let gains = Gains::default();
+        let loudness = |velocity: u8| {
+            let tone = Arc::new(ToneSettings::default());
+            tone.set_touch(crate::tone::Touch::Fixed, 90);
+            let mut r = Renderer::new(Box::new(BasicPiano::new(48_000)), 48_000, tone);
+            r.apply(AudioCommand::NoteOn {
+                pitch: 60,
+                velocity,
+            });
+            let mut out = vec![0.0; 2 * 2048];
+            r.render_interleaved(&mut out, 2, &gains);
+            out.iter().map(|s| s * s).sum::<f32>()
+        };
+        assert_eq!(loudness(20), loudness(127));
     }
 }

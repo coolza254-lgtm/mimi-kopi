@@ -7,3 +7,4 @@ pub mod midi;
 pub mod sampler;
 pub mod sfz;
 pub mod synth;
+pub mod tone;
