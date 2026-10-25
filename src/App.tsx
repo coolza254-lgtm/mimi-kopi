@@ -6,17 +6,19 @@ import { backend, inDesktopApp, type AppInfo } from "./lib/backend";
 import { loadSettings, saveSettings, type Settings } from "./lib/settings";
 import { findUpdate, installUpdate, type UpdateState } from "./lib/updates";
 import FreePlay from "./pages/FreePlay";
+import NoteEditor from "./pages/NoteEditor";
 import Practice from "./pages/Practice";
 import SettingsPage from "./pages/Settings";
 import SoundMidi from "./pages/SoundMidi";
 import Today from "./pages/Today";
 
-type Page = "today" | "practice" | "free" | "sound" | "settings";
+type Page = "today" | "practice" | "free" | "editor" | "sound" | "settings";
 
 const navItems: { key: MessageKey; page?: Page }[] = [
   { key: "navToday", page: "today" },
   { key: "navPractice", page: "practice" },
   { key: "navFreePlay", page: "free" },
+  { key: "navNoteEditor", page: "editor" },
   { key: "navSongs" },
   { key: "navEarCopy" },
   { key: "navProgress" },
@@ -136,6 +138,8 @@ export default function App() {
             onCheck={() => void checkUpdate()}
             onInstall={() => void install()}
           />
+        ) : page === "editor" ? (
+          <NoteEditor t={t} locale={settings.locale} />
         ) : page === "free" ? (
           <FreePlay t={t} onOpenSound={() => setPage("sound")} />
         ) : page === "sound" ? (

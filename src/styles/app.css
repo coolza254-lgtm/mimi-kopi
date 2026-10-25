@@ -1075,3 +1075,198 @@ th {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Note editor */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.editor-song,
+.editor-play,
+.editor-tools {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3) var(--space-4);
+}
+
+.editor .field input,
+.editor .field select {
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.editor .field input[type="number"] {
+  width: 90px;
+}
+
+.field.grow {
+  flex: 1 1 220px;
+}
+
+.tool-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.tool-group > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.seg-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.seg-row .choice.compact {
+  min-height: 38px;
+  padding: 6px 12px;
+}
+
+.accidental-btn {
+  min-width: 44px;
+  align-items: center;
+  font-size: 18px;
+}
+
+.score-card {
+  padding: var(--space-3);
+}
+
+.score-scroll {
+  overflow: auto;
+  max-height: 62vh;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.score-scroll:focus-visible {
+  outline: 3px solid var(--blue);
+}
+
+.score {
+  display: block;
+  touch-action: none;
+  user-select: none;
+  cursor: crosshair;
+}
+
+.score .staff-line line {
+  stroke: var(--muted);
+  stroke-width: 1.1;
+  opacity: 0.75;
+}
+
+.score .barline {
+  stroke: var(--text);
+  stroke-width: 1.4;
+}
+
+.score .beat-tick {
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.score .measure-no {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.score .clef,
+.score .acc,
+.score .time-sig text {
+  fill: var(--text);
+  font-family: "Segoe UI Symbol", "Noto Music", serif;
+}
+
+.score .time-sig text {
+  font-weight: 700;
+  font-family: var(--font-sans);
+}
+
+.score .range-band {
+  fill: var(--blue-soft);
+  opacity: 0.6;
+}
+
+.sn .head {
+  fill: var(--text);
+}
+
+.sn .head.hollow {
+  fill: var(--bg);
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.sn .stem,
+.sn .ledger {
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+
+.sn .flag {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.sn .dot {
+  fill: var(--text);
+}
+
+.sn .hit {
+  fill: transparent;
+  cursor: grab;
+}
+
+.sn.selected .head,
+.sn.selected .dot,
+.sn.selected .acc {
+  fill: #c2386b;
+}
+
+.sn.selected .head.hollow {
+  fill: var(--pink-soft);
+  stroke: #c2386b;
+}
+
+.sn.selected .stem,
+.sn.selected .flag,
+.sn.selected .ledger {
+  stroke: #c2386b;
+}
+
+.sn.ghost {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.score .input-cursor {
+  stroke: var(--violet);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+
+.score .playhead {
+  stroke: var(--pink);
+  stroke-width: 3;
+}
+
+.score-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}

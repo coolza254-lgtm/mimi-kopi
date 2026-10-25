@@ -2,7 +2,7 @@ import type { Locale } from "../../i18n/messages";
 
 export type Hand = "right" | "left" | "both";
 
-export type UnitId = "keyboard" | "right" | "left" | "chords";
+export type UnitId = "keyboard" | "right" | "left" | "chords" | "song";
 
 /**
  * A wait-mode lesson: each step lists the pitches that must be held together

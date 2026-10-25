@@ -198,7 +198,7 @@ interface PlayerProps extends Props {
   onBack: () => void;
 }
 
-function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen, onBack }: PlayerProps) {
+export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen, onBack }: PlayerProps) {
   const desktop = inDesktopApp();
   const [run, setRun] = useState(startRun);
   const [view, dispatch] = useReducer(midiReducer, initialMidiView);
