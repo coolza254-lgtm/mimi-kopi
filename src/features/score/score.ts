@@ -151,8 +151,8 @@ function readSong(value: unknown): Song | null {
     notes.push({
       id: n.id,
       pitch: int(n.pitch, 21, 108, 60),
-      start: int(n.start, 0, 100_000, 0),
-      dur: int(n.dur, 1, 16, 4),
+      start: typeof n.start === "number" && Number.isFinite(n.start) ? Math.max(0, Math.min(100_000, Math.round(n.start * 2) / 2)) : 0,
+      dur: typeof n.dur === "number" && DURATIONS.some((d) => n.dur === d || n.dur === d * 1.5) ? n.dur : 4,
       hand: n.hand,
     });
   }

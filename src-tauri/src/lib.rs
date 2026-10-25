@@ -1,5 +1,6 @@
 mod audio;
 mod midi_io;
+mod song_files;
 
 use std::fs::File;
 use std::io::BufReader;
@@ -204,6 +205,8 @@ pub fn run() {
             audio_set_tone,
             audio_use_basic,
             audio_test_sound,
+            song_files::song_file_read,
+            song_files::song_file_write,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Mimi Kopi");

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import type { Lesson } from "../features/lessons/lessons";
 import { loadProgress, recordFor, recordRun, saveProgress } from "../features/lessons/progress";
 import { noteName } from "../features/midi/notes";
@@ -21,6 +22,7 @@ import {
   type ScoreNote,
   type Song,
 } from "../features/score/score";
+import { MAX_SONG_FILE_BYTES, parseSongFile, serializeSongFile, songFilename } from "../features/score/songFile";
 import type { Locale, MessageKey } from "../i18n/messages";
 import { backend, inDesktopApp } from "../lib/backend";
 import { LessonPlayer } from "./Practice";
@@ -77,6 +79,10 @@ export default function NoteEditor({ t, locale }: Props) {
   const [playhead, setPlayhead] = useState<number | null>(null);
   const [hands, setHands] = useState<Hands>("both");
   const [practice, setPractice] = useState<Lesson | null>(null);
+  const [fileBusy, setFileBusy] = useState(false);
+  const [fileMessage, setFileMessage] = useState<MessageKey | null>(null);
+  const [fileError, setFileError] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ id: string; moved: boolean } | null>(null);
   const lastInput = useRef<{ time: number; start: number } | null>(null);
@@ -346,8 +352,74 @@ export default function NoteEditor({ t, locale }: Props) {
   };
 
   // Songs ---------------------------------------------------------------
+  const selectSong = (id: string) => {
+    stop();
+    setSongId(id);
+    setHistory({ undo: [], redo: [] });
+    setSelected(null);
+    setCursor(null);
+    setRange({ from: 0, to: Math.min(3, (songs.find((s) => s.id === id)?.measures ?? 4) - 1) });
+    lastInput.current = null;
+  };
+
+  const importSong = (text: string) => {
+    const imported = parseSongFile(text, uid(), new Date());
+    selectSong(imported.id);
+    setRange({ from: 0, to: Math.min(3, imported.measures - 1) });
+    setSongs((all) => [...all, imported]);
+    setFileError(false);
+    setFileMessage("songImported");
+  };
+
+  const importDesktop = async () => {
+    setFileBusy(true);
+    setFileMessage(null);
+    stop();
+    try {
+      const path = await open({ multiple: false, filters: [{ name: t("songFileType"), extensions: ["json"] }] });
+      if (typeof path === "string") importSong(await backend.songFileRead(path));
+    } catch {
+      setFileError(true);
+      setFileMessage("songImportFailed");
+    } finally {
+      setFileBusy(false);
+    }
+  };
+
+  const exportSong = async () => {
+    setFileBusy(true);
+    setFileMessage(null);
+    try {
+      const contents = serializeSongFile(song);
+      // An exported file must be readable again without changing its notes.
+      parseSongFile(contents, song.id, new Date());
+      const filename = songFilename(song.title);
+      if (desktop) {
+        const path = await save({ defaultPath: filename, filters: [{ name: t("songFileType"), extensions: ["json"] }] });
+        if (!path) return;
+        await backend.songFileWrite(path, contents);
+        setFileMessage("songExported");
+      } else {
+        const url = URL.createObjectURL(new Blob([contents], { type: "application/json" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setFileMessage("songDownloadStarted");
+      }
+      setFileError(false);
+    } catch {
+      setFileError(true);
+      setFileMessage("songExportFailed");
+    } finally {
+      setFileBusy(false);
+    }
+  };
+
   const addSong = () => {
     const s = newSong(uid(), t("songUntitled"), new Date());
+    selectSong(s.id);
     setSongs((all) => [...all, s]);
     setSongId(s.id);
     setHistory({ undo: [], redo: [] });
@@ -359,6 +431,7 @@ export default function NoteEditor({ t, locale }: Props) {
     if (!window.confirm(t("songDeleteConfirm"))) return;
     const rest = songs.filter((s) => s.id !== song.id);
     const next = rest.length > 0 ? rest : [newSong(uid(), t("songUntitled"), new Date())];
+    selectSong(next[0].id);
     setSongs(next);
     setSongId(next[0].id);
     setHistory({ undo: [], redo: [] });
@@ -475,7 +548,7 @@ export default function NoteEditor({ t, locale }: Props) {
       <section className="card editor-song">
         <label className="field">
           {t("songPick")}
-          <select value={song.id} onChange={(e) => (setSongId(e.target.value), setSelected(null), setCursor(null))}>
+          <select value={song.id} onChange={(e) => selectSong(e.target.value)}>
             {songs.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.title || t("songUntitled")}
@@ -524,8 +597,33 @@ export default function NoteEditor({ t, locale }: Props) {
           <button type="button" className="btn" onClick={deleteSong}>
             {t("songDelete")}
           </button>
+          <button type="button" className="btn" disabled={fileBusy} onClick={() => desktop ? void importDesktop() : fileInput.current?.click()}>
+            {t("songImport")}
+          </button>
+          <button type="button" className="btn" disabled={fileBusy} onClick={() => void exportSong()}>
+            {t("songExport")}
+          </button>
+          <input ref={fileInput} type="file" accept=".json,application/json" hidden onChange={async (e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (!file) return;
+            setFileBusy(true);
+            setFileMessage(null);
+            stop();
+            try {
+              if (file.size > MAX_SONG_FILE_BYTES) throw new Error("Song file too large");
+              importSong(await file.text());
+            } catch {
+              setFileError(true);
+              setFileMessage("songImportFailed");
+            } finally {
+              setFileBusy(false);
+            }
+          }} />
         </div>
       </section>
+      <p className="muted small">{t("songBackupHint")}</p>
+      {fileMessage && <p role={fileError ? "alert" : "status"}>{t(fileMessage)}</p>}
 
       <section className="card editor-tools" aria-label={t("editorTools")}>
         <div className="tool-group">
