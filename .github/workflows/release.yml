@@ -2,16 +2,19 @@ name: Release
 
 # Builds a signed Windows installer and publishes a GitHub Release with the
 # latest.json manifest the in-app updater reads (docs/decisions/0001).
-# Runs when a version tag (vX.Y.Z) is pushed, or from the Actions tab once
-# this file is on the default branch. Bump the version in package.json,
-# Cargo.toml and src-tauri/tauri.conf.json and write .github/release-notes.md
-# first. Needs the repository secret
+# Runs when a push changes package.json or .github/release-notes.md and the
+# version in package.json has no GitHub Release yet; otherwise it does
+# nothing. So a release is: bump the version in package.json, Cargo.toml and
+# src-tauri/tauri.conf.json, write .github/release-notes.md, push. Can also
+# be started from the Actions tab once this file is on the default branch.
+# Needs the repository secret
 # TAURI_SIGNING_PRIVATE_KEY (and TAURI_SIGNING_PRIVATE_KEY_PASSWORD if the
 # key has one).
 
 on:
   push:
-    tags: ["v*"]
+    branches: ["main", "claude/**"]
+    paths: ["package.json", ".github/release-notes.md"]
   workflow_dispatch:
     inputs:
       notes:
@@ -27,8 +30,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check:
+    name: Is this version new?
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      released: ${{ steps.v.outputs.released }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if gh release view "v$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "released=true" >> "$GITHUB_OUTPUT"
+            echo "v$version is already released; bump the version to publish a new one."
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+
   windows:
     name: Build, sign and publish
+    needs: check
+    if: needs.check.outputs.released == 'false'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
