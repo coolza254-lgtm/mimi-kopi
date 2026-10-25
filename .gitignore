@@ -153,3 +153,6 @@ vite.config.ts.timestamp-*
 
 # Tauri generated schemas
 /src-tauri/gen/
+
+# Signing keys generated for the owner; they go into GitHub Secrets, never into git
+/.secrets/

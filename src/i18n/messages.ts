@@ -106,6 +106,19 @@ export const th = {
   resultSimulated: "รอบนี้มีการใช้คีย์บอร์ดบนจอ ผลจึงเป็นการจำลอง ไม่ใช่ผลจากเปียโน",
   restart: "เริ่มใหม่",
   lessonKeyboardHint: "คีย์ที่มีกรอบคือโน้ตที่ต้องกด เล่นจากเปียโนหรือคลิกคีย์บนจอก็ได้",
+  settingsTitle: "ตั้งค่า",
+  settingsGeneral: "ทั่วไป",
+  updatesTitle: "อัปเดตแอป",
+  updatesCheck: "ตรวจหาอัปเดต",
+  updatesChecking: "กำลังตรวจ…",
+  updatesNone: "ใช้เวอร์ชันล่าสุดอยู่แล้ว",
+  updatesAvailable: "มีเวอร์ชันใหม่ {version}",
+  updatesOpen: "ไปที่ตั้งค่าเพื่ออัปเดต",
+  updatesInstall: "อัปเดตและเปิดใหม่",
+  updatesInstalling: "กำลังดาวน์โหลดและติดตั้ง…",
+  updatesError: "ตรวจหรือติดตั้งอัปเดตไม่สำเร็จ ลองใหม่เมื่อต่ออินเทอร์เน็ต",
+  updatesAuto: "ตรวจหาเวอร์ชันใหม่ทุกครั้งที่เปิดแอป",
+  updatesHint: "แอปอ่านแค่หมายเลขเวอร์ชันล่าสุดจาก GitHub ไม่ส่งข้อมูลการฝึกออกไป ไฟล์อัปเดตทุกตัวถูกลงนามและแอปตรวจลายเซ็นก่อนติดตั้ง",
 } as const;
 
 export type MessageKey = keyof typeof th;
@@ -217,6 +230,19 @@ export const en: Messages = {
   resultSimulated: "The on-screen keyboard was used, so this is a simulated result, not a piano result.",
   restart: "Restart",
   lessonKeyboardHint: "Outlined keys are the notes to play. Use the piano or click the on-screen keys.",
+  settingsTitle: "Settings",
+  settingsGeneral: "General",
+  updatesTitle: "App updates",
+  updatesCheck: "Check for updates",
+  updatesChecking: "Checking…",
+  updatesNone: "You have the latest version",
+  updatesAvailable: "Version {version} is available",
+  updatesOpen: "Open Settings to update",
+  updatesInstall: "Update and restart",
+  updatesInstalling: "Downloading and installing…",
+  updatesError: "Could not check or install the update. Try again when you are online.",
+  updatesAuto: "Look for a new version when the app starts",
+  updatesHint: "The app only reads the latest version number from GitHub and never sends your practice data. Every update is signed and the signature is checked before installing.",
 };
 
 export const ja: Messages = {
@@ -325,6 +351,19 @@ export const ja: Messages = {
   resultSimulated: "画面の鍵盤を使ったため、ピアノではなくシミュレーションの結果です。",
   restart: "やり直す",
   lessonKeyboardHint: "枠の付いた鍵盤が弾く音です。ピアノでも、画面の鍵盤のクリックでも OK。",
+  settingsTitle: "設定",
+  settingsGeneral: "一般",
+  updatesTitle: "アプリの更新",
+  updatesCheck: "更新を確認",
+  updatesChecking: "確認中…",
+  updatesNone: "最新のバージョンです",
+  updatesAvailable: "新しいバージョン {version} があります",
+  updatesOpen: "設定から更新できます",
+  updatesInstall: "更新して再起動",
+  updatesInstalling: "ダウンロードしてインストール中…",
+  updatesError: "更新を確認またはインストールできませんでした。オンラインのときにもう一度お試しください。",
+  updatesAuto: "起動時に新しいバージョンを確認する",
+  updatesHint: "アプリは GitHub から最新バージョン番号を読むだけで、練習データは送信しません。更新ファイルはすべて署名されており、インストール前に署名を確認します。",
 };
 
 export const locales = { th, en, ja } as const;

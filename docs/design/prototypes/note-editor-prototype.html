@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>เครื่องมือแกะโน้ต · Mimi Kopi</title>
+<style>
+body{margin:0;font-family:'Noto Sans Thai','Noto Sans JP',system-ui,sans-serif;background:#F9FAFF;color:#25324D;font-size:14px}
+header{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 14px;background:#fff;border-bottom:1px solid #E3E8F5;position:sticky;top:0;z-index:1}
+label{display:flex;gap:4px;align-items:center;font-size:13px}
+input,select,button{font:inherit;font-size:13px;padding:5px 8px;border:1px solid #cdd5e6;border-radius:8px;background:#fff;color:#25324D}
+input[type=text]{width:170px}
+input[type=number]{width:60px}
+button{cursor:pointer}
+button.pri{background:#F47FA8;border-color:#F47FA8;font-weight:600}
+#status{font-size:12px;color:#55607A;margin-left:auto}
+main{padding:12px 14px}
+#score{display:block;width:100%;height:auto;background:#fff;border:1px solid #E3E8F5;border-radius:12px;touch-action:none;user-select:none}
+.hint{font-size:12px;color:#55607A;margin:8px 2px}
+</style>
+</head>
+<body>
+<header>
+<label>ชื่อเพลง <input id="title" type="text"></label>
+<label>BPM <input id="bpm" type="number" min="30" max="200"></label>
+<label>ห้อง <select id="bars"><option value="8">8</option><option value="12">12</option><option value="16">16</option></select></label>
+<label>ความยาวโน้ต <select id="dur"></select></label>
+<label>เครื่องหมาย <select id="acc"><option value="0">ปกติ</option><option value="1">♯</option><option value="-1">♭</option></select></label>
+<button id="play" class="pri" type="button">▶ เล่น</button>
+<label><input id="metro" type="checkbox" checked> เมโทรนอม</label>
+<button id="del" type="button">ลบโน้ตที่เลือก</button>
+<button id="clear" type="button">ล้างทั้งหมด</button>
+<button id="save" type="button">บันทึกในเครื่อง</button>
+<select id="list" aria-label="เพลงที่บันทึกไว้"></select>
+<button id="load" type="button">เปิด</button>
+<button id="remove" type="button">ลบเพลง</button>
+<button id="export" type="button">ส่งออก JSON</button>
+<label>นำเข้า <input id="import" type="file" accept="application/json"></label>
+<span id="status"></span>
+</header>
+<main>
+<svg id="score" role="img" aria-label="แผ่นโน้ตที่แก้ไขได้"></svg>
+<p class="hint">คลิกช่องว่างเพื่อวางโน้ต · ลากโน้ตขึ้นลงเพื่อเปลี่ยนระดับ · ลากซ้ายขวาเพื่อย้ายจังหวะ · คลิกขวาเพื่อลบ · กด Delete เพื่อลบโน้ตที่เลือก · บันทึกอยู่ในเบราว์เซอร์เครื่องนี้ ใช้ "ส่งออก JSON" เป็นสำรองได้</p>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const svg = $('score');
+
+// layout
+const SP = 5;                 // px per diatonic step (half a staff space)
+const ROW_H = 200, ROW_TOP = 30, LEFT = 70, BW = 150, ROWBARS = 4, SLOTS = 16; // 16 slots = 16th notes in 4/4
+const REF = { R: 30, L: 18 };          // bottom staff line: E4 (treble), G2 (bass)
+const BOTTOM_OFF = { R: 40, L: 140 }; // bottom line offset inside a row
+const LETTER_SEMI = [0, 2, 4, 5, 7, 9, 11];
+const DURS = [[2, 'ตัวที่ 8'], [4, 'ตัวดำ'], [8, 'ตัวขาว'], [16, 'ตัวกลม'], [1, 'ตัวที่ 16']];
+const KEY = 'mimi-kopi-ear-copy-songs';
+
+let song = { title: 'เพลงของฉัน', bpm: 90, bars: 12, notes: [] };
+let sel = null, drag = null;
+
+// geometry helpers
+const rowOf = slot => Math.floor(Math.floor(slot / SLOTS) / ROWBARS);
+const rowTop = r => ROW_TOP + r * ROW_H;
+const yOf = (step, hand, r) => rowTop(r) + BOTTOM_OFF[hand] - (step - REF[hand]) * SP;
+const xOf = slot => LEFT + (Math.floor(slot / SLOTS) % ROWBARS) * BW + ((slot % SLOTS) + 0.5) * BW / SLOTS;
+const stepMidi = s => (Math.floor(s / 7) + 1) * 12 + LETTER_SEMI[s % 7];
+
+function locate(x, y) {
+  const r = Math.max(0, Math.floor((y - ROW_TOP + 20) / ROW_H));
+  const top = rowTop(r);
+  const hand = y - top < 70 ? 'R' : 'L';
+  const step = Math.min(52, Math.max(10, REF[hand] + Math.round((top + BOTTOM_OFF[hand] - y) / SP)));
+  const col = Math.floor((x - LEFT) / BW);
+  let slot = null;
+  if (x >= LEFT && col >= 0 && col < ROWBARS) {
+    const bar = r * ROWBARS + col;
+    if (bar < song.bars) {
+      const inBar = Math.min(SLOTS - 1, Math.max(0, Math.floor((x - LEFT - col * BW) / (BW / SLOTS))));
+      slot = bar * SLOTS + inBar;
+    }
+  }
+  return { x, y, slot, hand, step };
+}
+
+function pt(e) {
+  const b = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+  return locate((e.clientX - b.left) * vb.width / b.width, (e.clientY - b.top) * vb.height / b.height);
+}
+
+const hits = p => n => n.start === p.slot && Math.abs(yOf(n.step, n.hand, rowOf(n.start)) - p.y) < 7;
+
+// drawing
+function ledger(x, y) {
+  return `<line x1="${x - 10}" x2="${x + 10}" y1="${y}" y2="${y}" stroke="#25324D" stroke-width="1.4"/>`;
+}
+
+function noteSvg(n, selected) {
+  const r = rowOf(n.start), x = xOf(n.start), y = yOf(n.step, n.hand, r), ref = REF[n.hand];
+  let s = '';
+  if (n.step < ref) for (let k = ref - 2; k >= n.step; k -= 2) s += ledger(x, yOf(k, n.hand, r));
+  if (n.step > ref + 8) for (let k = ref + 10; k <= n.step; k += 2) s += ledger(x, yOf(k, n.hand, r));
+  if (selected) s += `<circle cx="${x}" cy="${y}" r="12" fill="rgba(244,127,168,.35)"/>`;
+  if (n.alter) s += `<text x="${x - 15}" y="${y + 5}" font-size="15" fill="#25324D">${n.alter > 0 ? '♯' : '♭'}</text>`;
+  s += `<ellipse cx="${x}" cy="${y}" rx="6.5" ry="4.6" fill="${n.dur <= 4 ? '#25324D' : '#fff'}" stroke="#25324D" stroke-width="1.6"/>`;
+  if (n.dur < 16) {
+    const up = n.step < ref + 4;
+    const x1 = up ? x + 6 : x - 6, y2 = up ? y - 34 : y + 34;
+    s += `<line x1="${x1}" x2="${x1}" y1="${y}" y2="${y2}" stroke="#25324D" stroke-width="1.4"/>`;
+    if (n.dur <= 2) {
+      const dy = up ? 6 : -6;
+      for (let k = 0; k < (n.dur === 1 ? 2 : 1); k++) {
+        const oy = k * dy;
+        s += `<path d="M${x1} ${y2 + oy} q ${up ? 12 : -12} 6 ${up ? 6 : -6} 16" fill="none" stroke="#25324D" stroke-width="1.6"/>`;
+      }
+    }
+  }
+  return s;
+}
+
+function render() {
+  const rows = Math.ceil(song.bars / ROWBARS);
+  const W = LEFT + ROWBARS * BW + 16, H = ROW_TOP + rows * ROW_H;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  let s = '';
+  for (let r = 0; r < rows; r++) {
+    const top = rowTop(r);
+    for (const hand of ['R', 'L']) {
+      const b = top + BOTTOM_OFF[hand];
+      for (let i = 0; i < 5; i++) s += `<line x1="${LEFT}" x2="${LEFT + ROWBARS * BW}" y1="${b - i * 10}" y2="${b - i * 10}" stroke="#8a93a8"/>`;
+      s += `<text x="8" y="${b - 14}" font-size="12" fill="#55607A">${hand === 'R' ? 'มือขวา' : 'มือซ้าย'}</text>`;
+    }
+    s += `<line x1="${LEFT}" x2="${LEFT}" y1="${top}" y2="${top + 140}" stroke="#25324D" stroke-width="2"/>`;
+    for (let c = 0; c <= ROWBARS; c++) {
+      const bar = r * ROWBARS + c;
+      if (bar > song.bars) break;
+      const x = LEFT + c * BW;
+      s += `<line x1="${x}" x2="${x}" y1="${top}" y2="${top + 140}" stroke="#25324D" stroke-width="${c === 0 ? 1.5 : 1}"/>`;
+      if (bar < song.bars) s += `<text x="${x + 4}" y="${top - 6}" font-size="11" fill="#8a93a8">${bar + 1}</text>`;
+    }
+  }
+  for (const n of song.notes) s += noteSvg(n, n === sel);
+  svg.innerHTML = s;
+  $('status').textContent = `${song.notes.length} โน้ต · ${song.bars} ห้อง · ${song.bpm} BPM`;
+}
+
+// editing
+svg.addEventListener('pointerdown', e => {
+  const p = pt(e);
+  if (p.slot == null || e.button !== 0) return;
+  const hit = song.notes.find(hits(p));
+  if (hit) {
+    sel = hit;
+    drag = { note: hit };
+  } else {
+    const n = { start: p.slot, dur: +$('dur').value, hand: p.hand, step: p.step, alter: +$('acc').value };
+    song.notes.push(n);
+    sel = n;
+    drag = { note: n };
+  }
+  svg.setPointerCapture(e.pointerId);
+  render();
+});
+
+svg.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const p = pt(e);
+  if (p.slot == null) return;
+  Object.assign(drag.note, { start: p.slot, step: p.step, hand: p.hand });
+  render();
+});
+
+svg.addEventListener('pointerup', () => { drag = null; });
+
+svg.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const i = song.notes.findIndex(hits(pt(e)));
+  if (i >= 0) {
+    if (song.notes[i] === sel) sel = null;
+    song.notes.splice(i, 1);
+    render();
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+  if ((e.key === 'Delete' || e.key === 'Backspace') && sel) {
+    song.notes = song.notes.filter(n => n !== sel);
+    sel = null;
+    render();
+    e.preventDefault();
+  }
+  if (e.key === 'Escape') { sel = null; render(); }
+});
+
+// playback
+let ctx = null, nodes = [], playing = false, stopTimer = null;
+
+function tone(f, t, d) {
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = 'triangle';
+  o.frequency.value = f;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.25, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, t + d + 0.25);
+  o.connect(g).connect(ctx.destination);
+  o.start(t);
+  o.stop(t + d + 0.3);
+  nodes.push(o);
+}
+
+function click(t, accent) {
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.frequency.value = accent ? 1400 : 1000;
+  g.gain.setValueAtTime(0.2, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+  o.connect(g).connect(ctx.destination);
+  o.start(t);
+  o.stop(t + 0.06);
+  nodes.push(o);
+}
+
+function stop() {
+  nodes.forEach(o => { try { o.stop(); } catch (_) {} });
+  nodes = [];
+  clearTimeout(stopTimer);
+  playing = false;
+  $('play').textContent = '▶ เล่น';
+}
+
+function play() {
+  if (playing) return stop();
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  const sl = 60 / song.bpm / 4, t0 = ctx.currentTime + 0.1;
+  for (const n of song.notes) {
+    const f = 440 * Math.pow(2, (stepMidi(n.step) + n.alter - 69) / 12);
+    tone(f, t0 + n.start * sl, Math.max(0.08, n.dur * sl * 0.95));
+  }
+  const total = song.bars * SLOTS;
+  if ($('metro').checked) for (let s = 0; s < total; s += 4) click(t0 + s * sl, s % SLOTS === 0);
+  playing = true;
+  $('play').textContent = '■ หยุด';
+  stopTimer = setTimeout(stop, (total * sl + 0.3) * 1000);
+}
+
+// saving
+function readAll() {
+  try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (_) { return {}; }
+}
+
+function refreshList() {
+  const sel2 = $('list');
+  sel2.innerHTML = '';
+  for (const k of Object.keys(readAll())) {
+    const o = document.createElement('option');
+    o.textContent = k;
+    sel2.appendChild(o);
+  }
+}
+
+function syncInputs() {
+  $('title').value = song.title;
+  $('bpm').value = song.bpm;
+  $('bars').value = String(song.bars);
+}
+
+$('play').onclick = play;
+$('title').oninput = e => { song.title = e.target.value; };
+$('bpm').onchange = e => {
+  song.bpm = Math.min(200, Math.max(30, +e.target.value || 90));
+  syncInputs();
+  render();
+};
+$('bars').onchange = e => {
+  const nb = +e.target.value;
+  const dropped = song.notes.filter(n => n.start >= nb * SLOTS).length;
+  if (dropped && !confirm(`การลดจำนวนห้องจะลบโน้ต ${dropped} ตัวที่อยู่นอกช่วงใหม่ ต้องการดำเนินการต่อหรือไม่`)) {
+    e.target.value = String(song.bars);
+    return;
+  }
+  song.notes = song.notes.filter(n => n.start < nb * SLOTS);
+  song.bars = nb;
+  sel = null;
+  render();
+};
+$('del').onclick = () => {
+  if (!sel) return;
+  song.notes = song.notes.filter(n => n !== sel);
+  sel = null;
+  render();
+};
+$('clear').onclick = () => {
+  if (!song.notes.length || !confirm('ล้างโน้ตทั้งหมดในเพลงนี้ใช่หรือไม่')) return;
+  song.notes = [];
+  sel = null;
+  render();
+};
+$('save').onclick = () => {
+  const all = readAll();
+  all[song.title] = JSON.parse(JSON.stringify(song));
+  try {
+    localStorage.setItem(KEY, JSON.stringify(all));
+    refreshList();
+    $('status').textContent = `บันทึก "${song.title}" แล้ว`;
+  } catch (_) {
+    $('status').textContent = 'บันทึกในเบราว์เซอร์ไม่ได้ (พื้นที่เต็มหรือถูกปิด) ใช้ "ส่งออก JSON" แทนได้';
+  }
+};
+$('load').onclick = () => {
+  const name = $('list').value, all = readAll();
+  if (!name || !all[name]) return;
+  song = JSON.parse(JSON.stringify(all[name]));
+  sel = null;
+  syncInputs();
+  render();
+};
+$('remove').onclick = () => {
+  const name = $('list').value, all = readAll();
+  if (!name || !all[name] || !confirm(`ลบ "${name}" ออกจากเครื่องนี้ใช่หรือไม่`)) return;
+  delete all[name];
+  localStorage.setItem(KEY, JSON.stringify(all));
+  refreshList();
+};
+$('export').onclick = () => {
+  const blob = new Blob([JSON.stringify(song, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (song.title || 'song') + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('import').onchange = async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const d = JSON.parse(await file.text());
+    const valid = n => Number.isInteger(n.start) && n.start >= 0 && [1, 2, 4, 8, 16].includes(n.dur) &&
+      Number.isInteger(n.step) && ['R', 'L'].includes(n.hand) && [-1, 0, 1].includes(n.alter);
+    if (!Array.isArray(d.notes)) throw new Error('no notes');
+    song = {
+      title: String(d.title || 'เพลงนำเข้า'),
+      bpm: Math.min(200, Math.max(30, +d.bpm || 90)),
+      bars: [8, 12, 16].includes(+d.bars) ? +d.bars : 12,
+      notes: d.notes.filter(valid),
+    };
+    sel = null;
+    syncInputs();
+    render();
+  } catch (_) {
+    $('status').textContent = 'ไฟล์นี้ไม่ใช่ JSON ของเครื่องมือนี้';
+  }
+  e.target.value = '';
+};
+
+// init
+for (const [v, label] of DURS) {
+  const o = document.createElement('option');
+  o.value = v;
+  o.textContent = label;
+  $('dur').appendChild(o);
+}
+$('dur').value = '4';
+syncInputs();
+refreshList();
+render();
+</script>
+</body>
+</html>

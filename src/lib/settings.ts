@@ -5,13 +5,15 @@ export type Theme = "light" | "dark";
 export interface Settings {
   locale: Locale;
   theme: Theme;
+  /** Look for a new version when the app starts (only reads GitHub Releases). */
+  autoUpdate: boolean;
 }
 
-export const defaultSettings: Settings = { locale: "th", theme: "light" };
+export const defaultSettings: Settings = { locale: "th", theme: "light", autoUpdate: true };
 
 const KEY = "mimi-kopi.settings";
 
-// Phase 0 keeps these two UI settings in localStorage. They move to the
+// Phase 0 keeps these UI settings in localStorage. They move to the
 // SQLite app_settings table (spec §9.1) once persistence exists.
 export function loadSettings(storage: Pick<Storage, "getItem"> | undefined = globalThis.localStorage): Settings {
   try {
@@ -21,6 +23,7 @@ export function loadSettings(storage: Pick<Storage, "getItem"> | undefined = glo
     return {
       locale: parsed.locale === "en" || parsed.locale === "ja" || parsed.locale === "th" ? parsed.locale : defaultSettings.locale,
       theme: parsed.theme === "dark" || parsed.theme === "light" ? parsed.theme : defaultSettings.theme,
+      autoUpdate: typeof parsed.autoUpdate === "boolean" ? parsed.autoUpdate : defaultSettings.autoUpdate,
     };
   } catch {
     return defaultSettings;

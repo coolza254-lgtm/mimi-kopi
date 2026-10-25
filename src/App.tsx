@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import brandMark from "./assets/brand-mark.png";
-import { localeNames, locales, type Locale, type MessageKey } from "./i18n/messages";
+import { locales, type MessageKey } from "./i18n/messages";
 import { loadAudioPrefs, saveAudioPrefs } from "./lib/audioPrefs";
 import { backend, inDesktopApp, type AppInfo } from "./lib/backend";
-import { loadSettings, saveSettings, type Settings, type Theme } from "./lib/settings";
+import { loadSettings, saveSettings, type Settings } from "./lib/settings";
+import { findUpdate, installUpdate, type UpdateState } from "./lib/updates";
 import Practice from "./pages/Practice";
+import SettingsPage from "./pages/Settings";
 import SoundMidi from "./pages/SoundMidi";
 import Today from "./pages/Today";
 
-type Page = "today" | "practice" | "sound";
+type Page = "today" | "practice" | "sound" | "settings";
 
 const navItems: { key: MessageKey; page?: Page }[] = [
   { key: "navToday", page: "today" },
@@ -17,7 +19,7 @@ const navItems: { key: MessageKey; page?: Page }[] = [
   { key: "navEarCopy" },
   { key: "navProgress" },
   { key: "navSound", page: "sound" },
-  { key: "navSettings" },
+  { key: "navSettings", page: "settings" },
 ];
 
 /** Reopens the remembered output device and piano sound (.sf2 or .sfz). A device that is not
@@ -42,7 +44,25 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [page, setPage] = useState<Page>("today");
   const [info, setInfo] = useState<AppInfo | null>(null);
+  const [update, setUpdate] = useState<UpdateState>({ kind: "idle" });
+  const desktop = inDesktopApp();
   const t = (key: MessageKey) => locales[settings.locale][key];
+
+  const checkUpdate = useCallback(async () => {
+    setUpdate({ kind: "checking" });
+    setUpdate(await findUpdate());
+  }, []);
+
+  const install = async () => {
+    if (update.kind !== "available") return;
+    const pending = update.update;
+    setUpdate({ kind: "installing", percent: null });
+    try {
+      await installUpdate(pending, (percent) => setUpdate({ kind: "installing", percent }));
+    } catch (e) {
+      setUpdate({ kind: "error", message: String(e) });
+    }
+  };
 
   useEffect(() => {
     document.documentElement.dataset.theme = settings.theme;
@@ -54,6 +74,12 @@ export default function App() {
     if (!inDesktopApp()) return;
     backend.appInfo().then(setInfo, () => setInfo(null));
     void restoreAudio();
+    // Offline or no release yet: stay quiet; the Settings page can check again.
+    if (loadSettings().autoUpdate) {
+      void findUpdate().then((state) => {
+        if (state.kind === "available") setUpdate(state);
+      });
+    }
   }, []);
 
   return (
@@ -82,27 +108,30 @@ export default function App() {
           ))}
         </nav>
         <div className="side-foot">
-          <label>
-            {t("language")}
-            <select value={settings.locale} onChange={(e) => setSettings({ ...settings, locale: e.target.value as Locale })}>
-              {Object.entries(localeNames).map(([value, name]) => (
-                <option key={value} value={value}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            {t("theme")}
-            <select value={settings.theme} onChange={(e) => setSettings({ ...settings, theme: e.target.value as Theme })}>
-              <option value="light">{t("themeLight")}</option>
-              <option value="dark">{t("themeDark")}</option>
-            </select>
-          </label>
+          {update.kind === "available" && (
+            <button type="button" className="update-banner" onClick={() => setPage("settings")}>
+              <strong>{t("updatesAvailable").replace("{version}", update.update.version)}</strong>
+              <span>{t("updatesOpen")}</span>
+            </button>
+          )}
+          <span className="muted">
+            {t("version")} {info?.version ?? "—"}
+          </span>
         </div>
       </aside>
       <main className="main">
-        {page === "sound" ? (
+        {page === "settings" ? (
+          <SettingsPage
+            t={t}
+            settings={settings}
+            onChange={setSettings}
+            version={info?.version ?? null}
+            desktop={desktop}
+            update={update}
+            onCheck={() => void checkUpdate()}
+            onInstall={() => void install()}
+          />
+        ) : page === "sound" ? (
           <SoundMidi t={t} />
         ) : page === "practice" ? (
           <Practice t={t} locale={settings.locale} />

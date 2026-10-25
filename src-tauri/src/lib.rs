@@ -153,6 +153,8 @@ fn audio_test_sound(state: State<'_, AppState>) {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             let audio = Arc::new(AudioEngine::start());
             // A missing or busy device is reported in the status, not fatal.
