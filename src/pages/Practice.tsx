@@ -24,6 +24,7 @@ import { backend, inDesktopApp, type MidiEvent } from "../lib/backend";
 interface Props {
   t: (key: MessageKey) => string;
   locale: Locale;
+  initialLesson?: Lesson | null;
 }
 
 const handLabel: Record<Hand, MessageKey> = { right: "handRight", left: "handLeft", both: "handBoth" };
@@ -31,8 +32,8 @@ const VELOCITY = 90;
 const percent = (value: number) => `${Math.round(value * 100)}%`;
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 
-export default function Practice({ t, locale }: Props) {
-  const [lesson, setLesson] = useState<Lesson | null>(null);
+export default function Practice({ t, locale, initialLesson = null }: Props) {
+  const [lesson, setLesson] = useState<Lesson | null>(initialLesson);
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
 
   const finish = useCallback((done: Lesson, result: Parameters<typeof recordRun>[2]) => {

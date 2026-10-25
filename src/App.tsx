@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import brandMark from "./assets/brand-mark.png";
+import type { Lesson } from "./features/lessons/lessons";
 import { locales, type MessageKey } from "./i18n/messages";
 import { loadAudioPrefs, saveAudioPrefs } from "./lib/audioPrefs";
 import { backend, inDesktopApp, type AppInfo } from "./lib/backend";
@@ -50,6 +51,7 @@ async function restoreAudio() {
 export default function App() {
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [page, setPage] = useState<Page>("today");
+  const [initialLesson, setInitialLesson] = useState<Lesson | null>(null);
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [update, setUpdate] = useState<UpdateState>({ kind: "idle" });
   const desktop = inDesktopApp();
@@ -108,7 +110,7 @@ export default function App() {
               disabled={!target}
               aria-current={target === page ? "page" : undefined}
               title={target ? undefined : t("comingSoon")}
-              onClick={() => target && setPage(target)}
+              onClick={() => { if (target) { setInitialLesson(null); setPage(target); } }}
             >
               {t(key)}
             </button>
@@ -145,9 +147,11 @@ export default function App() {
         ) : page === "sound" ? (
           <SoundMidi t={t} />
         ) : page === "practice" ? (
-          <Practice t={t} locale={settings.locale} />
+          <Practice t={t} locale={settings.locale} initialLesson={initialLesson} />
         ) : (
-          <Today t={t} info={info} />
+          <Today t={t} info={info} locale={settings.locale}
+            onPractice={(lesson) => { setInitialLesson(lesson); setPage("practice"); }}
+            onFreePlay={() => setPage("free")} onEditor={() => setPage("editor")} onSound={() => setPage("sound")} />
         )}
       </main>
     </div>
