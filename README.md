@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/brand/logo.png" alt="Mimi Kopi 耳コピー" width="280"></p>
+
 # 耳コピー (Mimi Kopi)
 
 แอปฝึกเปียโนบน Windows 11 ที่เชื่อมต่อกับเปียโนผ่าน MIDI ฝึกแบบวัดผลได้ และเรียนจากเพลงที่ชอบ ทำงานแบบออฟไลน์เป็นหลัก

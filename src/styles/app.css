@@ -45,14 +45,9 @@ select {
 }
 
 .logo {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--pink-soft);
-  font-size: 20px;
-  font-weight: 700;
+  display: block;
+  width: 44px;
+  height: 44px;
 }
 
 .brand-name {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import brandMark from "./assets/brand-mark.png";
 import { localeNames, locales, type Locale, type MessageKey } from "./i18n/messages";
 import { fetchAppInfo, type AppInfo, type CapabilityStatus } from "./lib/appInfo";
 import { loadSettings, saveSettings, type Settings, type Theme } from "./lib/settings";
@@ -39,7 +40,7 @@ export default function App() {
     <div className="shell">
       <aside className="side" aria-label={t("appRomaji")}>
         <div className="brand">
-          <span className="logo" aria-hidden="true">耳</span>
+          <img className="logo" src={brandMark} alt="" />
           <div>
             <div className="brand-name">{t("appName")}</div>
             <div className="brand-sub">{t("appRomaji")}</div>

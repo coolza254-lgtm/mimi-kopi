@@ -10,4 +10,4 @@
 - เพิ่ม crate `mimi-core`: แปลงข้อความ MIDI, สถานะคีย์, ความสามารถของอุปกรณ์ (เริ่มเป็นยังไม่ทดสอบ) และ MIDI simulator พร้อม unit test
 - เพิ่ม CI: ตรวจ frontend, Rust core และสร้างตัวติดตั้ง Windows
 - เพิ่ม `docs/ARCHITECTURE.md` และ `docs/MIDI_AUDIO_TEST_PLAN.md`
-- ไอคอนแอปชั่วคราวใน `assets/brand/`
+- เพิ่มโลโก้จริงใน `assets/brand/logo.png` ทำไอคอนแอปจากสัญลักษณ์หูและคีย์เปียโน และใช้ในแถบด้านข้างของแอป
