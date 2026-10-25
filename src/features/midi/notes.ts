@@ -16,3 +16,24 @@ export function noteName(pitch: number): string {
 export function isBlackKey(pitch: number): boolean {
   return BLACK.has(pitch % 12);
 }
+
+const SOLFEGE: Record<"th" | "ja", readonly string[]> = {
+  th: ["โด", "เร", "มี", "ฟา", "ซอล", "ลา", "ที"],
+  ja: ["ド", "レ", "ミ", "ファ", "ソ", "ラ", "シ"],
+};
+/** Index of the natural note at or below each pitch class (C = 0 … B = 6). */
+const LETTER = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6] as const;
+
+/** Do-re-mi name for Thai and Japanese (with ♯ for black keys); letter name otherwise. */
+export function solfege(pitch: number, locale: "th" | "en" | "ja"): string {
+  if (locale === "en") return NAMES[pitch % 12];
+  return SOLFEGE[locale][LETTER[pitch % 12]] + (isBlackKey(pitch) ? "♯" : "");
+}
+
+/**
+ * Position on the staff counted in lines and spaces: each white key is one
+ * step, C4 = 28. Black keys sit on the step of the note below, drawn with ♯.
+ */
+export function staffStep(pitch: number): number {
+  return (Math.floor(pitch / 12) - 1) * 7 + LETTER[pitch % 12];
+}

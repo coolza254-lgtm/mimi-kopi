@@ -5,13 +5,23 @@ interface Props {
   held: readonly number[];
   /** Keys the player should press next, drawn with an outline. */
   targets?: readonly number[];
+  /** Text shown on a key instead of its name, e.g. a finger number. */
+  labels?: Readonly<Record<number, string>>;
   onPress: (pitch: number) => void;
   onRelease: (pitch: number) => void;
   low?: number;
   high?: number;
 }
 
-export default function PianoKeyboard({ held, targets = [], onPress, onRelease, low = PIANO_LOW, high = PIANO_HIGH }: Props) {
+export default function PianoKeyboard({
+  held,
+  targets = [],
+  labels = {},
+  onPress,
+  onRelease,
+  low = PIANO_LOW,
+  high = PIANO_HIGH,
+}: Props) {
   const down = useRef(new Set<number>());
   const pitches = Array.from({ length: high - low + 1 }, (_, i) => low + i);
   const whites = pitches.filter((p) => !isBlackKey(p));
@@ -66,7 +76,7 @@ export default function PianoKeyboard({ held, targets = [], onPress, onRelease, 
               style={{ left: `${whiteIndex * whiteWidth}%`, width: `${whiteWidth}%` }}
               {...keyProps(p)}
             >
-              {p % 12 === 0 || targetSet.has(p) ? noteName(p) : ""}
+              {labels[p] ?? (p % 12 === 0 || targetSet.has(p) ? noteName(p) : "")}
             </button>
           );
         }
@@ -77,7 +87,9 @@ export default function PianoKeyboard({ held, targets = [], onPress, onRelease, 
             className={classes("black-key", p)}
             style={{ left: `${(whiteIndex + 1) * whiteWidth - width / 2}%`, width: `${width}%` }}
             {...keyProps(p)}
-          />
+          >
+            {labels[p] ?? ""}
+          </button>
         );
       })}
     </div>

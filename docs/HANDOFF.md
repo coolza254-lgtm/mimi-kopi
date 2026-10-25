@@ -41,7 +41,10 @@
 2. **โหมดเปียโนอิสระ** ปรับเสียงได้ตามต้องการ รวมถึง**ปิดน้ำหนักคีย์** (ให้ทุกโน้ตดังเท่ากัน เพราะเจ้าของยังกดแรงไม่สม่ำเสมอ)  ← เสร็จแล้ว
    `crates/mimi-core/src/tone.rs` (Touch, ToneSettings แบบ atomic, Effects = reverb แบบ Freeverb + lowpass ความสว่าง) ใช้ใน `Renderer`
    คำสั่ง `audio_set_tone`, `audio_use_basic` หน้า `src/pages/FreePlay.tsx` ค่าเก็บใน `audioPrefs.tone` และคืนค่าตอนเปิดแอปใน `restoreAudio()`
-3. **ระบบฝึกพื้นฐานขั้นแรก** ให้สวยและน่าใช้
+3. **ระบบฝึกพื้นฐานขั้นแรก** ให้สวยและน่าใช้  ← เสร็จแล้ว
+   บท 12 บทใน `src/features/lessons/lessons.ts` (มี `unit` และ `fingers`), ผลเก็บใน `progress.ts` (localStorage `mimi-kopi.lessons`, ดาวนับเฉพาะรอบเปียโนจริง)
+   หน้า `src/pages/Practice.tsx` (LessonMap + LessonPlayer), บรรทัดโน้ต `src/components/MiniStaff.tsx`, `PianoKeyboard` รับ `labels` แสดงเลขนิ้ว
+   ต่อไปที่ควรทำ: โหมดต่อเนื่องพร้อมจังหวะ/metronome, ย้ายผลไป SQLite, หน้า "วันนี้" แนะนำบทจาก `nextLesson()`
 
 ## งานต่อไป: เครื่องมือแกะโน้ตแบบง่าย (เจ้าของขอเป็นโหมดแรกนอกจากการฝึก)
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lessons, LESSON_HIGH, LESSON_LOW } from "./lessons";
+import { lessonRange, lessons } from "./lessons";
 import { playNote, startRun, summarize, type NoteInput, type WaitRun } from "./waitMode";
 
 let clock = 0;
@@ -75,12 +75,13 @@ describe("lessons", () => {
     for (const lesson of lessons) {
       expect(lesson.version).toBeGreaterThan(0);
       expect(lesson.steps.length).toBeGreaterThan(0);
+      const { low, high } = lessonRange(lesson);
       for (const step of lesson.steps) {
         expect(step.length).toBeGreaterThan(0);
         expect(new Set(step).size, `${lesson.id}: duplicate pitch in a chord`).toBe(step.length);
         for (const p of step) {
-          expect(p).toBeGreaterThanOrEqual(LESSON_LOW);
-          expect(p).toBeLessThanOrEqual(LESSON_HIGH);
+          expect(p).toBeGreaterThanOrEqual(low);
+          expect(p).toBeLessThanOrEqual(high);
         }
       }
       for (const text of [...Object.values(lesson.title), ...Object.values(lesson.goal)]) {

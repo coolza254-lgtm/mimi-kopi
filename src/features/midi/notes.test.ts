@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isBlackKey, noteName, PIANO_HIGH, PIANO_LOW } from "./notes";
+import { isBlackKey, noteName, PIANO_HIGH, PIANO_LOW, solfege, staffStep } from "./notes";
 
 describe("noteName", () => {
   it("uses middle C = C4", () => {
@@ -24,5 +24,22 @@ describe("isBlackKey", () => {
     let whites = 0;
     for (let p = PIANO_LOW; p <= PIANO_HIGH; p++) if (!isBlackKey(p)) whites++;
     expect(whites).toBe(52);
+  });
+});
+
+describe("solfege and staff steps", () => {
+  it("names notes do-re-mi in Thai and Japanese", () => {
+    expect(solfege(60, "th")).toBe("โด");
+    expect(solfege(67, "ja")).toBe("ソ");
+    expect(solfege(61, "th")).toBe("โด♯");
+    expect(solfege(71, "en")).toBe("B");
+  });
+
+  it("counts staff steps from white keys", () => {
+    expect(staffStep(60)).toBe(28);
+    expect(staffStep(64)).toBe(30);
+    expect(staffStep(72)).toBe(35);
+    expect(staffStep(61)).toBe(28);
+    expect(staffStep(43)).toBe(18);
   });
 });
