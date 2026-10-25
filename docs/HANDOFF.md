@@ -35,9 +35,9 @@
 
 ## คำขอรอบล่าสุดของเจ้าของ (2026-10-25) ทำตามลำดับนี้
 
-1. **อัปเดตในแอป** ← เขียนโค้ดเสร็จแล้ว (updater plugin, หน้า ตั้งค่า, workflow `release.yml`, `docs/RELEASING.md`, เวอร์ชัน 0.2.0)
-   เหลือ: เจ้าของต้องใส่ secret `TAURI_SIGNING_PRIVATE_KEY` ใน GitHub (กุญแจส่งให้เจ้าของแล้ว ไม่อยู่ในรีโป ถ้าหายต้องสร้างคู่กุญแจใหม่และเปลี่ยน `pubkey`)
-   แล้วรัน workflow Release เพื่อออก v0.2.0 เจ้าของติดตั้ง v0.2.0 ด้วยมือครั้งเดียว ครั้งต่อไปอัปเดตในแอปได้
+1. **อัปเดตในแอป** ← เสร็จแล้ว และปล่อย **v0.2.0** แล้ว (GitHub Release มี `.exe`, `.sig`, `latest.json`)
+   secret `TAURI_SIGNING_PRIVATE_KEY` ใส่ใน GitHub แล้ว (เจ้าของเก็บกุญแจสำรองไว้ ไม่อยู่ในรีโป)
+   ออกเวอร์ชันถัดไปตาม `docs/RELEASING.md`: เพิ่มเลขเวอร์ชัน 3 ไฟล์ + เขียน `.github/release-notes.md` แล้ว push (agent ใน cloud push แท็กไม่ได้)
 2. **โหมดเปียโนอิสระ** ปรับเสียงได้ตามต้องการ รวมถึง**ปิดน้ำหนักคีย์** (ให้ทุกโน้ตดังเท่ากัน เพราะเจ้าของยังกดแรงไม่สม่ำเสมอ)  ← เสร็จแล้ว
    `crates/mimi-core/src/tone.rs` (Touch, ToneSettings แบบ atomic, Effects = reverb แบบ Freeverb + lowpass ความสว่าง) ใช้ใน `Renderer`
    คำสั่ง `audio_set_tone`, `audio_use_basic` หน้า `src/pages/FreePlay.tsx` ค่าเก็บใน `audioPrefs.tone` และคืนค่าตอนเปิดแอปใน `restoreAudio()`
