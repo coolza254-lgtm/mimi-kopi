@@ -196,3 +196,162 @@ select {
     border-bottom: 1px solid var(--line);
   }
 }
+
+.main > .card {
+  margin: 0;
+}
+
+.notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--blue-soft);
+}
+
+.notice.error {
+  background: var(--pink-soft);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.mono {
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.field select {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.actions,
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.card-head {
+  justify-content: space-between;
+}
+
+.btn {
+  align-self: flex-start;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.btn.primary {
+  border-color: var(--pink);
+  background: var(--pink);
+  color: var(--on-pink);
+  font-weight: 600;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.row-pair {
+  display: contents;
+}
+
+.slider {
+  display: grid;
+  grid-template-columns: 80px 1fr 36px;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.slider input {
+  width: 100%;
+  accent-color: var(--pink);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th,
+td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.piano {
+  position: relative;
+  height: 120px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #06080f;
+  touch-action: none;
+}
+
+.white-key,
+.black-key {
+  position: absolute;
+  top: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.white-key {
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  border-right: 1px solid #c9cfdd;
+  border-radius: 0 0 4px 4px;
+  background: #ffffff;
+  color: #55607a;
+  font-size: 9px;
+}
+
+.black-key {
+  z-index: 1;
+  height: 62%;
+  border-radius: 0 0 3px 3px;
+  background: #1c2030;
+}
+
+.white-key.on {
+  background: var(--pink);
+  color: var(--on-pink);
+  font-weight: 700;
+}
+
+.black-key.on {
+  background: #c94a7e;
+}

@@ -7,8 +7,8 @@
 ```text
 mimi-kopi/
 ├─ Cargo.toml                 # Rust workspace
-├─ crates/mimi-core/          # ตรรกะที่ไม่ขึ้นกับ OS: MIDI, (ต่อไป) scoring และ practice
-├─ src-tauri/                 # เปลือกแอป Tauri 2: คำสั่ง IPC, หน้าต่าง, ตัวติดตั้ง
+├─ crates/mimi-core/          # ตรรกะที่ไม่ขึ้นกับ OS: MIDI, ตรวจความสามารถ, เสียงสังเคราะห์, renderer
+├─ src-tauri/                 # เปลือกแอป Tauri 2: IPC, MIDI จริง (midir), เสียง (cpal), ตัวติดตั้ง
 ├─ src/                       # UI: React + TypeScript + Vite
 │  ├─ i18n/                   # ข้อความไทย (ต้นฉบับ) อังกฤษ ญี่ปุ่น
 │  ├─ lib/                    # IPC wrapper, การตั้งค่า
@@ -25,6 +25,10 @@ mimi-kopi/
 - **ความสามารถของอุปกรณ์เริ่มเป็น `NotYetTested` เสมอ** และเปลี่ยนได้จากการทดสอบกับเครื่องจริงเท่านั้น (spec §2.2)
 - **เวลาของเหตุการณ์ใช้นาฬิกา monotonic เป็นไมโครวินาที** ไม่ใช่เวลาที่ UI render (spec §7.3)
 - **IPC** ใช้คำสั่ง Tauri ที่มี type ชัดเจน ฝั่ง TypeScript สะท้อน struct ของ Rust (`src/lib/appInfo.ts` ↔ `src-tauri/src/lib.rs`)
+
+## เสียงและ MIDI
+
+ดูรายละเอียดเธรดและเหตุผลใน [`decisions/0002-audio-and-midi-threading.md`](decisions/0002-audio-and-midi-threading.md)
 
 ## กฎสำหรับ Phase ถัดไป
 
