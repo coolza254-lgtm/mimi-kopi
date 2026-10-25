@@ -100,13 +100,13 @@ export function pitchAt(step: number, fifths: number, alter?: number): number {
 
 /** Snaps a start to the grid a note of this length sits on, inside one measure. */
 export function snapStart(raw: number, dur: number, units: number): number {
-  const grid = Math.min(4, Math.max(1, dur % 3 === 0 ? dur / 3 : dur));
+  const grid = Math.min(4, Math.max(0.5, isDotted(dur) ? dur / 3 : dur));
   const measure = Math.floor(Math.max(0, raw) / units);
   const within = Math.floor((Math.max(0, raw) - measure * units) / grid) * grid;
   return measure * units + Math.min(within, Math.max(0, units - dur));
 }
 
-export const isDotted = (dur: number) => dur % 3 === 0;
+export const isDotted = (dur: number) => DURATIONS.some((base) => dur === base * 1.5);
 export const baseDuration = (dur: number) => (isDotted(dur) ? (dur * 2) / 3 : dur);
 
 /** Wait-mode steps: notes starting together become one chord step. */
@@ -128,7 +128,7 @@ export function toSteps(song: Song, hands: "R" | "L" | "both", fromMeasure = 0, 
 /** Measures that hold at least one note, so a song can be trimmed or extended. */
 export function lastUsedMeasure(song: Song): number {
   const units = unitsPerMeasure(song);
-  return song.notes.reduce((m, n) => Math.max(m, Math.floor((n.start + n.dur - 1) / units)), -1);
+  return song.notes.reduce((m, n) => Math.max(m, Math.ceil((n.start + n.dur) / units) - 1), -1);
 }
 
 export function newSong(id: string, title: string, now: Date): Song {

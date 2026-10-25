@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import type { Lesson } from "../features/lessons/lessons";
 import { loadProgress, recordFor, recordRun, saveProgress } from "../features/lessons/progress";
@@ -23,6 +23,7 @@ import {
   type Song,
 } from "../features/score/score";
 import { MAX_SONG_FILE_BYTES, parseSongFile, serializeSongFile, songFilename } from "../features/score/songFile";
+import { clampMeasureRange, enterMidiNote, playbackEvents } from "../features/score/editor";
 import type { Locale, MessageKey } from "../i18n/messages";
 import { backend, inDesktopApp } from "../lib/backend";
 import { LessonPlayer } from "./Practice";
@@ -73,7 +74,8 @@ export default function NoteEditor({ t, locale }: Props) {
   const [hover, setHover] = useState<{ pitch: number; start: number; hand: ScoreHand } | null>(null);
   const [midiInput, setMidiInput] = useState(true);
   const [cursor, setCursor] = useState<number | null>(null);
-  const [range, setRange] = useState({ from: 0, to: 3 });
+  const [requestedRange, setRange] = useState({ from: 0, to: 3 });
+  const range = clampMeasureRange(song.measures, requestedRange);
   const [loop, setLoop] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [playhead, setPlayhead] = useState<number | null>(null);
@@ -94,6 +96,12 @@ export default function NoteEditor({ t, locale }: Props) {
   const rows = Math.ceil(song.measures / PER_ROW);
   const width = HEAD + PER_ROW * measureW + 12;
   const height = rows * ROW_H + 20;
+  const midiDraft = useRef({ song, cursor, dur: noteDur, enabled: midiInput && !practice && !fileBusy });
+
+  useLayoutEffect(() => {
+    midiDraft.current = { song, cursor, dur: noteDur, enabled: midiInput && !practice && !fileBusy };
+  }, [song, cursor, noteDur, midiInput, practice, fileBusy]);
+  useEffect(() => { lastInput.current = null; }, [songId, noteDur, midiInput, practice, fileBusy]);
 
   useEffect(() => saveSongs(songs), [songs]);
 
@@ -101,7 +109,11 @@ export default function NoteEditor({ t, locale }: Props) {
   const update = useCallback(
     (change: (s: Song) => Song, record = true) => {
       if (record) setHistory((h) => ({ undo: [...h.undo.slice(-99), song], redo: [] }));
-      setSongs((all) => all.map((s) => (s.id === songId ? { ...change(s), updatedAt: new Date().toISOString() } : s)));
+      setSongs((all) => all.map((s) => {
+        if (s.id !== songId) return s;
+        const next = change(s);
+        return { ...next, measures: Math.max(next.measures, lastUsedMeasure(next) + 1), updatedAt: new Date().toISOString() };
+      }));
     },
     [songId, song],
   );
@@ -231,13 +243,13 @@ export default function NoteEditor({ t, locale }: Props) {
 
   const pickDuration = (d: number) => {
     setDur(d);
-    if (selected) changeSelected((n) => ({ ...n, dur: dotted && d > 1 ? d * 1.5 : d }));
+    if (selected) changeSelected((n) => ({ ...n, dur: dotted ? d * 1.5 : d }));
   };
 
   const toggleDot = () => {
     const next = !dotted;
     setDotted(next);
-    if (selected) changeSelected((n) => ({ ...n, dur: next && baseDuration(n.dur) > 1 ? baseDuration(n.dur) * 1.5 : baseDuration(n.dur) }));
+    if (selected) changeSelected((n) => ({ ...n, dur: next ? baseDuration(n.dur) * 1.5 : baseDuration(n.dur) }));
   };
 
   const onKey = (e: KeyboardEvent) => {
@@ -273,29 +285,26 @@ export default function NoteEditor({ t, locale }: Props) {
 
   // Notes from the piano: chords pressed together share one start.
   useEffect(() => {
-    if (!desktop || !midiInput) return;
+    if (!desktop) return;
+    let active = true;
     const sub = backend.onMidiEvent((e) => {
-      if (e.simulated || e.kind !== "noteOn" || e.pitch === null) return;
-      const pitch = e.pitch;
-      const now = performance.now();
-      setSongs((all) =>
-        all.map((s) => {
-          if (s.id !== songId) return s;
-          const u = unitsPerMeasure(s);
-          const end = s.notes.reduce((m, n) => Math.max(m, n.start + n.dur), 0);
-          const together = lastInput.current && now - lastInput.current.time < 90;
-          const at = together ? lastInput.current!.start : snapStart(cursor ?? end, noteDur, u);
-          lastInput.current = { time: now, start: at };
-          const note: ScoreNote = { id: uid(), pitch, start: at, dur: noteDur, hand: pitch >= 60 ? "R" : "L" };
-          const measures = Math.max(s.measures, Math.floor((at + noteDur - 1) / u) + 1);
-          setCursor(at + noteDur);
-          setHistory((h) => ({ undo: [...h.undo.slice(-99), s], redo: [] }));
-          return { ...s, measures, notes: [...s.notes, note], updatedAt: new Date().toISOString() };
-        }),
-      );
+      const draft = midiDraft.current;
+      if (!active || !draft.enabled || playback.current) return;
+      const next = enterMidiNote({ ...draft, last: lastInput.current }, e, draft.dur, uid(), performance.now(), new Date());
+      if (!next) return;
+      // Advance synchronously so a burst of MIDI events sees the preceding note
+      // even before React commits the next render. State updaters stay pure.
+      midiDraft.current = { ...draft, song: next.song, cursor: next.cursor };
+      lastInput.current = next.last;
+      setSongs((all) => all.map((s) => s.id === next.song.id ? next.song : s));
+      setCursor(next.cursor);
+      setHistory((h) => ({ undo: [...h.undo.slice(-99), draft.song], redo: [] }));
     });
-    return () => void sub.then((unlisten) => unlisten());
-  }, [desktop, midiInput, songId, cursor, noteDur]);
+    return () => {
+      active = false;
+      void sub.then((unlisten) => unlisten()).catch(() => undefined);
+    };
+  }, [desktop]);
 
   // Playback ------------------------------------------------------------
   const stop = useCallback(() => {
@@ -309,39 +318,32 @@ export default function NoteEditor({ t, locale }: Props) {
   }, [desktop]);
 
   useEffect(() => stop, [stop]);
+  // A running loop must not keep an old song, hand selection or range alive.
+  useEffect(() => { stop(); }, [stop, song, range.from, range.to, hands, speed, loop]);
 
   const play = () => {
     stop();
     const from = range.from * units;
     const to = (range.to + 1) * units;
     const ms16 = 60_000 / (song.tempo * speed) / 4;
-    const notes = song.notes.filter((n) => n.start >= from && n.start < to && (hands === "both" || n.hand === hands));
     const pb = { timers: [] as number[], frame: 0, sounding: new Set<number>() };
     playback.current = pb;
     const send = (bytes: number[]) => {
       if (desktop) void backend.midiSimulate(bytes).catch(() => undefined);
     };
-    for (const n of notes) {
-      const on = (n.start - from) * ms16;
-      const off = on + Math.max(1, Math.min(n.dur, to - n.start)) * ms16 - 15;
-      pb.timers.push(
-        window.setTimeout(() => {
-          pb.sounding.add(n.pitch);
-          send([0x90, n.pitch, 80]);
-        }, on),
-        window.setTimeout(() => {
-          pb.sounding.delete(n.pitch);
-          send([0x80, n.pitch, 0]);
-        }, off),
-      );
+    for (const event of playbackEvents(song, hands, from, to)) {
+      pb.timers.push(window.setTimeout(() => {
+        if (event.on) pb.sounding.add(event.pitch);
+        else pb.sounding.delete(event.pitch);
+        send([event.on ? 0x90 : 0x80, event.pitch, event.on ? 80 : 0]);
+      }, event.at * ms16));
     }
     const began = performance.now();
     const total = (to - from) * ms16;
     const tick = () => {
       const elapsed = performance.now() - began;
       if (elapsed >= total) {
-        playback.current = null;
-        setPlayhead(null);
+        stop();
         if (loop) play();
         return;
       }
@@ -421,10 +423,6 @@ export default function NoteEditor({ t, locale }: Props) {
     const s = newSong(uid(), t("songUntitled"), new Date());
     selectSong(s.id);
     setSongs((all) => [...all, s]);
-    setSongId(s.id);
-    setHistory({ undo: [], redo: [] });
-    setSelected(null);
-    setCursor(null);
   };
 
   const deleteSong = () => {
@@ -433,9 +431,6 @@ export default function NoteEditor({ t, locale }: Props) {
     const next = rest.length > 0 ? rest : [newSong(uid(), t("songUntitled"), new Date())];
     selectSong(next[0].id);
     setSongs(next);
-    setSongId(next[0].id);
-    setHistory({ undo: [], redo: [] });
-    setSelected(null);
   };
 
   const startPractice = () => {
@@ -558,7 +553,7 @@ export default function NoteEditor({ t, locale }: Props) {
         </label>
         <label className="field grow">
           {t("songTitle")}
-          <input value={song.title} onChange={(e) => update((s) => ({ ...s, title: e.target.value }), false)} />
+          <input maxLength={200} value={song.title} onChange={(e) => update((s) => ({ ...s, title: e.target.value }), false)} />
         </label>
         <label className="field">
           {t("songKey")}
@@ -798,7 +793,7 @@ export default function NoteEditor({ t, locale }: Props) {
             {hover ? `${noteName(hover.pitch)} · ${t(durationLabel[dur])}${dotted ? " ·" : ""}` : t("editorHint")}
           </span>
           <div className="actions">
-            <button type="button" className="btn" onClick={() => update((s) => ({ ...s, measures: s.measures + PER_ROW }))}>
+            <button type="button" className="btn" disabled={song.measures >= 400} onClick={() => update((s) => ({ ...s, measures: Math.min(400, s.measures + PER_ROW) }))}>
               + {t("addMeasures")}
             </button>
             <button

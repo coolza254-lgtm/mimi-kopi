@@ -60,6 +60,10 @@ describe("timing", () => {
     expect(toSteps(s, "L")).toEqual([[48]]);
     expect(lastUsedMeasure(s)).toBe(1);
   });
+
+  it("counts the following measure when a fractional note extends into it", () => {
+    expect(lastUsedMeasure(song([{ id: "a", pitch: 60, start: 15, dur: 1.5, hand: "R" }]))).toBe(1);
+  });
 });
 
 describe("song storage", () => {
