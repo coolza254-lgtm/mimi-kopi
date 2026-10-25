@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import PianoKeyboard from "../components/PianoKeyboard";
 import { initialMidiView, midiReducer, simulatedEvent } from "../features/midi/midiState";
+import { loadAudioPrefs, saveAudioPrefs } from "../lib/audioPrefs";
 import { noteName } from "../features/midi/notes";
 import type { MessageKey } from "../i18n/messages";
 import {
@@ -43,7 +44,7 @@ export default function SoundMidi({ t }: Props) {
   const [input, setInput] = useState("");
   const [midi, setMidi] = useState<MidiStatus | null>(null);
   const [outputs, setOutputs] = useState<string[]>([]);
-  const [output, setOutput] = useState("");
+  const [output, setOutput] = useState(() => loadAudioPrefs().outputDevice ?? "");
   const [audio, setAudio] = useState<AudioStatus | null>(null);
   const [gains, setGains] = useState<Record<"master" | "piano", number>>({ master: 80, piano: 80 });
   const [error, setError] = useState<string | null>(null);
@@ -115,7 +116,16 @@ export default function SoundMidi({ t }: Props) {
     const path = await run(() => open({ multiple: false, directory: false, filters: [{ name: "SoundFont", extensions: ["sf2"] }] }));
     if (typeof path !== "string") return;
     const status = await run(() => backend.audioLoadSoundFont(path));
-    if (status) setAudio(status);
+    if (!status) return;
+    setAudio(status);
+    if (status.instrument === "soundfont") saveAudioPrefs({ soundFontPath: path });
+  };
+
+  const applyOutput = async () => {
+    const status = await run(() => backend.audioOpen(output || null));
+    if (!status) return;
+    setAudio(status);
+    if (status.device) saveAudioPrefs({ outputDevice: output || null });
   };
 
   const midiLine = midi?.connected
@@ -209,7 +219,7 @@ export default function SoundMidi({ t }: Props) {
               type="button"
               className="btn"
               disabled={!desktop}
-              onClick={() => void run(() => backend.audioOpen(output || null)).then((s) => s && setAudio(s))}
+              onClick={() => void applyOutput()}
             >
               {t("apply")}
             </button>

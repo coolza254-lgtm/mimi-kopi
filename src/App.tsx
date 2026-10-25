@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import brandMark from "./assets/brand-mark.png";
 import { localeNames, locales, type Locale, type MessageKey } from "./i18n/messages";
+import { loadAudioPrefs, saveAudioPrefs } from "./lib/audioPrefs";
 import { backend, inDesktopApp, type AppInfo } from "./lib/backend";
 import { loadSettings, saveSettings, type Settings, type Theme } from "./lib/settings";
 import Practice from "./pages/Practice";
@@ -19,6 +20,24 @@ const navItems: { key: MessageKey; page?: Page }[] = [
   { key: "navSettings" },
 ];
 
+/** Reopens the remembered output device and SoundFont. A device that is not
+ * plugged in falls back to the Windows default so the app is never silent. */
+async function restoreAudio() {
+  const prefs = loadAudioPrefs();
+  try {
+    if (prefs.outputDevice) {
+      const status = await backend.audioOpen(prefs.outputDevice);
+      if (!status.device) await backend.audioOpen(null);
+    }
+    if (prefs.soundFontPath) {
+      const status = await backend.audioLoadSoundFont(prefs.soundFontPath).catch(() => null);
+      if (status?.instrument !== "soundfont") saveAudioPrefs({ soundFontPath: null });
+    }
+  } catch {
+    // The Sound & MIDI page shows the current status and any error.
+  }
+}
+
 export default function App() {
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [page, setPage] = useState<Page>("today");
@@ -32,7 +51,9 @@ export default function App() {
   }, [settings]);
 
   useEffect(() => {
-    if (inDesktopApp()) backend.appInfo().then(setInfo, () => setInfo(null));
+    if (!inDesktopApp()) return;
+    backend.appInfo().then(setInfo, () => setInfo(null));
+    void restoreAudio();
   }, []);
 
   return (
