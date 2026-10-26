@@ -13,8 +13,10 @@
 - เพิ่ม `src/styles/night.css` โหลดท้าย stylesheet ปรับธีมมืดเดิมเป็นพื้นดำสนิท/เทา/ขาวนวล รวมโลโก้ ดาว และโน้ตที่เลือก ไม่เพิ่มตัวเลือกธีมใหม่และใช้การจำธีมเดิม
 - ลดความสว่างพื้นที่คีย์เปียโนด้วยคีย์เทาเข้ม แยกเป้าหมายด้วยแถบล่าง กดอยู่ด้วยสีพื้น และกดตรงเป้าหมายด้วยกรอบเพิ่ม โน้ตที่เลือกในแกะโน้ตมีกรอบเส้นประ
 - เพิ่มเทสต์พาเลตและคอนทราสต์ 3 กรณี (`night.test.ts`) และเปิดอ่าน CSS เฉพาะไฟล์นี้ใน Vitest ตรวจผ่านแล้ว ข้อความปกติ ≥4.5:1 ขอบคีย์/เป้าหมาย ≥3:1
-- ตรวจพรีวิวขาวดำบนหน้า Today และบทเรียนแล้ว ชุด snapshot ที่แยกจากงาน UX/UI ค้างผ่าน `npm ci`, typecheck, Vitest 109 เทสต์, build, Rust fmt, clippy core และ Rust core 56 เทสต์ รอผล CI หลัง push
-- จะ commit เฉพาะ night.css/เทสต์, import night.css, config Vitest และเอกสาร งาน UX/UI ค้างยังอยู่ใน working tree เวอร์ชันเผยแพร่ล่าสุดยังเป็น v0.3.1
+- ตรวจพรีวิวขาวดำบนหน้า Today เปียโนอิสระ และบทเรียนแล้ว รวมชุด snapshot ที่แยกจากงาน UX/UI ค้าง ตรวจการจำธีมหลัง reload และสลับกลับธีมสว่างได้ ชุด snapshot ผ่าน `npm ci`, typecheck, Vitest 109 เทสต์, build, Rust fmt, clippy core และ Rust core 56 เทสต์
+- commit `43ee18f` push แล้ว [CI 40292836021](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/40292836021) ผ่านครบเว็บ/Rust/Windows มี artifact `mimi-kopi-windows-installer` สำหรับติดตั้งทดสอบโหมดกลางคืน
+- commit เฉพาะ night.css/เทสต์, import night.css, config Vitest และเอกสาร งาน UX/UI ค้างยังอยู่ใน working tree เวอร์ชันเผยแพร่ล่าสุดยังเป็น v0.3.1 ยังไม่ได้ออก Release ใหม่ให้ updater ของธีมนี้
+- ขั้นต่อไป: เจ้าของติดตั้ง artifact ของ CI ด้านบนแล้วเลือก **ตั้งค่า → ธีม → มืด** ตรวจความสบายตา คีย์ที่กด/เป้าหมาย และ MIDI จริงตาม `docs/MIDI_AUDIO_TEST_PLAN.md` หากจะเผยแพร่ผ่าน updater ให้ปล่อยรุ่นใหม่ตาม `docs/RELEASING.md`
 
 ### พักงานตามคำขอเจ้าของ — ปรับ UX/UI และบทเรียน (ยังไม่ commit)
 
