@@ -1,0 +1,106 @@
+/* Monochrome night mode; loaded last so instruments stay dark as well. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  accent-color: #c8c8c8;
+  scrollbar-color: #505050 #000000;
+  --bg: #000000;
+  --surface: #101010;
+  --surface-2: #1b1b1b;
+  --sidebar: #080808;
+  --text: #dedede;
+  --muted: #a6a6a6;
+  --line: #383838;
+  --pink: #bdbdbd;
+  --blue: #adadad;
+  --violet: #b8b8b8;
+  --pink-soft: #202020;
+  --blue-soft: #1c1c1c;
+  --violet-soft: #222222;
+  --on-pink: #101010;
+  --accent: #c8c8c8;
+  --primary: #d6d6d6;
+  --on-primary: #101010;
+  --positive: #bdbdbd;
+  --focus: #d4d4d4;
+  --key-white: #363636;
+  --key-black: #080808;
+  --key-edge: #878787;
+  --key-label: #dedede;
+  --key-pressed: #bdbdbd;
+  --key-on-pressed: #101010;
+  --shadow-soft: none;
+}
+
+:root[data-theme="dark"] .logo {
+  filter: grayscale(1) brightness(.85);
+}
+
+:root[data-theme="dark"] .hero,
+:root[data-theme="dark"] .hero.done {
+  background: var(--surface);
+}
+
+:root[data-theme="dark"] .piano {
+  background: var(--bg);
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .white-key {
+  background: var(--key-white);
+  border-right-color: var(--key-edge);
+  color: var(--key-label);
+}
+
+:root[data-theme="dark"] .black-key {
+  background: var(--key-black);
+  border: 1px solid var(--key-edge);
+  border-top: 0;
+  color: var(--key-label);
+}
+
+/* Target = underline; pressed = fill; a held target also gets a clear rim. */
+:root[data-theme="dark"] .white-key.target,
+:root[data-theme="dark"] .black-key.target {
+  box-shadow: inset 0 -5px 0 var(--focus);
+  color: var(--key-label);
+}
+
+:root[data-theme="dark"] .white-key.on,
+:root[data-theme="dark"] .black-key.on {
+  background: var(--key-pressed);
+  color: var(--key-on-pressed);
+}
+
+:root[data-theme="dark"] .white-key.on.target,
+:root[data-theme="dark"] .black-key.on.target {
+  box-shadow: inset 0 0 0 2px var(--key-on-pressed), inset 0 -6px 0 var(--focus);
+  color: var(--key-on-pressed);
+}
+
+:root[data-theme="dark"] .stars svg.on {
+  fill: var(--accent);
+}
+
+:root[data-theme="dark"] .sn.selected .head,
+:root[data-theme="dark"] .sn.selected .dot,
+:root[data-theme="dark"] .sn.selected .acc {
+  fill: var(--text);
+}
+
+:root[data-theme="dark"] .sn.selected .head.hollow {
+  fill: var(--bg);
+  stroke: var(--text);
+}
+
+:root[data-theme="dark"] .sn.selected .stem,
+:root[data-theme="dark"] .sn.selected .flag,
+:root[data-theme="dark"] .sn.selected .ledger {
+  stroke: var(--text);
+}
+
+/* A dashed selection frame remains recognisable without a colour accent. */
+:root[data-theme="dark"] .sn.selected .hit {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 3;
+}
