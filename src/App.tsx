@@ -14,13 +14,15 @@ import SettingsPage from "./pages/Settings";
 import SoundMidi from "./pages/SoundMidi";
 import Today from "./pages/Today";
 import PlaySongs from "./pages/PlaySongs";
+import Learn from "./pages/Learn";
 
-type Page = "today" | "practice" | "songs" | "free" | "editor" | "sound" | "settings";
+type Page = "today" | "learn" | "practice" | "songs" | "free" | "editor" | "sound" | "settings";
 
 const navItems: { key: MessageKey; page: Page; icon: IconName; group: "practice" | "setup" }[] = [
   { key: "navToday", page: "today", icon: "today", group: "practice" },
+  { key: "navLearn", page: "learn", icon: "lessons", group: "practice" },
   { key: "navPractice", page: "practice", icon: "lessons", group: "practice" },
-  { key: "navSongs", page: "songs", icon: "score", group: "practice" },
+  { key: "navPlaySongs", page: "songs", icon: "score", group: "practice" },
   { key: "navFreePlay", page: "free", icon: "piano", group: "practice" },
   { key: "navNoteEditor", page: "editor", icon: "score", group: "practice" },
   { key: "navSound", page: "sound", icon: "sound", group: "setup" },
@@ -120,7 +122,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="shell" data-page={page} data-focus={practiceFocus && (page === "practice" || page === "editor" || page === "songs")}>
+    <div className="shell" data-page={page} data-focus={practiceFocus && (page === "practice" || page === "learn" || page === "editor" || page === "songs")}>
       <a className="skip-link" href="#main-content">{t("navSkip")}</a>
       <aside className="side" aria-label={t("appRomaji")}>
         <div className="side-space" aria-hidden="true" />
@@ -180,6 +182,8 @@ export default function App() {
             onCheck={() => void checkUpdate()}
             onInstall={() => void install()}
           />
+        ) : page === "learn" ? (
+          <Learn t={t} locale={settings.locale} onFocusChange={setPracticeFocus} onOpenSound={() => navigate("sound")} />
         ) : page === "songs" ? (
           <PlaySongs t={t} locale={settings.locale} onFocusChange={setPracticeFocus} />
         ) : page === "editor" ? (

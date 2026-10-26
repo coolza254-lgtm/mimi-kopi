@@ -1,4 +1,5 @@
 const th = {
+  drillLatch: "แตะเพื่อกดค้าง แตะซ้ำเพื่อปล่อย",
   drillTitle: "โปรแกรมฝึก", drillNotes: "หาโน้ต", drillStaff: "อ่านบรรทัดโน้ต", drillChords: "เปลี่ยนคอร์ด",
   drillNotesHint: "เห็นชื่อ แล้วกดคีย์", drillStaffHint: "เห็นภาพ แล้วกดคีย์", drillChordsHint: "ฝึกจับและเปลี่ยนคอร์ด",
   drillLevel: "ช่วงที่ฝึก", drillLow: "C4–G4", drillMiddle: "C4–C5", drillWide: "C3–C5",
@@ -18,6 +19,7 @@ const th = {
 } as const;
 type Messages = Record<keyof typeof th, string>;
 const en: Messages = {
+  drillLatch: "Tap to hold, tap again to release",
   drillTitle: "Practice programs", drillNotes: "Find notes", drillStaff: "Read the staff", drillChords: "Change chords",
   drillNotesHint: "See a name, play its key", drillStaffHint: "See a note, play its key", drillChordsHint: "Form and change chords",
   drillLevel: "Practice range", drillLow: "C4–G4", drillMiddle: "C4–C5", drillWide: "C3–C5",
@@ -36,6 +38,7 @@ const en: Messages = {
   drillFirstLabel: "First-try answers among completed questions", drillProgress: "Comparable check results", drillSimulated: "Simulated",
 };
 const ja: Messages = {
+  drillLatch: "タップで押さえ、もう一度で離す",
   drillTitle: "練習プログラム", drillNotes: "鍵盤を探す", drillStaff: "五線譜を読む", drillChords: "コードを変える",
   drillNotesHint: "音名を見て鍵盤で答える", drillStaffHint: "音符を見て鍵盤で答える", drillChordsHint: "コードを押さえて切り替える",
   drillLevel: "練習する範囲", drillLow: "C4〜G4", drillMiddle: "C4〜C5", drillWide: "C3〜C5",

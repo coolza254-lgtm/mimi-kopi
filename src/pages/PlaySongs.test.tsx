@@ -29,6 +29,11 @@ it("shows the catalog, enters focus, pauses on blur, resumes without resetting a
   render(<PlaySongs t={t} locale="en" onFocusChange={focus} />);
   expect(screen.getAllByRole("button", { name: en.songsOpen })).toHaveLength(3);
   open(); expect(focus).toHaveBeenLastCalledWith(true);
+  fireEvent.change(screen.getByLabelText(en.songsHands), { target: { value: "both" } });
+  expect(document.querySelector(".falling-bar.hand-left")).not.toBeNull();
+  expect(document.querySelector(".falling-bar.hand-right")).not.toBeNull();
+  fireEvent.change(screen.getByLabelText(en.songsHands), { target: { value: "right" } });
+  expect(document.querySelector(".falling-bar.hand-left")).toBeNull();
   expect(screen.getByText(en.songsBrowser)).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: en.songsStart }));
   tick(5000);

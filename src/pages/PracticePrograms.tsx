@@ -3,6 +3,7 @@ import ChordFingerGuide from "../components/ChordFingerGuide";
 import MidiConnection from "../components/MidiConnection";
 import PianoKeyboard from "../components/PianoKeyboard";
 import ReadingStaff from "../components/ReadingStaff";
+import { courseChapters } from "../features/lessons/course";
 import { advanceDrill, createDrillPlan, drillPool, inputDrill, pauseDrill, resetDrillInput, resumeDrill, startDrill, type DrillConfig, type DrillKind, type DrillPlan, type DrillRun } from "../features/lessons/drills";
 import { appendDrillHistory, comparableChecks, drillRecord, firstTryRate, loadDrillHistory, weakTargets, type DrillRecord } from "../features/lessons/drillHistory";
 import { noteName } from "../features/midi/notes";
@@ -16,13 +17,14 @@ interface Props {
   onLegacy: () => void;
   onOpenSound?: () => void;
   onFocusChange?: (focus: boolean) => void;
+  course?: { plan: DrillPlan; title: string; onComplete: (record: DrillRecord) => boolean };
 }
 const names: Record<DrillKind, MessageKey> = { notes: "drillNotes", staff: "drillStaff", chords: "drillChords" };
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
-export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onFocusChange }: Props) {
+export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onFocusChange, course }: Props) {
   const desktop = inDesktopApp();
-  const [config, setConfig] = useState<DrillConfig>({ kind: "staff", level: 1, count: 24, mode: "practice" });
+  const [config, setConfig] = useState<DrillConfig>(course?.plan.config ?? { kind: "staff", level: 1, count: 24, mode: "practice" });
   const [plan, setPlan] = useState<DrillPlan | null>(null);
   const [run, setRun] = useState(startDrill);
   const [history, setHistory] = useState(loadDrillHistory);
@@ -84,10 +86,12 @@ export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onF
     saved.current = true;
     if (!current.trials.length) { setPlan(null); return; }
     const record = drillRecord(plan, current, new Date(), runId.current);
-    setSaveFailed(!appendDrillHistory(record));
+    const historySaved = appendDrillHistory(record);
+    const chapterSaved = !record.completed || !course || course.onComplete(record);
+    setSaveFailed(!historySaved || !chapterSaved);
     setResult(record);
     setHistory(loadDrillHistory());
-  }, [plan]);
+  }, [plan, course]);
   useEffect(() => { if (run.phase === "finished") finish(run); }, [run, finish]);
 
   const begin = () => {
@@ -97,7 +101,7 @@ export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onF
     saved.current = false;
     runId.current = crypto.randomUUID();
     setConnectionIssue(false); setSaveFailed(false); setResult(null); setRun(startDrill());
-    setPlan(createDrillPlan(nextConfig, crypto.getRandomValues(new Uint32Array(1))[0]));
+    setPlan(course?.plan ?? createDrillPlan(nextConfig, crypto.getRandomValues(new Uint32Array(1))[0]));
   };
   const back = () => { setResult(null); setPlan(null); setRun(startDrill()); };
   const pool = drillPool(config);
@@ -116,7 +120,7 @@ export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onF
     {saveFailed && <p className="notice error" role="alert">{t("resultSaveFailed")}</p>}
     <section className="card"><h2>{t("drillWeak")}</h2>{weakTargets(result).length ? <ul className="drill-weak">{weakTargets(result).map((item) => <li key={item.id}><strong>{targetName(item.id)}</strong><span>{item.wrong} {t("drillTimes")}</span></li>)}</ul> : <p>{t("drillNoWeak")}</p>}</section>
     {result.plan.mode === "check" && previous ? <section className="card"><h2>{t("drillPrevious")}</h2><p className="drill-comparison">{pct(firstTryRate(previous))} → {pct(firstTryRate(result))}</p><p className="muted small">{Math.round((firstTryRate(result) - firstTryRate(previous)) * 100)} {t("drillDelta")}</p></section> : <p className="muted small">{t(result.plan.mode === "practice" ? "drillPracticeResult" : "drillNoComparison")}</p>}
-    <div className="actions"><button type="button" className="btn primary" onClick={begin}>{t("drillRetry")}</button><button type="button" className="btn" onClick={back}>{t("drillExit")}</button></div>
+    <div className="actions"><button type="button" className="btn primary" onClick={begin}>{t("drillRetry")}</button><button type="button" className="btn" onClick={course ? onLegacy : back}>{t(course ? "learnBack" : "drillExit")}</button></div>
   </div>;
 
   if (plan && target) return <div className={`drill-focus${keyboard ? " with-keyboard" : ""}${run.phase === "feedback" ? " correct" : run.lastWrong !== null ? " incorrect" : ""}`}>
@@ -133,13 +137,20 @@ export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onF
         {plan.config.kind === "staff" ? <><h1 className="sr-only" ref={heading} tabIndex={-1}>{t("drillReadPrompt")}</h1><ReadingStaff pitch={target.pitches[0]} label={`${t("drillReadPrompt")}: ${noteName(target.pitches[0])}`} /></> : <><h1 className="drill-question-label" ref={heading} tabIndex={-1}>{t(plan.config.kind === "chords" ? "drillChordPrompt" : "drillNamePrompt")}</h1><div className="drill-big">{target.name ?? noteName(target.pitches[0])}</div></>}
         <div className="drill-feedback" role="status" aria-live="polite">{run.phase === "feedback" ? `✓ ${t("drillCorrect")}` : run.phase === "release" ? t("drillRelease") : run.lastWrong !== null ? `× ${t("drillWrong")}` : ""}</div>
       </section>
-      {keyboard && <div className="drill-screen"><span className="small muted">{t("drillScreen")}</span><PianoKeyboard held={run.held} low={48} high={84} labels={Object.fromEntries(Array.from({ length: 37 }, (_, i) => [48 + i, ""]))} onPress={(p) => sendKey(p, true)} onRelease={(p) => sendKey(p, false)} /></div>}
+      {keyboard && <div className="drill-screen"><span className="small muted">{t("drillScreen")}{plan.config.kind === "chords" && ` · ${t("drillLatch")}`}</span><PianoKeyboard held={run.held} low={48} high={84} latch={plan.config.kind === "chords"} labels={Object.fromEntries(Array.from({ length: 37 }, (_, i) => [48 + i, ""]))} onPress={(p) => sendKey(p, true)} onRelease={(p) => sendKey(p, false)} /></div>}
     </>}
   </div>;
 
+  if (course) return <section className="learn-check-intro">
+    <button className="btn text" onClick={onLegacy}>{t("learnBack")}</button>
+    <h1 className="title">{course.title} · {t("learnCheck")}</h1><p>{t("learnCheckHint")}</p>
+    <MidiConnection t={t} onOpenSound={onOpenSound} />
+    <button className="btn primary big" onClick={begin}>{t("drillBegin")}</button>
+  </section>;
   const reference = createDrillPlan({ ...config, count: customAmount ? Math.max(12, Math.min(120, Math.round(Number(customCount) || 12))) : config.count, mode: "check" }, 0).key;
   const checks = history.filter((r) => r.completed && r.key === reference);
   const rangeName = (c: DrillConfig) => c.kind === "chords" ? drillPool(c).map((item) => item.name).join(" · ") : t(c.level === 1 ? "drillLow" : c.level === 2 ? "drillMiddle" : "drillWide");
+  const recordRange = (record: DrillRecord) => { const chapter = courseChapters.find((item) => record.key === `learn-v1:${item.id}:12`); return chapter ? t(chapter.title) : rangeName(record.plan); };
   return <div className="programs">
     <header className="page-head"><h1 className="title" ref={heading} tabIndex={-1}>{t("drillTitle")}</h1><button type="button" className="btn text" onClick={onLegacy}>{t("drillLegacyOpen")}</button></header>
     <div className="program-picker" role="group" aria-label={t("drillTitle")}>
@@ -160,7 +171,7 @@ export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onF
     <section className="program-history" aria-labelledby="program-history"><h2 id="program-history">{t("drillHistory")}</h2>
       {!history.length ? <p className="muted">{t("drillEmpty")}</p> : <>
         {checks.length > 1 && <CheckTrend records={checks} t={t} locale={locale} />}
-        <ul>{history.slice(-8).reverse().map((record) => <li key={record.id}><div><strong>{t(names[record.plan.kind])} · {t(record.plan.mode === "check" ? "drillCheck" : "drillPractice")}</strong><span>{new Date(record.at).toLocaleDateString(locale)} · {record.trials.length}/{record.plan.count} · {rangeName(record.plan)}{record.simulated ? ` · ${t("drillSimulated")}` : ""}{!record.completed ? ` · ${t("drillPartial")}` : ""}</span></div><span aria-label={t("drillFirstLabel")}>{pct(firstTryRate(record))}</span></li>)}</ul>
+        <ul>{history.slice(-8).reverse().map((record) => <li key={record.id}><div><strong>{t(names[record.plan.kind])} · {t(record.plan.mode === "check" ? "drillCheck" : "drillPractice")}</strong><span>{new Date(record.at).toLocaleDateString(locale)} · {record.trials.length}/{record.plan.count} · {recordRange(record)}{record.simulated ? ` · ${t("drillSimulated")}` : ""}{!record.completed ? ` · ${t("drillPartial")}` : ""}</span></div><span aria-label={t("drillFirstLabel")}>{pct(firstTryRate(record))}</span></li>)}</ul>
       </>}
     </section>
   </div>;

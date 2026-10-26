@@ -40,6 +40,25 @@ function key(pitch: number) {
   fireEvent.keyUp(button, { key: "Enter" });
 }
 describe("focused practice programs", () => {
+  it("accepts latched simulated chords and waits for every key to be released before the next question", () => {
+    render(<PracticePrograms t={t} locale="en" onLegacy={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.drillChords) }));
+    fireEvent.change(screen.getByLabelText(en.drillAmount), { target: { value: "12" } });
+    fireEvent.change(screen.getByLabelText(en.drillMode), { target: { value: "check" } });
+    fireEvent.click(screen.getByRole("button", { name: en.drillBegin }));
+    const plan = createDrillPlan({ ...config, kind:"chords" }, 0);
+    plan.targets[0].pitches.forEach(key);
+    expect(screen.getByRole("status").textContent).toContain(en.drillCorrect);
+    act(() => vi.advanceTimersByTime(450));
+    expect(screen.getByRole("status").textContent).toContain(en.drillRelease);
+    plan.targets[0].pitches.forEach(key);
+    plan.targets[1].pitches.forEach(key);
+    expect(screen.getByRole("status").textContent).toContain(en.drillCorrect);
+    fireEvent.click(screen.getByRole("button", {name:en.drillPause}));
+    fireEvent.click(screen.getByRole("button", {name:en.drillEnd}));
+    expect(loadDrillHistory()[0]).toMatchObject({ simulated:true, completed:false });
+    expect(loadDrillHistory()[0].trials).toHaveLength(2);
+  });
   it("shows one five-line question with no visible note or key-name answers, then saves one simulated round", () => {
     mount();
     const plan = createDrillPlan(config, 0);

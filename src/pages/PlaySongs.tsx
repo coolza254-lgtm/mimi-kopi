@@ -127,7 +127,7 @@ export default function PlaySongs({ t, locale, onFocusChange }: Props) {
         })}
         {beat < 0 && <div className="song-countdown" aria-live="off">{Math.ceil(-beat)}</div>}
       </div>
-      <PianoKeyboard low={LOW} high={HIGH} held={held} targets={expected} leftTargets={activeSongPitches(song, beat, "left")} onPress={press} onRelease={release} />
+      <PianoKeyboard low={LOW} high={HIGH} held={held} targets={expected} leftTargets={hands === "right" ? [] : activeSongPitches(song, beat, "left")} onPress={press} onRelease={release} />
     </div>
     <progress className="song-progress" aria-label={t("songsProgress")} max={songEnd(song)} value={Math.max(0, beat)} />
   </div>;

@@ -1,0 +1,37 @@
+.learn-library, .learn-lesson, .learn-check-intro { display:grid; gap:26px; }
+.learn-lesson { min-height:100dvh; max-width:1100px; margin:auto; padding:24px 32px; gap:18px; }
+.learn-overall { display:flex; gap:20px; align-items:center; color:var(--muted); font-size:12px; }
+.learn-overall strong { color:var(--text); font-size:18px; font-weight:500; }
+.learn-chapters { list-style:none; padding:0; margin:0; border-top:1px solid var(--line); }
+.learn-chapters li { border-bottom:1px solid var(--line); }
+.learn-chapters button { width:100%; display:flex; align-items:center; gap:24px; text-align:left; background:transparent; border:0; color:var(--text); padding:28px 8px; cursor:pointer; }
+.learn-chapters button:hover { background:var(--surface); }
+.chapter-number { color:var(--muted); font-size:14px; align-self:flex-start; padding-top:3px; }
+.chapter-copy { display:grid; gap:6px; flex:1; }
+.chapter-copy strong { font-size:20px; font-weight:550; }
+.chapter-copy > span, .chapter-state { color:var(--muted); font-size:12px; }
+.learn-top { display:flex; justify-content:space-between; align-items:center; }
+.learn-top > span { font-size:12px; color:var(--muted); }
+.learn-step-meter { display:flex; gap:6px; }
+.learn-step-meter i { height:3px; flex:1; background:var(--line); border-radius:3px; }
+.learn-step-meter i.reached { background:var(--accent); }
+.learn-explanation { max-width:700px; margin:0 auto; text-align:center; }
+.learn-explanation .title { margin:12px 0; }
+.learn-explanation p { font-size:16px; line-height:1.9; margin:0; }
+.learn-example { max-width:850px; width:100%; margin:0 auto; }
+.learn-example .reading-staff { display:block; width:340px; max-width:100%; margin:0 auto; }
+.learn-example .piano { height:150px; margin-top:10px; }
+.learn-example .chord-guide { padding:16px; gap:12px; margin-top:8px; }
+.learn-example .chord-guide-top > strong { display:none; }
+.learn-example .chord-guide-top { justify-content:center; }
+.learn-example .chord-guide-picture { grid-template-columns:175px minmax(0,1fr); gap:16px; }
+.learn-example .finger-hand { transform:scale(.75); transform-origin:top left; margin:0 -45px -50px 0; }
+.learn-example .finger-live .piano { height:130px; margin:0; }
+.learn-example .finger-mapping .btn { padding:5px 10px; font-size:12px; }
+.learn-example .chord-guide > p { margin:0; font-size:11px; }
+.learn-example-feedback { min-height:30px; text-align:center; color:var(--accent); font-size:13px; }
+.learn-actions { display:flex; justify-content:space-between; align-items:center; gap:20px; padding-top:12px; border-top:1px solid var(--line); }
+.learn-actions > div { display:flex; align-items:center; gap:18px; }
+.learn-check-intro { justify-items:start; }
+@media(max-width:900px) { .chapter-state { max-width:120px; text-align:right; } .learn-actions > div { flex-wrap:wrap; justify-content:flex-end; } .learn-explanation p { font-size:14px; } }
+@media(max-height:760px) { .learn-lesson { padding:16px 26px; gap:10px; } .learn-example .reading-staff { width:220px; } .learn-example .piano { height:100px; } .learn-explanation p { font-size:14px; line-height:1.65; } .learn-explanation .title { font-size:24px; margin:6px 0; } .learn-example-feedback { min-height:24px; } .learn-actions { padding-top:8px; } }

@@ -45,7 +45,7 @@ describe("practice navigation", () => {
   it("persists the toolbar night toggle and keeps only usable pages in navigation", () => {
     const app = render(<App />);
     const navigation = screen.getAllByRole("navigation");
-    expect(navigation.flatMap((nav) => [...nav.querySelectorAll("button")])).toHaveLength(7);
+    expect(navigation.flatMap((nav) => [...nav.querySelectorAll("button")])).toHaveLength(8);
     expect(document.querySelector(".brand, .workspace-location, .studio-label, .nav-label")).toBeNull();
     expect(screen.queryByText(en.browserNotice)).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: en.themeDark }));

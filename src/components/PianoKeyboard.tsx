@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent, type PointerEvent } from "react";
 import { isBlackKey, noteName, PIANO_HIGH, PIANO_LOW } from "../features/midi/notes";
 
 interface Props {
@@ -6,6 +6,7 @@ interface Props {
   /** Keys the player should press next, drawn with an outline. */
   targets?: readonly number[];
   leftTargets?: readonly number[];
+  latch?: boolean;
   /** Text shown on a key instead of its name, e.g. a finger number. */
   labels?: Readonly<Record<number, string>>;
   onPress: (pitch: number) => void;
@@ -18,6 +19,7 @@ export default function PianoKeyboard({
   held,
   targets = [],
   leftTargets,
+  latch = false,
   labels = {},
   onPress,
   onRelease,
@@ -25,6 +27,7 @@ export default function PianoKeyboard({
   high = PIANO_HIGH,
 }: Props) {
   const down = useRef(new Set<number>());
+  useEffect(() => { if (latch) down.current.forEach((p) => { if (!held.includes(p)) down.current.delete(p); }); }, [held, latch]);
   const pitches = Array.from({ length: high - low + 1 }, (_, i) => low + i);
   const whites = pitches.filter((p) => !isBlackKey(p));
   const whiteWidth = 100 / whites.length;
@@ -34,11 +37,13 @@ export default function PianoKeyboard({
     `${base}${heldSet.has(p) ? " on" : ""}${targetSet.has(p) ? ` target${leftTargets ? leftTargets.includes(p) ? " target-left" : " target-right" : ""}` : ""}`;
 
   const press = (p: number) => {
+    if (latch && down.current.has(p)) { down.current.delete(p); onRelease(p); return; }
     if (down.current.has(p)) return;
     down.current.add(p);
     onPress(p);
   };
   const release = (p: number) => {
+    if (latch) return;
     if (!down.current.delete(p)) return;
     onRelease(p);
   };
