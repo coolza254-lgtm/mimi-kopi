@@ -124,6 +124,7 @@ describe("guided lesson experience", () => {
 
   it("keeps every lesson available and describes completion without claiming mastery", async () => {
     await act(async () => render(<Practice t={(key) => en[key]} locale="en" />));
+    fireEvent.click(screen.getByRole("button", { name: en.drillLegacyOpen }));
     for (const entry of lessons) {
       expect((screen.getByRole("button", { name: new RegExp(entry.title.en.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }) as HTMLButtonElement).disabled).toBe(false);
     }

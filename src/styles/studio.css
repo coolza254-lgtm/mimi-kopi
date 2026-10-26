@@ -16,6 +16,8 @@ button:not(:disabled):hover { filter: none; }
 .brand-sub { font-size: 11px; letter-spacing: .04em; }
 .brand-caption { color: var(--muted); margin: 22px 12px 28px; font-size: 12px; max-width: 150px; }
 .nav { gap: 6px; }
+.side-space { height: 82px; flex: none; }
+.side > .nav { margin-top: 32px; }
 .nav-label { padding: 0 12px 9px; font-size: 11px; color: var(--muted); font-weight: 550; }
 .nav-item { justify-content: flex-start; gap: 12px; min-height: 44px; padding: 10px 12px; border-radius: 10px; font-size: 13px; color: var(--muted); }
 .nav-item .app-icon { width: 19px; height: 19px; }
@@ -25,7 +27,7 @@ button:not(:disabled):hover { filter: none; }
 .side-foot { gap: 22px; padding-top: 30px; }
 .side-foot > .muted { padding: 0 12px; font-size: 10px; }
 .workspace { min-width: 0; flex: 1; }
-.workspace-toolbar { min-height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 38px; border-bottom: 1px solid var(--line); gap: 20px; }
+.workspace-toolbar { min-height: 64px; display: flex; align-items: center; justify-content: flex-end; padding: 0 38px; border-bottom: 1px solid var(--line); gap: 20px; }
 .workspace-location { display: inline-flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; }
 .workspace-location .app-icon { width: 16px; height: 16px; }
 .workspace-tools { display: flex; align-items: center; gap: 18px; }

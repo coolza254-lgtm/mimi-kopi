@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import AppIcon, { type IconName } from "./components/AppIcon";
-import brandMark from "./assets/brand-mark.png";
 import UpdateScreen from "./components/UpdateScreen";
 import type { Lesson } from "./features/lessons/lessons";
 import { locales, type MessageKey } from "./i18n/messages";
@@ -14,12 +13,14 @@ import Practice from "./pages/Practice";
 import SettingsPage from "./pages/Settings";
 import SoundMidi from "./pages/SoundMidi";
 import Today from "./pages/Today";
+import PlaySongs from "./pages/PlaySongs";
 
-type Page = "today" | "practice" | "free" | "editor" | "sound" | "settings";
+type Page = "today" | "practice" | "songs" | "free" | "editor" | "sound" | "settings";
 
 const navItems: { key: MessageKey; page: Page; icon: IconName; group: "practice" | "setup" }[] = [
   { key: "navToday", page: "today", icon: "today", group: "practice" },
   { key: "navPractice", page: "practice", icon: "lessons", group: "practice" },
+  { key: "navSongs", page: "songs", icon: "score", group: "practice" },
   { key: "navFreePlay", page: "free", icon: "piano", group: "practice" },
   { key: "navNoteEditor", page: "editor", icon: "score", group: "practice" },
   { key: "navSound", page: "sound", icon: "sound", group: "setup" },
@@ -52,6 +53,7 @@ export default function App() {
   const [page, setPage] = useState<Page>("today");
   const [initialLesson, setInitialLesson] = useState<Lesson | null>(null);
   const [practiceVisit, setPracticeVisit] = useState(0);
+  const [practiceFocus, setPracticeFocus] = useState(false);
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [update, setUpdate] = useState<UpdateState>({ kind: "idle" });
   const updateBusy = useRef(false);
@@ -118,19 +120,11 @@ export default function App() {
   }, []);
 
   return (
-    <div className="shell" data-page={page}>
+    <div className="shell" data-page={page} data-focus={practiceFocus && (page === "practice" || page === "editor" || page === "songs")}>
       <a className="skip-link" href="#main-content">{t("navSkip")}</a>
       <aside className="side" aria-label={t("appRomaji")}>
-        <div className="brand">
-          <img className="logo" src={brandMark} alt="" />
-          <div>
-            <div className="brand-name">{t("appName")}</div>
-            <div className="brand-sub">{t("appRomaji")}</div>
-          </div>
-        </div>
-        <p className="brand-caption">{t("navSubtitle")}</p>
+        <div className="side-space" aria-hidden="true" />
         <nav className="nav" aria-label={t("navSectionPractice")}>
-          <span className="nav-label">{t("navSectionPractice")}</span>
           {navItems.filter((item) => item.group === "practice").map(({ key, page: target, icon }) => (
             <button
               key={key}
@@ -146,7 +140,6 @@ export default function App() {
         </nav>
         <div className="side-foot">
           <nav className="nav nav-setup" aria-label={t("navSectionSetup")}>
-            <span className="nav-label">{t("navSectionSetup")}</span>
             {navItems.filter((item) => item.group === "setup").map(({ key, page: target, icon }) => (
               <button key={key} type="button" className="nav-item" aria-current={target === page ? "page" : undefined}
                 onClick={() => navigate(target)}>
@@ -167,9 +160,7 @@ export default function App() {
       </aside>
       <div className="workspace">
         <div className="workspace-toolbar">
-          <span className="workspace-location"><AppIcon name={navItems.find((item) => item.page === page)!.icon} />{t(navItems.find((item) => item.page === page)!.key)}</span>
           <div className="workspace-tools">
-            <span className="studio-label">{t("studioLabel")}</span>
             <button type="button" className="icon-button" title={t(settings.theme === "light" ? "themeDark" : "themeLight")}
               aria-label={t(settings.theme === "light" ? "themeDark" : "themeLight")}
               onClick={() => setSettings((s) => ({ ...s, theme: s.theme === "light" ? "dark" : "light" }))}>
@@ -189,14 +180,16 @@ export default function App() {
             onCheck={() => void checkUpdate()}
             onInstall={() => void install()}
           />
+        ) : page === "songs" ? (
+          <PlaySongs t={t} locale={settings.locale} onFocusChange={setPracticeFocus} />
         ) : page === "editor" ? (
-          <NoteEditor t={t} locale={settings.locale} />
+          <NoteEditor t={t} locale={settings.locale} onFocusChange={setPracticeFocus} />
         ) : page === "free" ? (
           <FreePlay t={t} onOpenSound={() => navigate("sound")} />
         ) : page === "sound" ? (
           <SoundMidi t={t} />
         ) : page === "practice" ? (
-          <Practice key={practiceVisit} t={t} locale={settings.locale} initialLesson={initialLesson} onOpenSound={() => navigate("sound")} />
+          <Practice key={practiceVisit} t={t} locale={settings.locale} initialLesson={initialLesson} onOpenSound={() => navigate("sound")} onFocusChange={setPracticeFocus} />
         ) : (
           <Today t={t} locale={settings.locale}
             onPractice={(lesson) => navigate("practice", lesson)}

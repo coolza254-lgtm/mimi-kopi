@@ -14,12 +14,14 @@ describe("today practice plan", () => {
     const onFreePlay = vi.fn();
     const onEditor = vi.fn();
     render(<Today t={(key) => en[key]} locale="en" onPractice={onPractice} onFreePlay={onFreePlay} onEditor={onEditor} onSound={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: en.todayBegin }));
+    fireEvent.click(screen.getByRole("button", { name: en.drillBegin }));
+    expect(onPractice).toHaveBeenLastCalledWith(null);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.drillLegacyOpen) }));
     expect(onPractice).toHaveBeenLastCalledWith(lessons[0]);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(en.todayWarmup) }));
     expect(onFreePlay).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(en.todayLesson) }));
-    expect(onPractice).toHaveBeenLastCalledWith(lessons[0]);
+    expect(onPractice).toHaveBeenLastCalledWith(null);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(en.todaySong) }));
     expect(onEditor).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(en.todayReview) }));

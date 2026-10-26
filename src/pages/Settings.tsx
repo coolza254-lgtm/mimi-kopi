@@ -71,7 +71,6 @@ export default function Settings({ t, settings, onChange, version, desktop, upda
       </div>
       <details className="card settings-about">
         <summary>{t("appRomaji")} · {t("version")} {version ?? "—"}</summary>
-        <p className="muted small">{t("phaseBody")}</p>
         <p className="muted small">{t("runtime")}: {t(desktop ? "runtimeDesktop" : "runtimeBrowser")}</p>
       </details>
     </>

@@ -8,12 +8,19 @@ export interface DrillRecord {
   simulated: boolean;
   completed: boolean;
   trials: TrialResult[];
+  pending?: TrialResult | null;
 }
 const KEY = "mimi-kopi.drill-history.v1";
 export const HISTORY_LIMIT = 200;
 export function drillRecord(plan: DrillPlan, run: DrillRun, at: Date, id: string): DrillRecord {
   return { id, at: at.toISOString(), plan: { ...plan.config }, key: plan.key, simulated: run.simulated,
-    completed: run.step === plan.targets.length && run.phase === "finished", trials: run.trials.map((t) => ({ ...t })) };
+    completed: run.step === plan.targets.length && run.phase === "finished", trials: run.trials.map((t) => ({ ...t })),
+    pending: run.phase !== "feedback" && run.phase !== "finished" && !(run.phase === "paused" && run.pausedFrom === "feedback") && run.wrong > 0 && plan.targets[run.step]
+      ? { target: plan.targets[run.step].id, firstTry: false, wrong: run.wrong } : null };
+}
+function validTrial(t: TrialResult): boolean {
+  return !!t && typeof t.target === "string" && t.target.length < 40 && typeof t.firstTry === "boolean"
+    && Number.isSafeInteger(t.wrong) && t.wrong >= 0 && t.firstTry === (t.wrong === 0);
 }
 function valid(value: unknown): value is DrillRecord {
   if (!value || typeof value !== "object") return false;
@@ -24,8 +31,7 @@ function valid(value: unknown): value is DrillRecord {
     && ["practice", "check"].includes(r.plan.mode) && Number.isInteger(r.plan.count) && r.plan.count >= 12 && r.plan.count <= 120
     && Array.isArray(r.trials) && r.trials.length > 0 && r.trials.length <= r.plan.count
     && (!r.completed || r.trials.length === r.plan.count)
-    && r.trials.every((t) => t && typeof t.target === "string" && t.target.length < 40 && typeof t.firstTry === "boolean"
-      && Number.isSafeInteger(t.wrong) && t.wrong >= 0 && t.firstTry === (t.wrong === 0));
+    && r.trials.every(validTrial) && (r.pending == null || (!r.completed && validTrial(r.pending)));
 }
 export function loadDrillHistory(storage?: Pick<Storage, "getItem">): DrillRecord[] {
   try {
@@ -54,6 +60,6 @@ export function comparableChecks(history: DrillRecord[], current: DrillRecord): 
 }
 export function weakTargets(record: DrillRecord): { id: string; wrong: number }[] {
   const totals = new Map<string, number>();
-  for (const trial of record.trials) if (trial.wrong > 0) totals.set(trial.target, (totals.get(trial.target) ?? 0) + trial.wrong);
+  for (const trial of [...record.trials, ...(record.pending ? [record.pending] : [])]) if (trial.wrong > 0) totals.set(trial.target, (totals.get(trial.target) ?? 0) + trial.wrong);
   return [...totals].map(([id, wrong]) => ({ id, wrong })).sort((a, b) => b.wrong - a.wrong);
 }

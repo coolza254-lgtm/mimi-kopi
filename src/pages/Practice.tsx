@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import MiniStaff from "../components/MiniStaff";
+import PracticePrograms from "./PracticePrograms";
 import MidiConnection from "../components/MidiConnection";
 import PianoKeyboard from "../components/PianoKeyboard";
 import { lessonGuide, lessonReview } from "../features/lessons/coaching";
@@ -28,6 +29,7 @@ interface Props {
   locale: Locale;
   initialLesson?: Lesson | null;
   onOpenSound?: () => void;
+  onFocusChange?: (focus: boolean) => void;
 }
 
 const handLabel: Record<Hand, MessageKey> = { right: "handRight", left: "handLeft", both: "handBoth" };
@@ -35,8 +37,9 @@ const VELOCITY = 90;
 const percent = (value: number) => `${Math.round(value * 100)}%`;
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 
-export default function Practice({ t, locale, initialLesson = null, onOpenSound }: Props) {
+export default function Practice({ t, locale, initialLesson = null, onOpenSound, onFocusChange }: Props) {
   const [lesson, setLesson] = useState<Lesson | null>(initialLesson);
+  const [programs, setPrograms] = useState(!initialLesson);
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
 
   useEffect(() => { window.scrollTo(0, 0); }, [lesson]);
@@ -47,6 +50,7 @@ export default function Practice({ t, locale, initialLesson = null, onOpenSound 
     return saveProgress(next);
   }, [progress]);
 
+  if (!lesson && programs) return <PracticePrograms t={t} locale={locale} onOpenSound={onOpenSound} onFocusChange={onFocusChange} onLegacy={() => setPrograms(false)} />;
   if (lesson) {
     const index = lessons.indexOf(lesson);
     return (
@@ -61,10 +65,11 @@ export default function Practice({ t, locale, initialLesson = null, onOpenSound 
         onOpen={setLesson}
         onBack={() => setLesson(null)}
         onOpenSound={onOpenSound}
+        onFocusChange={onFocusChange}
       />
     );
   }
-  return <LessonMap t={t} locale={locale} progress={progress} onOpen={setLesson} />;
+  return <><button type="button" className="btn text" onClick={() => setPrograms(true)}>{t("drillExit")}</button><LessonMap t={t} locale={locale} progress={progress} onOpen={setLesson} /></>;
 }
 
 function Stars({ count, label }: { count: number; label: string }) {
@@ -108,7 +113,6 @@ function LessonMap({ t, locale, progress, onOpen }: MapProps) {
         <div>
           <span className="eyebrow">{t("practiceEyebrow")}</span>
           <h1 className="title" ref={heading} tabIndex={-1}>{t("practiceTitle")}</h1>
-          <p className="muted">{t("practiceIntro")}</p>
         </div>
         <div className="overall" aria-label={t("overallLabel")}>
           <span className="overall-count">
@@ -229,7 +233,7 @@ interface PlayerProps extends Props {
   onBack: () => void;
 }
 
-export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen, onBack, onOpenSound }: PlayerProps) {
+export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen, onBack, onOpenSound, onFocusChange }: PlayerProps) {
   const desktop = inDesktopApp();
   const [started, setStarted] = useState(false);
   const active = useRef(false);
@@ -287,6 +291,10 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
   }, [sendKey]);
 
   const finished = run.finishedAtMs !== null;
+  useEffect(() => {
+    onFocusChange?.(started && !finished);
+    return () => onFocusChange?.(false);
+  }, [started, finished, onFocusChange]);
   const result = summarize(run);
   const review = lessonReview({ ...result, simulated: run.simulated });
 
@@ -330,7 +338,7 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
     !run.simulated && result.accuracy !== null && (before.bestAccuracy === null || result.accuracy > before.bestAccuracy);
 
   return (
-    <div className="lesson">
+    <div className={`lesson${started && !finished ? " lesson-active" : ""}${!desktop ? " simulator" : ""}`}>
       <header className="lesson-top">
         <button type="button" className="btn" onClick={onBack}>
           ‹ {t(lesson.unit === "song" ? "back" : "allLessons")}
@@ -476,7 +484,7 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
         </section>
       )}
 
-      <section className="card" aria-label={t("keyboardTitle")}>
+      <section className="card lesson-keyboard" aria-label={t("keyboardTitle")}>
         <PianoKeyboard
           held={view.held}
           targets={showHints ? target : []}

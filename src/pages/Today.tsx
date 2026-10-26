@@ -6,6 +6,7 @@ import { lessons, type Lesson } from "../features/lessons/lessons";
 import { loadProgress } from "../features/lessons/progress";
 import { todayRecommendation } from "../features/lessons/today";
 import type { Locale, MessageKey } from "../i18n/messages";
+import { inDesktopApp } from "../lib/backend";
 
 interface Props {
   t: (key: MessageKey) => string;
@@ -22,32 +23,31 @@ export default function Today({ t, locale, onPractice, onFreePlay, onEditor, onS
   const recommended = recommendation.lesson;
   const plan: { title: MessageKey; body: MessageKey; minutes: number; action: () => void }[] = [
     { title: "todayWarmup", body: "todayWarmupBody", minutes: 5, action: onFreePlay },
-    { title: "todayLesson", body: "todayLessonBody", minutes: 10, action: () => onPractice(recommended) },
+    { title: "todayLesson", body: "todayLessonBody", minutes: 10, action: () => onPractice(null) },
     { title: "todaySong", body: "todaySongBody", minutes: 10, action: onEditor },
     { title: "todayReview", body: "todayReviewBody", minutes: 5, action: () => onPractice(null) },
   ];
 
   return <div className="today">
     <header className="today-heading">
-      <span className="eyebrow">{t("appRomaji")} / {t("todayTitle")}</span>
       <h1 className="title">{t("todayGreeting")}</h1>
       <p>{t("todayIntro")}</p>
     </header>
 
-    <MidiConnection t={t} onOpenSound={onSound} />
+    {inDesktopApp() && <MidiConnection t={t} onOpenSound={onSound} />}
 
     {recommended && <section className="today-hero" aria-labelledby="today-next">
       <div className="today-hero-copy">
-        <span className="eyebrow">{t(recommendation.review ? "todayReviewReason" : "todayNextReason")}</span>
-        <h2 id="today-next">{recommended.title[locale]}</h2>
-        <p>{recommended.goal[locale]}</p>
+        <span className="eyebrow">{t("drillTitle")}</span>
+        <h2 id="today-next">{t("drillStaff")}</h2>
+        <p>{t("drillStaffHint")}</p>
         <div className="today-hero-meta">
           <span className="badge">{t("waitModeBadge")}</span>
-          <span className="small muted">{recommended.steps.length} {t("steps")}</span>
+          <span className="small muted">{t("drillLow")}</span>
         </div>
         <div className="today-hero-actions">
-          <button type="button" className="btn primary big" onClick={() => onPractice(recommended)}>{t("todayBegin")}<AppIcon name="arrow" /></button>
-          <button type="button" className="btn text" onClick={() => onPractice(null)}>{t("todayLibrary")}</button>
+          <button type="button" className="btn primary big" onClick={() => onPractice(null)}>{t("drillBegin")}<AppIcon name="arrow" /></button>
+          <button type="button" className="btn text" onClick={() => onPractice(recommended)}>{t("drillLegacyOpen")} · {recommended.title[locale]}</button>
         </div>
       </div>
       <PracticeArtwork />
@@ -63,7 +63,7 @@ export default function Today({ t, locale, onPractice, onFreePlay, onEditor, onS
           {plan.map((step, index) => <li key={step.title}>
             <button type="button" className="session-step" onClick={step.action}>
               <span className="session-step-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-              <span className="session-step-copy"><strong>{t(step.title)}</strong><small>{t(step.body)}</small></span>
+              <span className="session-step-copy"><strong>{t(step.title)}</strong></span>
               <span className="session-step-time">{t("todayMinutes").replace("{count}", String(step.minutes))}</span>
               <AppIcon name="chevron" />
             </button>

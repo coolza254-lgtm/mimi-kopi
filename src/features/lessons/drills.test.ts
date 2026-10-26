@@ -77,4 +77,11 @@ describe("drill history", () => {
       expect(comparableChecks([{ ...record, ...changed }], next)).toEqual([]);
     }
   });
+  it("keeps wrong presses on an unfinished last question without calling it completed", () => {
+    const run = { ...startDrill(), step: 1, wrong: 3, phase: "paused" as const, trials: completed.trials.slice(0, 1) };
+    const partial = drillRecord(plan, run, new Date("2026-10-26T01:00:00Z"), "partial");
+    expect(partial.completed).toBe(false);
+    expect(partial.pending).toEqual({ target: plan.targets[1].id, firstTry: false, wrong: 3 });
+    expect(weakTargets(partial).some((item) => item.id === plan.targets[1].id && item.wrong >= 3)).toBe(true);
+  });
 });

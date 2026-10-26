@@ -31,6 +31,7 @@ import { LessonPlayer } from "./Practice";
 interface Props {
   t: (key: MessageKey) => string;
   locale: Locale;
+  onFocusChange?: (focus: boolean) => void;
 }
 
 // Layout of one system (row) of the grand staff, in SVG units.
@@ -58,7 +59,7 @@ const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(
 type Accidental = 1 | -1 | 0 | null;
 type Hands = "R" | "L" | "both";
 
-export default function NoteEditor({ t, locale }: Props) {
+export default function NoteEditor({ t, locale, onFocusChange }: Props) {
   const desktop = inDesktopApp();
   const [songs, setSongs] = useState<Song[]>(() => {
     const saved = loadSongs();
@@ -466,6 +467,7 @@ export default function NoteEditor({ t, locale }: Props) {
         }}
         onOpen={setPractice}
         onBack={() => setPractice(null)}
+        onFocusChange={onFocusChange}
       />
     );
   }

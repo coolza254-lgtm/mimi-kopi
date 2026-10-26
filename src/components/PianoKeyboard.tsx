@@ -5,6 +5,7 @@ interface Props {
   held: readonly number[];
   /** Keys the player should press next, drawn with an outline. */
   targets?: readonly number[];
+  leftTargets?: readonly number[];
   /** Text shown on a key instead of its name, e.g. a finger number. */
   labels?: Readonly<Record<number, string>>;
   onPress: (pitch: number) => void;
@@ -16,6 +17,7 @@ interface Props {
 export default function PianoKeyboard({
   held,
   targets = [],
+  leftTargets,
   labels = {},
   onPress,
   onRelease,
@@ -29,7 +31,7 @@ export default function PianoKeyboard({
   const heldSet = new Set(held);
   const targetSet = new Set(targets);
   const classes = (base: string, p: number) =>
-    `${base}${heldSet.has(p) ? " on" : ""}${targetSet.has(p) ? " target" : ""}`;
+    `${base}${heldSet.has(p) ? " on" : ""}${targetSet.has(p) ? ` target${leftTargets ? leftTargets.includes(p) ? " target-left" : " target-right" : ""}` : ""}`;
 
   const press = (p: number) => {
     if (down.current.has(p)) return;
