@@ -86,18 +86,15 @@ export function UpdateStatus({ t, update }: { t: (key: MessageKey) => string; up
       );
     case "installing":
       return (
-        <div className="notice" role="status">
-          {t("updatesInstalling")} {update.percent === null ? "" : `${update.percent}%`}
-          <div className="meter" aria-hidden="true">
-            <i style={{ width: `${update.percent ?? 5}%` }} />
-          </div>
-        </div>
+        <p className="notice">{t("updateFlowTitle")} · {update.version}</p>
       );
     case "error":
       return (
-        <p className="notice error">
-          {t("updatesError")} <span className="small muted">{update.message}</span>
-        </p>
+        <div className="notice error" role="alert">
+          <strong>{t("updatesError")}</strong>
+          <p className="small">{t("updateFlowErrorHint")}</p>
+          <details className="small muted"><summary>{t("updateFlowDetails")}</summary>{update.message}</details>
+        </div>
       );
     default:
       return null;

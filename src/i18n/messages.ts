@@ -1,6 +1,9 @@
+import { updateMessages } from "./updateMessages";
+
 // Thai is the source language (spec §12.5). The other locales are typed
 // against it, so a missing key is a compile error.
 export const th = {
+  ...updateMessages.th,
   appName: "耳コピー",
   appRomaji: "Mimi Kopi",
   navToday: "วันนี้",
@@ -255,6 +258,7 @@ export type MessageKey = keyof typeof th;
 export type Messages = Record<MessageKey, string>;
 
 export const en: Messages = {
+  ...updateMessages.en,
   appName: "耳コピー",
   appRomaji: "Mimi Kopi",
   navToday: "Today",
@@ -506,6 +510,7 @@ export const en: Messages = {
 };
 
 export const ja: Messages = {
+  ...updateMessages.ja,
   appName: "耳コピー",
   appRomaji: "Mimi Kopi",
   navToday: "今日",

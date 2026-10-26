@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import brandMark from "./assets/brand-mark.png";
+import UpdateScreen from "./components/UpdateScreen";
 import type { Lesson } from "./features/lessons/lessons";
 import { locales, type MessageKey } from "./i18n/messages";
 import { loadAudioPrefs, saveAudioPrefs } from "./lib/audioPrefs";
@@ -54,22 +55,36 @@ export default function App() {
   const [initialLesson, setInitialLesson] = useState<Lesson | null>(null);
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [update, setUpdate] = useState<UpdateState>({ kind: "idle" });
+  const updateBusy = useRef(false);
   const desktop = inDesktopApp();
   const t = (key: MessageKey) => locales[settings.locale][key];
 
   const checkUpdate = useCallback(async () => {
+    if (updateBusy.current) return;
+    updateBusy.current = true;
     setUpdate({ kind: "checking" });
-    setUpdate(await findUpdate());
+    try {
+      setUpdate(await findUpdate());
+    } finally {
+      updateBusy.current = false;
+    }
   }, []);
 
   const install = async () => {
-    if (update.kind !== "available") return;
+    if (updateBusy.current || update.kind !== "available") return;
+    updateBusy.current = true;
     const pending = update.update;
-    setUpdate({ kind: "installing", percent: null });
+    let active = true;
+    setUpdate({ kind: "installing", version: pending.version, progress: { phase: "downloading", percent: null, receivedBytes: 0, totalBytes: null } });
     try {
-      await installUpdate(pending, (percent) => setUpdate({ kind: "installing", percent }));
+      await installUpdate(pending, (progress) => {
+        if (active) setUpdate({ kind: "installing", version: pending.version, progress });
+      });
     } catch (e) {
       setUpdate({ kind: "error", message: String(e) });
+    } finally {
+      active = false;
+      updateBusy.current = false;
     }
   };
 
@@ -86,7 +101,7 @@ export default function App() {
     // Offline or no release yet: stay quiet; the Settings page can check again.
     if (loadSettings().autoUpdate) {
       void findUpdate().then((state) => {
-        if (state.kind === "available") setUpdate(state);
+        if (state.kind === "available") setUpdate((current) => current.kind === "idle" ? state : current);
       });
     }
   }, []);
@@ -154,6 +169,7 @@ export default function App() {
             onFreePlay={() => setPage("free")} onEditor={() => setPage("editor")} onSound={() => setPage("sound")} />
         )}
       </main>
+      {update.kind === "installing" && <UpdateScreen t={t} version={update.version} progress={update.progress} />}
     </div>
   );
 }

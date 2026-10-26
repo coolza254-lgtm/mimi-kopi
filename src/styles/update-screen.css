@@ -1,0 +1,49 @@
+.update-screen {
+  --update-ink: #282828;
+  --update-paper: #ffffff;
+  --update-soft: #f4f4f2;
+  --update-muted: #666666;
+  --update-line: #e2e2df;
+  --update-button-ink: #ffffff;
+  padding: 0;
+  width: min(560px, calc(100vw - 40px));
+  max-height: calc(100dvh - 40px);
+  border: 1px solid var(--update-line);
+  border-radius: 28px;
+  color: var(--update-ink);
+  background: var(--update-paper);
+  box-shadow: 0 28px 90px #00000024;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  overflow: auto;
+}
+.update-screen::backdrop { background: #00000066; backdrop-filter: blur(7px); }
+:root[data-theme="dark"] .update-screen { --update-ink: #dedede; --update-paper: #101010; --update-soft: #1b1b1b; --update-muted: #a6a6a6; --update-line: #383838; --update-button-ink: #101010; box-shadow: 0 28px 90px #00000066; }
+.update-screen-content { display: flex; flex-direction: column; align-items: center; padding: 30px 40px 28px; line-height: 1.65; }
+.update-screen-brand { align-self: flex-start; color: var(--update-muted); font-size: 11px; letter-spacing: .06em; }
+.update-screen-art { display: grid; place-items: center; width: 92px; height: 92px; margin: 26px 0 22px; border: 1px solid var(--update-line); border-radius: 26px; color: var(--update-ink); background: var(--update-soft); }
+.update-screen-art > svg { width: 53px; height: 53px; }
+.update-screen h1 { margin: 0; font-size: clamp(22px, 3vw, 28px); line-height: 1.45; font-weight: 600; text-align: center; outline: none; }
+.update-screen-intro { margin: 7px 0 28px; color: var(--update-muted); font-size: 13px; text-align: center; overflow-wrap: anywhere; }
+.update-screen-status { width: 100%; text-align: center; }
+.update-screen-status h2 { margin: 0 0 6px; font-size: 15px; font-weight: 550; }
+.update-screen-status p { margin: 0; font-size: 12px; color: var(--update-muted); }
+.update-screen-download { width: 100%; margin: 26px 0; }
+.update-screen-reading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; min-height: 33px; margin-bottom: 9px; }
+.update-screen-reading > span { color: var(--update-muted); font-size: 12px; overflow-wrap: anywhere; }
+.update-screen-reading > strong { flex: none; font-size: 28px; font-weight: 550; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.update-screen-reading small { margin-left: 2px; font-size: 13px; color: var(--update-muted); }
+.update-screen-progress { height: 5px; overflow: hidden; border-radius: 10px; background: var(--update-soft); }
+.update-screen-progress > span { display: block; height: 100%; border-radius: inherit; background: var(--update-ink); }
+.update-screen-progress.indeterminate > span { width: 36%; animation: update-screen-sweep 1.6s ease-in-out infinite alternate; }
+.update-screen-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; list-style: none; padding: 20px 0 0; margin: 0; border-top: 1px solid var(--update-line); gap: 10px; }
+.update-screen-steps li { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--update-muted); font-size: 11px; text-align: center; }
+.update-screen-step-mark { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid var(--update-line); border-radius: 50%; font-size: 11px; font-variant-numeric: tabular-nums; }
+.update-screen-steps .current { color: var(--update-ink); font-weight: 600; }
+.update-screen-steps .current .update-screen-step-mark { color: var(--update-button-ink); background: var(--update-ink); border-color: var(--update-ink); }
+.update-screen-steps .done .update-screen-step-mark { color: var(--update-ink); background: var(--update-soft); }
+.update-screen-step-mark svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.update-screen-hint { margin: 24px 0 0; max-width: 360px; font-size: 11px; color: var(--update-muted); text-align: center; }
+.update-screen-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@keyframes update-screen-sweep { from { transform: translateX(-70%); } to { transform: translateX(250%); } }
+@media (max-width: 520px) { .update-screen { width: calc(100vw - 28px); border-radius: 22px; } .update-screen-content { padding: 24px; } .update-screen-art { width: 76px; height: 76px; margin: 22px 0 18px; border-radius: 22px; } .update-screen-intro { margin-bottom: 22px; } }
+@media (prefers-reduced-motion: reduce) { .update-screen-progress.indeterminate > span { animation: none; transform: translateX(90%); } }
