@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import MiniStaff from "../components/MiniStaff";
+import MidiConnection from "../components/MidiConnection";
 import PianoKeyboard from "../components/PianoKeyboard";
+import { lessonGuide, lessonReview } from "../features/lessons/coaching";
 import { lessonRange, lessons, units, type Hand, type Lesson } from "../features/lessons/lessons";
 import {
   loadProgress,
-  nextLesson,
   played,
   recordFor,
   recordRun,
@@ -14,6 +15,7 @@ import {
   type LessonRecord,
   type Progress,
 } from "../features/lessons/progress";
+import { todayRecommendation } from "../features/lessons/today";
 import { playNote, startRun, summarize, type NoteInput } from "../features/lessons/waitMode";
 import { chordName } from "../features/midi/chords";
 import { initialMidiView, midiReducer, simulatedEvent } from "../features/midi/midiState";
@@ -25,6 +27,7 @@ interface Props {
   t: (key: MessageKey) => string;
   locale: Locale;
   initialLesson?: Lesson | null;
+  onOpenSound?: () => void;
 }
 
 const handLabel: Record<Hand, MessageKey> = { right: "handRight", left: "handLeft", both: "handBoth" };
@@ -32,17 +35,17 @@ const VELOCITY = 90;
 const percent = (value: number) => `${Math.round(value * 100)}%`;
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 
-export default function Practice({ t, locale, initialLesson = null }: Props) {
+export default function Practice({ t, locale, initialLesson = null, onOpenSound }: Props) {
   const [lesson, setLesson] = useState<Lesson | null>(initialLesson);
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
 
+  useEffect(() => { window.scrollTo(0, 0); }, [lesson]);
+
   const finish = useCallback((done: Lesson, result: Parameters<typeof recordRun>[2]) => {
-    setProgress((p) => {
-      const next = recordRun(p, done, result, new Date());
-      saveProgress(next);
-      return next;
-    });
-  }, []);
+    const next = recordRun(progress, done, result, new Date());
+    setProgress(next);
+    return saveProgress(next);
+  }, [progress]);
 
   if (lesson) {
     const index = lessons.indexOf(lesson);
@@ -57,6 +60,7 @@ export default function Practice({ t, locale, initialLesson = null }: Props) {
         onFinish={finish}
         onOpen={setLesson}
         onBack={() => setLesson(null)}
+        onOpenSound={onOpenSound}
       />
     );
   }
@@ -91,15 +95,19 @@ interface MapProps extends Props {
 }
 
 function LessonMap({ t, locale, progress, onOpen }: MapProps) {
-  const recommended = nextLesson(lessons, progress);
-  const done = lessons.filter((l) => recordFor(progress, l).pianoRuns > 0).length;
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { heading.current?.focus({ preventScroll: true }); }, []);
+  const recommendation = todayRecommendation(lessons, progress);
+  const recommended = recommendation.lesson;
+  const done = recommendation.completed;
   let number = 0;
 
   return (
     <div className="practice">
       <header className="page-head">
         <div>
-          <h1 className="title">{t("practiceTitle")}</h1>
+          <span className="eyebrow">{t("practiceEyebrow")}</span>
+          <h1 className="title" ref={heading} tabIndex={-1}>{t("practiceTitle")}</h1>
           <p className="muted">{t("practiceIntro")}</p>
         </div>
         <div className="overall" aria-label={t("overallLabel")}>
@@ -117,7 +125,9 @@ function LessonMap({ t, locale, progress, onOpen }: MapProps) {
       {recommended ? (
         <section className="card hero" aria-labelledby="hero-title">
           <div>
-            <span className="eyebrow">{played(recordFor(progress, recommended)) ? t("heroContinue") : t("heroNext")}</span>
+            <span className="eyebrow">
+              {recommendation.review ? t("practiceReviewRecommended") : played(recordFor(progress, recommended)) ? t("heroContinue") : t("heroNext")}
+            </span>
             <h2 id="hero-title">{recommended.title[locale]}</h2>
             <p className="muted">{recommended.goal[locale]}</p>
             <div className="chips">
@@ -142,21 +152,35 @@ function LessonMap({ t, locale, progress, onOpen }: MapProps) {
         </section>
       )}
 
-      {units.map((unit, u) => (
-        <section key={unit.id} className="unit" aria-labelledby={`unit-${unit.id}`}>
+      <div className="curriculum-layout">
+        <aside className="curriculum-overview" aria-labelledby="curriculum-title">
+          <span className="eyebrow">{t("practiceLessonCount").replace("{count}", String(lessons.length))}</span>
+          <h2 id="curriculum-title">{t("practiceJourneyTitle")}</h2>
+          <p className="muted small">{t("practiceJourneyBody")}</p>
+          <p className="small lesson-path-note">{t("waitModeBadge")}</p>
+        </aside>
+        <div>
+      {units.map((unit, u) => {
+        const unitLessons = lessons.filter((l) => l.unit === unit.id);
+        const completed = unitLessons.filter((l) => recordFor(progress, l).pianoRuns > 0).length;
+        return (
+        <section key={unit.id} className="unit curriculum-stage" aria-labelledby={`unit-${unit.id}`}>
           <div className="unit-head">
             <span className="unit-index" aria-hidden="true">
               {u + 1}
             </span>
             <div>
-              <h2 id={`unit-${unit.id}`}>{unit.title[locale]}</h2>
+              <div className="curriculum-stage-top">
+                <h2 id={`unit-${unit.id}`}>{unit.title[locale]}</h2>
+                <span className="small muted curriculum-stage-count">
+                  {t("practiceUnitComplete").replace("{done}", String(completed)).replace("{total}", String(unitLessons.length))}
+                </span>
+              </div>
               <p className="muted small">{unit.blurb[locale]}</p>
             </div>
           </div>
           <ol className="lesson-list">
-            {lessons
-              .filter((l) => l.unit === unit.id)
-              .map((l) => {
+            {unitLessons.map((l) => {
                 number++;
                 const record = recordFor(progress, l);
                 const isNext = recommended?.id === l.id;
@@ -164,7 +188,7 @@ function LessonMap({ t, locale, progress, onOpen }: MapProps) {
                   <li key={l.id}>
                     <button
                       type="button"
-                      className={`lesson-tile${isNext ? " next" : ""}${record.pianoRuns > 0 ? " passed" : ""}`}
+                      className={`lesson-tile${isNext ? " next" : ""}${record.pianoRuns > 0 ? " completed" : ""}`}
                       onClick={() => onOpen(l)}
                     >
                       <span className="tile-number" aria-hidden="true">
@@ -184,7 +208,13 @@ function LessonMap({ t, locale, progress, onOpen }: MapProps) {
               })}
           </ol>
         </section>
-      ))}
+      );})}
+        </div>
+      </div>
+      <section className="lesson-path-note" aria-labelledby="lesson-bridge-title">
+        <h2 id="lesson-bridge-title">{t("practiceBridgeTitle")}</h2>
+        <p className="muted">{t("practiceBridgeBody")}</p>
+      </section>
       <p className="muted small">{t("progressNote")}</p>
     </div>
   );
@@ -194,24 +224,33 @@ interface PlayerProps extends Props {
   lesson: Lesson;
   record: LessonRecord;
   next: Lesson | null;
-  onFinish: (lesson: Lesson, result: { accuracy: number | null; durationMs: number | null; simulated: boolean }) => void;
+  onFinish: (lesson: Lesson, result: { accuracy: number | null; durationMs: number | null; simulated: boolean }) => boolean;
   onOpen: (lesson: Lesson) => void;
   onBack: () => void;
 }
 
-export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen, onBack }: PlayerProps) {
+export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen, onBack, onOpenSound }: PlayerProps) {
   const desktop = inDesktopApp();
+  const [started, setStarted] = useState(false);
+  const active = useRef(false);
+  const [showHints, setShowHints] = useState(true);
+  const [saveFailed, setSaveFailed] = useState(false);
   const [run, setRun] = useState(startRun);
   const [view, dispatch] = useReducer(midiReducer, initialMidiView);
-  const [before] = useState(record);
+  const [before, setBefore] = useState(record);
   const screenHeld = useRef(new Set<number>());
+  const stageHeading = useRef<HTMLHeadingElement>(null);
+  const titleHeading = useRef<HTMLHeadingElement>(null);
   const unit = units.find((u) => u.id === lesson.unit);
   const range = lessonRange(lesson);
+  const guide = lessonGuide(lesson);
+
+  useEffect(() => { titleHeading.current?.focus({ preventScroll: true }); }, []);
 
   const feed = useCallback(
     (e: MidiEvent) => {
       dispatch({ type: "event", event: e });
-      if ((e.kind === "noteOn" || e.kind === "noteOff") && e.pitch !== null) {
+      if (active.current && (e.kind === "noteOn" || e.kind === "noteOff") && e.pitch !== null) {
         const input: NoteInput = { kind: e.kind, pitch: e.pitch, timeMs: e.timestampUs / 1000, simulated: e.simulated };
         setRun((r) => playNote(lesson.steps, r, input));
       }
@@ -221,7 +260,10 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
 
   useEffect(() => {
     if (!desktop) return;
-    const subscriptions = [backend.onMidiEvent(feed), backend.onMidiReset(() => dispatch({ type: "reset" }))];
+    const subscriptions = [backend.onMidiEvent(feed), backend.onMidiReset(() => {
+      dispatch({ type: "reset" });
+      setRun((r) => ({ ...r, held: [], pressed: [] }));
+    })];
     return () => subscriptions.forEach((p) => void p.then((unlisten) => unlisten()));
   }, [desktop, feed]);
 
@@ -238,23 +280,33 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
   useEffect(() => {
     const onBlur = () => [...screenHeld.current].forEach((p) => sendKey(p, false));
     window.addEventListener("blur", onBlur);
-    return () => window.removeEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("blur", onBlur);
+      onBlur();
+    };
   }, [sendKey]);
 
   const finished = run.finishedAtMs !== null;
   const result = summarize(run);
+  const review = lessonReview({ ...result, simulated: run.simulated });
+
+  useEffect(() => {
+    if (started) stageHeading.current?.focus();
+  }, [started, finished]);
 
   // Save each finished run once.
   const saved = useRef<number | null>(null);
   useEffect(() => {
     if (run.finishedAtMs === null || saved.current === run.finishedAtMs) return;
     saved.current = run.finishedAtMs;
-    onFinish(lesson, { ...result, simulated: run.simulated });
+    setSaveFailed(!onFinish(lesson, { ...result, simulated: run.simulated }));
   }, [run.finishedAtMs, run.simulated, result, lesson, onFinish]);
 
   const target = finished ? [] : lesson.steps[run.step];
   const fingers = finished ? undefined : lesson.fingers?.[run.step];
   const labels: Record<number, string> = {};
+  const hiddenLabels: Record<number, string> = {};
+  for (let p = range.low; p <= range.high; p++) hiddenLabels[p] = "";
   target.forEach((p, i) => {
     labels[p] = fingers ? String(fingers[i]) : noteName(p);
   });
@@ -264,8 +316,13 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
   const upcoming = finished ? [] : lesson.steps.slice(run.step + 1, run.step + 4);
   const pressedOfChord = target.filter((p) => run.pressed.includes(p) && view.held.includes(p)).length;
   const restart = () => {
+    [...screenHeld.current].forEach((p) => sendKey(p, false));
     saved.current = null;
+    setSaveFailed(false);
+    setBefore(record);
     setRun(startRun());
+    active.current = true;
+    setStarted(true);
   };
 
   const earned = run.simulated || result.accuracy === null ? 0 : starsFor(result.accuracy);
@@ -276,11 +333,11 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
     <div className="lesson">
       <header className="lesson-top">
         <button type="button" className="btn" onClick={onBack}>
-          ‹ {t("allLessons")}
+          ‹ {t(lesson.unit === "song" ? "back" : "allLessons")}
         </button>
         <div className="lesson-heading">
           <span className="eyebrow">{unit?.title[locale]}</span>
-          <h1 className="title">{lesson.title[locale]}</h1>
+          <h1 className="title" ref={titleHeading} tabIndex={-1}>{lesson.title[locale]}</h1>
         </div>
         <div className="chips">
           <span className="badge">{t(handLabel[lesson.hand])}</span>
@@ -289,10 +346,42 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
       </header>
       <p className="muted lesson-goal">{lesson.goal[locale]}</p>
 
-      {!finished ? (
+      <MidiConnection t={t} onOpenSound={onOpenSound} />
+
+      {!finished && (
+        <label className="lesson-reading-toggle">
+          <input type="checkbox" checked={showHints} onChange={(e) => setShowHints(e.target.checked)} aria-labelledby="lesson-hints-label" aria-describedby="lesson-hints-help" />
+          <span>
+            <strong id="lesson-hints-label">{t("lessonHints")}</strong>
+            <span id="lesson-hints-help" className="small muted">{t("lessonHintsHint")}</span>
+          </span>
+        </label>
+      )}
+
+      {!started ? (
+        <section className="card lesson-brief" aria-labelledby="lesson-prepare">
+          <span className="eyebrow">{t("lessonPrepare")}</span>
+          <h2 id="lesson-prepare">{t("lessonSetup")}</h2>
+          <p>{t(guide.setup)}</p>
+          <div className="lesson-brief-grid">
+            <div>
+              <h3>{t("lessonFocus")}</h3>
+              <p className="muted">{t(guide.focus)}</p>
+            </div>
+            <div>
+              <h3>{t("lessonTransfer")}</h3>
+              <p className="muted">{t(guide.transfer)}</p>
+            </div>
+          </div>
+          <div className="lesson-ready-actions">
+            <button type="button" className="btn primary big" onClick={restart}>{t("lessonStart")}</button>
+            <p className="muted small">{t("lessonWarmupHint")}</p>
+          </div>
+        </section>
+      ) : !finished ? (
         <section className="card now-card" aria-labelledby="lesson-now">
           <div className="card-head">
-            <h2 id="lesson-now">
+            <h2 id="lesson-now" ref={stageHeading} tabIndex={-1}>
               {t("step")} {run.step + 1} / {lesson.steps.length}
             </h2>
             <ol className="step-dots" aria-hidden="true">
@@ -305,15 +394,17 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
             <MiniStaff pitches={target} label={`${t("pressNow")}: ${target.map(noteName).join(" + ")}`} />
             <div className="now-names" aria-live="polite">
               <span className="eyebrow">{t("pressNow")}</span>
-              <div className="now-big">{chord ?? target.map(noteName).join(" + ")}</div>
-              <div className="now-sub">
+              <div className={showHints ? "now-big" : "lesson-focus"}>
+                {showHints ? chord ?? target.map(noteName).join(" + ") : t("lessonReadPrompt")}
+              </div>
+              {showHints && <div className="now-sub">
                 {target.map((p, i) => (
                   <span key={p} className="note-chip">
                     {noteName(p)} · {solfege(p, locale)}
                     {fingers && <b className="finger">{t("finger")} {fingers[i]}</b>}
                   </span>
                 ))}
-              </div>
+              </div>}
               {target.length > 1 && (
                 <p className="small muted">
                   {t("holdTogether")} {pressedOfChord} / {target.length}
@@ -323,12 +414,12 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
                 {run.lastWrong !== null
                   ? `${t("tryAgain")} ${t("youPressed")} ${noteName(run.lastWrong)}`
                   : run.step === 0
-                    ? t("firstStepHint")
+                    ? t(showHints ? "firstStepHint" : "lessonHintsHidden")
                     : t("keepGoing")}
               </p>
             </div>
           </div>
-          {upcoming.length > 0 && (
+          {showHints && upcoming.length > 0 && (
             <div className="upcoming">
               <span className="small muted">{t("upNext")}</span>
               {upcoming.map((s, i) => (
@@ -338,11 +429,12 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
               ))}
             </div>
           )}
+          <p className="small muted lesson-focus">{t(guide.focus)}</p>
         </section>
       ) : (
         <section className="card done-card" aria-labelledby="lesson-done">
           {!run.simulated && <Stars count={earned} label={starsLabel(t, earned)} />}
-          <h2 id="lesson-done">{run.simulated ? t("resultTitle") : earned === 3 ? t("doneGreat") : t("doneGood")}</h2>
+          <h2 id="lesson-done" ref={stageHeading} tabIndex={-1}>{run.simulated ? t("resultTitle") : earned === 3 ? t("doneGreat") : t("doneGood")}</h2>
           {newBest && <span className="badge best">{t("newBest")}</span>}
           <dl className="done-stats">
             <div>
@@ -364,13 +456,19 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
               </div>
             )}
           </dl>
-          <p className="muted small">{run.simulated ? t("resultSimulated") : t("resultNote")}</p>
+          {(run.simulated || !saveFailed) && <p className="muted small">{run.simulated ? t("resultSimulated") : t("resultNote")}</p>}
+          {saveFailed && <p className="notice error" role="status">{t("resultSaveFailed")}</p>}
+          <div className="lesson-reflection">
+            <span className="eyebrow">{t("lessonReviewHeading")}</span>
+            <h3>{t(review.title)}</h3>
+            <p className="muted">{t(review.body)}</p>
+          </div>
           <div className="actions center">
-            <button type="button" className="btn" onClick={restart}>
+            <button type="button" className={`btn${review.repeatFirst || !next ? " primary" : ""}`} onClick={restart}>
               {t("restart")}
             </button>
             {next && (
-              <button type="button" className="btn primary" onClick={() => onOpen(next)}>
+              <button type="button" className={`btn${review.repeatFirst ? "" : " primary"}`} onClick={() => onOpen(next)}>
                 {t("nextLesson")} ›
               </button>
             )}
@@ -381,14 +479,14 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
       <section className="card" aria-label={t("keyboardTitle")}>
         <PianoKeyboard
           held={view.held}
-          targets={target}
-          labels={labels}
+          targets={showHints ? target : []}
+          labels={showHints ? labels : hiddenLabels}
           low={range.low}
           high={range.high}
           onPress={(p) => sendKey(p, true)}
           onRelease={(p) => sendKey(p, false)}
         />
-        <p className="muted small">{desktop ? t("lessonKeyboardHint") : t("browserNotice")}</p>
+        <p className="muted small">{desktop ? t(showHints ? "lessonKeyboardHint" : "lessonHintsHidden") : t("browserNotice")}</p>
       </section>
     </div>
   );

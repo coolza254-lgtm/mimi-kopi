@@ -21,6 +21,12 @@ describe("today recommendations", () => {
     });
   });
 
+  it("revisits a difficult lesson before sending the player to harder material", () => {
+    const p = run({}, 0, 0.6);
+    expect(todayRecommendation(lessons, p)).toMatchObject({ lesson: lessons[0], review: true, completed: 1 });
+    expect(todayRecommendation(lessons, run(p, 0, 0.85))).toMatchObject({ lesson: lessons[1], review: false });
+  });
+
   it("reviews the weakest real result after the curriculum is complete", () => {
     const p = lessons.reduce((progress, _, index) => run(progress, index, index === 3 ? 0.7 : 0.95), {});
     expect(todayRecommendation(lessons, run(p, 3, 1, true))).toMatchObject({ lesson: lessons[3], review: true, completed: lessons.length });

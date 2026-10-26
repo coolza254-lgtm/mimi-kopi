@@ -1,41 +1,60 @@
-/* Design tokens from spec §12.2 (provisional). Pink is a fill and indicator
-   colour only: as text on white it fails WCAG contrast. */
+/* Quiet studio: neutral surfaces, warm rose accents, readable in both themes. */
 :root {
-  --bg: #f9faff;
+  color-scheme: light;
+  --bg: #f7f7f5;
   --surface: #ffffff;
-  --text: #25324d;
-  --muted: #55607a;
-  --line: #e3e8f5;
-  --pink: #f47fa8;
-  --blue: #8bb9fa;
-  --violet: #aaa1e8;
-  --pink-soft: #fce4ee;
-  --blue-soft: #e3effd;
-  --violet-soft: #ece9fb;
-  --on-pink: #25324d;
+  --surface-2: #f1f1ee;
+  --sidebar: #f0f0ed;
+  --text: #282a2d;
+  --muted: #66686b;
+  --line: #e2e3df;
+  --pink: #e2a8bc;
+  --blue: #7996ad;
+  --violet: #9c90b5;
+  --pink-soft: #f8edf1;
+  --blue-soft: #eaf0f4;
+  --violet-soft: #f0edf5;
+  --on-pink: #39232d;
+  --accent: #9c4968;
+  --primary: #2b2d30;
+  --on-primary: #ffffff;
+  --positive: #476b5b;
+  --focus: #9c4968;
+  --shadow-soft: 0 3px 14px #25292d05, 0 1px 2px #25292d04;
 
   --radius-sm: 10px;
-  --radius-md: 16px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 28px;
+  --space-5: 24px;
+  --space-6: 32px;
 
-  --font-sans: "Noto Sans Thai", "Noto Sans JP", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Noto Sans Thai Variable", "Segoe UI Variable", "Segoe UI", "Yu Gothic UI", system-ui, sans-serif;
 }
 
 :root[data-theme="dark"] {
-  --bg: #151b2b;
-  --surface: #20283a;
-  --text: #eaf0ff;
-  --muted: #a9b4cf;
-  --line: #323c55;
-  --pink: #f18db5;
-  --blue: #83aefa;
-  --violet: #b3a7f2;
-  --pink-soft: #3a2a3a;
-  --blue-soft: #243450;
-  --violet-soft: #2e2a4a;
+  color-scheme: dark;
+  --bg: #1c1d20;
+  --surface: #24262a;
+  --surface-2: #2d2f33;
+  --sidebar: #202124;
+  --text: #f1f1ef;
+  --muted: #b0b1b5;
+  --line: #3b3d41;
+  --pink: #d9a0b5;
+  --blue: #98b4ca;
+  --violet: #baafd0;
+  --pink-soft: #3b2d35;
+  --blue-soft: #2c3640;
+  --violet-soft: #35303f;
+  --on-pink: #2d2027;
+  --accent: #edb3c8;
+  --primary: #eeeeeb;
+  --on-primary: #24262a;
+  --positive: #a3c8b4;
+  --focus: #edb3c8;
+  --shadow-soft: 0 3px 16px #00000012;
 }

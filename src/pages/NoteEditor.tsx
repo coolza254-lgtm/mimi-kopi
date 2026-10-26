@@ -461,8 +461,8 @@ export default function NoteEditor({ t, locale }: Props) {
         locale={locale}
         onFinish={(l, result) => {
           const next = recordRun(progress, l, result, new Date());
-          saveProgress(next);
           setProgress(next);
+          return saveProgress(next);
         }}
         onOpen={setPractice}
         onBack={() => setPractice(null)}

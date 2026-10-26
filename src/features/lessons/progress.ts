@@ -110,10 +110,14 @@ export function loadProgress(storage: Pick<Storage, "getItem"> | undefined = glo
   }
 }
 
-export function saveProgress(progress: Progress, storage: Pick<Storage, "setItem"> | undefined = globalThis.localStorage): void {
+export function saveProgress(progress: Progress, storage?: Pick<Storage, "setItem">): boolean {
   try {
-    storage?.setItem(KEY, JSON.stringify(progress));
+    const target = storage ?? globalThis.localStorage;
+    if (!target) return false;
+    target.setItem(KEY, JSON.stringify(progress));
+    return true;
   } catch {
     // Storage can be unavailable or full; the lesson itself still works.
+    return false;
   }
 }

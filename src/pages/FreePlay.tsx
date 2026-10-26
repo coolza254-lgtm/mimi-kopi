@@ -194,6 +194,11 @@ export default function FreePlay({ t, onOpenSound }: Props) {
           </div>
         </section>
 
+      <section className="card free-keyboard" aria-label={t("keyboardTitle")}>
+        <PianoKeyboard held={held} onPress={(p) => sendKey(p, true)} onRelease={(p) => sendKey(p, false)} />
+        <p className="muted small">{desktop ? t("freeKeyboardHint") : t("browserNotice")}</p>
+      </section>
+
         <aside className="card tone-panel" aria-labelledby="tone-title">
           <h2 id="tone-title">{t("toneTitle")}</h2>
 
@@ -304,10 +309,7 @@ export default function FreePlay({ t, onOpenSound }: Props) {
         </aside>
       </div>
 
-      <section className="card" aria-label={t("keyboardTitle")}>
-        <PianoKeyboard held={held} onPress={(p) => sendKey(p, true)} onRelease={(p) => sendKey(p, false)} />
-        <p className="muted small">{desktop ? t("freeKeyboardHint") : t("browserNotice")}</p>
-      </section>
+
     </div>
   );
 }

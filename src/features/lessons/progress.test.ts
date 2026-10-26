@@ -57,12 +57,18 @@ describe("lesson progress", () => {
   it("round-trips through storage and drops bad records", () => {
     const storage = memoryStorage();
     const p = recordRun({}, lesson, { accuracy: 0.9, durationMs: 5000, simulated: false }, now);
-    saveProgress(p, storage);
+    expect(saveProgress(p, storage)).toBe(true);
     expect(loadProgress(storage)).toEqual(p);
     const bad = JSON.stringify({ a: { version: "x" }, b: 3, c: { version: 1, pianoRuns: -2, bestAccuracy: 7 } });
     expect(loadProgress({ getItem: () => bad })).toEqual({
       c: { version: 1, pianoRuns: 0, screenRuns: 0, bestAccuracy: 1, bestTimeMs: null, lastPlayedAt: null },
     });
     expect(loadProgress({ getItem: () => "{oops" })).toEqual({});
+  });
+
+  it("reports a failed write while keeping the completed result intact", () => {
+    const progress = recordRun({}, lesson, { accuracy: 0.9, durationMs: 5000, simulated: false }, now);
+    expect(saveProgress(progress, { setItem: () => { throw new Error("Storage full"); } })).toBe(false);
+    expect(recordFor(progress, lesson)).toMatchObject({ pianoRuns: 1, bestAccuracy: 0.9 });
   });
 });

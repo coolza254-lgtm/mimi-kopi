@@ -2,7 +2,7 @@ import type { Locale } from "../../i18n/messages";
 
 export type Hand = "right" | "left" | "both";
 
-export type UnitId = "keyboard" | "right" | "left" | "chords" | "song";
+export type UnitId = "keyboard" | "right" | "left" | "chords" | "phrases" | "song";
 
 /**
  * A wait-mode lesson: each step lists the pitches that must be held together
@@ -63,6 +63,15 @@ export const units: Unit[] = [
       th: "กดหลายโน้ตพร้อมกัน แล้วเล่นสองมือด้วยกัน",
       en: "Several notes at once, then both hands together.",
       ja: "複数の音を同時に押さえ、両手で弾きます。",
+    },
+  },
+  {
+    id: "phrases",
+    title: { th: "วลีแรกของคุณ", en: "Your first phrase", ja: "はじめてのフレーズ" },
+    blurb: {
+      th: "ทำนองต้นฉบับ 8 ขั้น ฝึกมือขวาและเบสแยกกัน แล้วนำเสียงที่คุ้นมารวมสองมือ",
+      en: "An original eight-step phrase. Learn its melody and bass separately, then bring familiar notes together.",
+      ja: "オリジナルの8ステップ。メロディーとベースを片手ずつ練習し、慣れた音を両手で合わせます。",
     },
   },
 ];
@@ -283,6 +292,66 @@ export const lessons: Lesson[] = [
       [5, 1, 2, 4],
       [5, 1, 2, 5],
       [5, 1, 3, 5],
+    ],
+  },
+  {
+    id: "phrase-melody",
+    version: 1,
+    unit: "phrases",
+    hand: "right",
+    title: { th: "วลีแรก · ทำนองมือขวา", en: "First phrase · right-hand melody", ja: "最初のフレーズ・右手のメロディー" },
+    goal: {
+      th: "อ่านทำนองต้นฉบับสั้น ๆ ในตำแหน่ง C4–G4 มองทิศทางโน้ตและร้องตามเสียงที่เล่น เมื่อคุ้นแล้วลองซ่อนตัวช่วย บทนี้ฝึกโน้ต ไม่ประเมินจังหวะ",
+      en: "Read a short original melody within C4–G4. Notice its contour and hum along with the notes you play. Try hiding hints when familiar. This trains notes, not rhythm.",
+      ja: "C4〜G4の短いオリジナル旋律を読みます。音の上下を見て、弾いた音に合わせて歌いましょう。慣れたらヒントを隠します。リズムは採点しません。",
+    },
+    steps: notes(60, 64, 67, 64, 65, 62, 64, 60),
+    fingers: one(1, 3, 5, 3, 4, 2, 3, 1),
+  },
+  {
+    id: "phrase-bass",
+    version: 1,
+    unit: "phrases",
+    hand: "left",
+    title: { th: "วลีแรก · เบสมือซ้าย", en: "First phrase · left-hand bass", ja: "最初のフレーズ・左手のベース" },
+    goal: {
+      th: "เตรียมเบสของวลีเดิมด้วย C3 G3 และ F3 ให้นิ้ว 5–1 อยู่ในตำแหน่ง C3–G3 ปล่อยแล้วกดใหม่แม้เป็นโน้ตเดิม ฟังว่าเสียงต่ำช่วยพยุงทำนองอย่างไร",
+      en: "Prepare the same phrase's bass using C3, G3 and F3. Keep fingers 5–1 within C3–G3. Release and press again even when a note repeats. Listen to how low notes support a melody.",
+      ja: "同じフレーズのベースをC3・G3・F3で準備します。指5〜1をC3〜G3の位置に置き、同じ音でも離して押し直します。低い音が旋律を支える響きを聴きましょう。",
+    },
+    steps: notes(48, 48, 55, 55, 53, 53, 55, 48),
+    fingers: one(5, 5, 1, 1, 2, 2, 1, 5),
+  },
+  {
+    id: "phrase-hands",
+    version: 1,
+    unit: "phrases",
+    hand: "both",
+    title: { th: "วลีแรก · รวมสองมือ", en: "First phrase · bring both hands together", ja: "最初のフレーズ・両手を合わせる" },
+    goal: {
+      th: "นำทำนองและเบสจากสองบทก่อนมาจับคู่ ขั้นละ 2 เสียง กดสองมือค้างให้ครบ ปล่อยทั้งคู่แล้วค่อยไปขั้นถัดไป ถ้ายังติดให้กลับไปแยกมือก่อน เป็นสะพานไปฝึกท่อนเพลงของคุณเอง",
+      en: "Pair the melody and bass from the previous two lessons, two notes per step. Hold both hands together, then release both before moving on. Return to separate hands if needed. Use this approach with your own song passages.",
+      ja: "前の2レッスンの旋律とベースを1ステップ2音で合わせます。両手で押さえ、両方を離して次へ進みます。難しければ片手に戻り、この方法を自分の曲にも使いましょう。",
+    },
+    steps: [
+      [48, 60],
+      [48, 64],
+      [55, 67],
+      [55, 64],
+      [53, 65],
+      [53, 62],
+      [55, 64],
+      [48, 60],
+    ],
+    fingers: [
+      [5, 1],
+      [5, 3],
+      [1, 5],
+      [1, 3],
+      [2, 4],
+      [2, 2],
+      [1, 3],
+      [5, 1],
     ],
   },
 ];

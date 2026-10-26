@@ -32,13 +32,15 @@ describe("monochrome night palette", () => {
     expect(contrast("on-pink", "pink")).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("keeps piano labels, boundaries and target indicators visible without a white keyboard", () => {
+  it("keeps a white keyboard with readable labels, boundaries and monochrome targets", () => {
     for (const key of ["key-white", "key-black"]) {
-      expect(contrast("key-label", key)).toBeGreaterThanOrEqual(4.5);
       expect(contrast("key-edge", key)).toBeGreaterThanOrEqual(3);
-      expect(contrast("focus", key)).toBeGreaterThanOrEqual(3);
     }
+    expect(contrast("key-label", "key-white")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("key-black-label", "key-black")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("key-target-white", "key-white")).toBeGreaterThanOrEqual(3);
+    expect(contrast("focus", "key-black")).toBeGreaterThanOrEqual(3);
     expect(contrast("key-on-pressed", "key-pressed")).toBeGreaterThanOrEqual(4.5);
-    expect(luminance(colors["key-white"])).toBeLessThan(0.1);
+    expect(luminance(colors["key-white"])).toBeGreaterThan(0.9);
   });
 });

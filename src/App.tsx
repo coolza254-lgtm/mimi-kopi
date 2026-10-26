@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import AppIcon, { type IconName } from "./components/AppIcon";
 import brandMark from "./assets/brand-mark.png";
 import UpdateScreen from "./components/UpdateScreen";
 import type { Lesson } from "./features/lessons/lessons";
@@ -16,16 +17,13 @@ import Today from "./pages/Today";
 
 type Page = "today" | "practice" | "free" | "editor" | "sound" | "settings";
 
-const navItems: { key: MessageKey; page?: Page }[] = [
-  { key: "navToday", page: "today" },
-  { key: "navPractice", page: "practice" },
-  { key: "navFreePlay", page: "free" },
-  { key: "navNoteEditor", page: "editor" },
-  { key: "navSongs" },
-  { key: "navEarCopy" },
-  { key: "navProgress" },
-  { key: "navSound", page: "sound" },
-  { key: "navSettings", page: "settings" },
+const navItems: { key: MessageKey; page: Page; icon: IconName; group: "practice" | "setup" }[] = [
+  { key: "navToday", page: "today", icon: "today", group: "practice" },
+  { key: "navPractice", page: "practice", icon: "lessons", group: "practice" },
+  { key: "navFreePlay", page: "free", icon: "piano", group: "practice" },
+  { key: "navNoteEditor", page: "editor", icon: "score", group: "practice" },
+  { key: "navSound", page: "sound", icon: "sound", group: "setup" },
+  { key: "navSettings", page: "settings", icon: "settings", group: "setup" },
 ];
 
 /** Reopens the remembered output device, volume, tone and piano sound (.sf2 or .sfz). A device that is not
@@ -53,11 +51,24 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [page, setPage] = useState<Page>("today");
   const [initialLesson, setInitialLesson] = useState<Lesson | null>(null);
+  const [practiceVisit, setPracticeVisit] = useState(0);
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [update, setUpdate] = useState<UpdateState>({ kind: "idle" });
   const updateBusy = useRef(false);
+  const mainRef = useRef<HTMLElement>(null);
   const desktop = inDesktopApp();
   const t = (key: MessageKey) => locales[settings.locale][key];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    mainRef.current?.focus({ preventScroll: true });
+  }, [page, practiceVisit]);
+
+  const navigate = (target: Page, lesson: Lesson | null = null) => {
+    setInitialLesson(lesson);
+    if (target === "practice") setPracticeVisit((visit) => visit + 1);
+    setPage(target);
+  };
 
   const checkUpdate = useCallback(async () => {
     if (updateBusy.current) return;
@@ -107,7 +118,8 @@ export default function App() {
   }, []);
 
   return (
-    <div className="shell">
+    <div className="shell" data-page={page}>
+      <a className="skip-link" href="#main-content">{t("navSkip")}</a>
       <aside className="side" aria-label={t("appRomaji")}>
         <div className="brand">
           <img className="logo" src={brandMark} alt="" />
@@ -116,24 +128,34 @@ export default function App() {
             <div className="brand-sub">{t("appRomaji")}</div>
           </div>
         </div>
-        <nav className="nav">
-          {navItems.map(({ key, page: target }) => (
+        <p className="brand-caption">{t("navSubtitle")}</p>
+        <nav className="nav" aria-label={t("navSectionPractice")}>
+          <span className="nav-label">{t("navSectionPractice")}</span>
+          {navItems.filter((item) => item.group === "practice").map(({ key, page: target, icon }) => (
             <button
               key={key}
               type="button"
               className="nav-item"
-              disabled={!target}
               aria-current={target === page ? "page" : undefined}
-              title={target ? undefined : t("comingSoon")}
-              onClick={() => { if (target) { setInitialLesson(null); setPage(target); } }}
+              onClick={() => navigate(target)}
             >
-              {t(key)}
+              <AppIcon name={icon} /><span>{t(key)}</span>
+              {target === page && <span className="nav-current-dot" aria-hidden="true" />}
             </button>
           ))}
         </nav>
         <div className="side-foot">
+          <nav className="nav nav-setup" aria-label={t("navSectionSetup")}>
+            <span className="nav-label">{t("navSectionSetup")}</span>
+            {navItems.filter((item) => item.group === "setup").map(({ key, page: target, icon }) => (
+              <button key={key} type="button" className="nav-item" aria-current={target === page ? "page" : undefined}
+                onClick={() => navigate(target)}>
+                <AppIcon name={icon} /><span>{t(key)}</span>
+              </button>
+            ))}
+          </nav>
           {update.kind === "available" && (
-            <button type="button" className="update-banner" onClick={() => setPage("settings")}>
+            <button type="button" className="update-banner" onClick={() => navigate("settings")}>
               <strong>{t("updatesAvailable").replace("{version}", update.update.version)}</strong>
               <span>{t("updatesOpen")}</span>
             </button>
@@ -143,7 +165,19 @@ export default function App() {
           </span>
         </div>
       </aside>
-      <main className="main">
+      <div className="workspace">
+        <div className="workspace-toolbar">
+          <span className="workspace-location"><AppIcon name={navItems.find((item) => item.page === page)!.icon} />{t(navItems.find((item) => item.page === page)!.key)}</span>
+          <div className="workspace-tools">
+            <span className="studio-label">{t("studioLabel")}</span>
+            <button type="button" className="icon-button" title={t(settings.theme === "light" ? "themeDark" : "themeLight")}
+              aria-label={t(settings.theme === "light" ? "themeDark" : "themeLight")}
+              onClick={() => setSettings((s) => ({ ...s, theme: s.theme === "light" ? "dark" : "light" }))}>
+              <AppIcon name={settings.theme === "light" ? "moon" : "sun"} />
+            </button>
+          </div>
+        </div>
+      <main className="main" id="main-content" tabIndex={-1} ref={mainRef}>
         {page === "settings" ? (
           <SettingsPage
             t={t}
@@ -158,17 +192,18 @@ export default function App() {
         ) : page === "editor" ? (
           <NoteEditor t={t} locale={settings.locale} />
         ) : page === "free" ? (
-          <FreePlay t={t} onOpenSound={() => setPage("sound")} />
+          <FreePlay t={t} onOpenSound={() => navigate("sound")} />
         ) : page === "sound" ? (
           <SoundMidi t={t} />
         ) : page === "practice" ? (
-          <Practice t={t} locale={settings.locale} initialLesson={initialLesson} />
+          <Practice key={practiceVisit} t={t} locale={settings.locale} initialLesson={initialLesson} onOpenSound={() => navigate("sound")} />
         ) : (
-          <Today t={t} info={info} locale={settings.locale}
-            onPractice={(lesson) => { setInitialLesson(lesson); setPage("practice"); }}
-            onFreePlay={() => setPage("free")} onEditor={() => setPage("editor")} onSound={() => setPage("sound")} />
+          <Today t={t} locale={settings.locale}
+            onPractice={(lesson) => navigate("practice", lesson)}
+            onFreePlay={() => navigate("free")} onEditor={() => navigate("editor")} onSound={() => navigate("sound")} />
         )}
       </main>
+      </div>
       {update.kind === "installing" && <UpdateScreen t={t} version={update.version} progress={update.progress} />}
     </div>
   );
