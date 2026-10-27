@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import PianoKeyboard from "../components/PianoKeyboard";
-import { activeSongPitches, fallingKey, notesForHands, practiceSongs, songEnd, songSeconds, type PracticeSong, type SongHands } from "../features/songs/catalog";
+import { activeSongPitches, fallingKey, notesForHands, practiceSongs, songEnd, songSeconds, SONG_LOW as LOW, SONG_HIGH as HIGH, type PracticeSong, type SongHands } from "../features/songs/catalog";
 import { noteName } from "../features/midi/notes";
 import type { Locale, MessageKey } from "../i18n/messages";
 import { backend, inDesktopApp } from "../lib/backend";
 import "../styles/songs.css";
 
 interface Props { t: (key: MessageKey) => string; locale: Locale; onFocusChange?: (focus: boolean) => void }
-const LOW = 48;
-const HIGH = 84;
 const AHEAD = 8;
 
 export default function PlaySongs({ t, locale, onFocusChange }: Props) {

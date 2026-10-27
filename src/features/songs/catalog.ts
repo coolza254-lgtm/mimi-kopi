@@ -1,5 +1,8 @@
 import { isBlackKey } from "../midi/notes";
 
+export const SONG_LOW = 43;
+export const SONG_HIGH = 79;
+
 export type SongHand = "left" | "right";
 export type SongHands = SongHand | "both";
 export interface FallingNote { pitch: number; beat: number; duration: number; hand: SongHand }
@@ -42,9 +45,9 @@ const melodies: PracticeSong[] = [
 
 /** Sparse root notes are a new optional accompaniment, separate from the historical melody. */
 export const practiceSongs: readonly PracticeSong[] = melodies.map((song) => {
-  const roots = song.id === "twinkle" ? [48,48,53,48,55,48,55,48,55,48,55,48]
-    : song.id === "frere-jacques" ? [48,48,48,48,48,48,55,48]
-      : [48,55,48,55,48,55,48,48,55,48,55,55,48,55,48,48];
+  const roots = song.id === "twinkle" ? [48,48,53,48,43,48,43,48,43,48,43,48]
+    : song.id === "frere-jacques" ? [48,48,48,48,48,48,43,48]
+      : [48,43,48,43,48,43,48,48,43,48,43,43,48,43,48,48];
   const end = Math.max(...song.notes.map((n) => n.beat + n.duration));
   const bass: FallingNote[] = Array.from({ length: Math.ceil(end / 4) }, (_, i) => ({ pitch: roots[i % roots.length], beat: i * 4, duration: Math.min(4, end - i * 4), hand: "left" }));
   return { ...song, notes: [...song.notes, ...bass].sort((a, b) => a.beat - b.beat || a.pitch - b.pitch) };
@@ -56,7 +59,7 @@ export const activeSongPitches = (song: PracticeSong, beat: number, hands: SongH
 export const songSeconds = (song: PracticeSong, speed: number): number => songEnd(song) * 60 / song.tempo / speed;
 
 /** Uses the same white-key geometry as PianoKeyboard, including the black-key offset. */
-export function fallingKey(pitch: number, low = 48, high = 84): { left: number; width: number } {
+export function fallingKey(pitch: number, low = SONG_LOW, high = SONG_HIGH): { left: number; width: number } {
   const pitches = Array.from({ length: high - low + 1 }, (_, i) => low + i);
   const whites = pitches.filter((p) => !isBlackKey(p));
   const width = 100 / whites.length;
