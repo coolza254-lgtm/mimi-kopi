@@ -7,14 +7,16 @@
 
 ## สถานะล่าสุด (2026-10-27)
 
-### กำลังออกแพตช์ 0.5.1 — v0.5.0 เผยแพร่แล้ว
+### ปล่อย v0.5.1 แล้ว — พร้อมอัปเดตในแอป
 
-- พบปัญหาหลังตรวจเพลงเพิ่ม: เบส G3 ทับเมโลดี้ G3 บางจุดใน Frère Jacques/Ode to Joy จึงกำลังออก 0.5.1 ลดเฉพาะเบส G เป็น G2 และย้ายช่วงคีย์โน้ตตก G2–G5 โดยตำแหน่งแถบใช้ geometry เดียวกัน เพิ่ม regression ว่าเสียงซ้ายต่ำกว่าขวาและไม่ทับ pitch ทุกจังหวะย่อย ขณะนี้แก้ใน working tree และกำลังตรวจเต็มก่อน push ยังไม่อ้างว่า 0.5.1 เผยแพร่แล้ว
-
-- แพตช์ 0.5.1 ตรวจ AGENTS ครบแล้ว: npm install/ci, typecheck, เว็บ 182 เทสต์, build, Rust fmt/clippy/core 56 เทสต์ผ่านทั้งหมด เลขเวอร์ชันและ lockfile ตรงกัน ใช้ SONG_LOW/HIGH ร่วมกันระหว่างแถบกับคีย์ ไม่มีโน้ตซ้ายทับขวาทุกช่วงที่ตรวจในทั้ง 3 เพลง ขั้นต่อไป push แล้วรอ CI/Release ของ commit เดียวกันและตรวจลายเซ็นจริง 0.5.1
+- ปล่อย [v0.5.1](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.5.1) แล้ว วันที่ 2026-10-27 เวลา 21:26 น. (ไทย) Release commit `872b759`; CI [40519949252](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/40519949252) ผ่านครบ 3 job และ Release [40519948995](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/40519948995) ผ่านทั้งหมดหลังรอ CI ของ commit เดียวกัน
+- แก้เบส G3 ที่ทับเมโลดี้ G3 บางจุดใน Frère Jacques/Ode to Joy โดยจัดเบส G เป็น G2 และย้ายช่วงคีย์โน้ตตก G2–G5 แถบและคีย์ใช้ SONG_LOW/HIGH ร่วมกัน เพิ่ม regression ว่าเสียงซ้ายต่ำกว่าขวาและไม่ทับ pitch ทุกจังหวะย่อยในทั้ง 3 เพลง
+- แพตช์ตรวจ AGENTS ครบ: npm install/ci, typecheck, เว็บ 182 เทสต์, build, Rust fmt/clippy/core 56 เทสต์ผ่านทั้งหมด เลขเวอร์ชันและ lockfile ตรงกัน ไม่มี Rust audio callback เปลี่ยน
+- เอกสารยืนยัน 0.5.0 commit 4d5981b ผ่าน CI 40369231962 ก่อนเริ่มแพตช์ ไม่ได้ข้ามหรือปิดเทสต์
+- ตรวจภาพเบราว์เซอร์แพตช์แล้ว แถบ G2 สีเขียวตรงคีย์แรกพอดี (ขอบซ้าย/ขวาเท่ากัน) เมโลดี้สีน้ำเงินอยู่คนละช่วง เสียงจริง/การติดตั้งยังให้เจ้าของลองบนแอป Windows ภาพ QA อยู่ falling-hands-051.png ในโฟลเดอร์ visualization ของงานนี้
 - เอกสารยืนยัน 0.5.0 commit 4d5981b ผ่าน CI 40369231962 แล้ว ก่อนเริ่มแพตช์ ไม่ได้ข้ามหรือปิดเทสต์
 
-- ปล่อย [v0.5.0](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.5.0) แล้ว วันที่ 2026-10-27 เวลา 00:27 น. (ไทย) Release commit `a6909b4`; CI [40367543190](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/40367543190) ผ่านครบ 3 job และ Release [40367543248](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/40367543248) ผ่านทั้งหมดหลังรอ CI ของ commit เดียวกัน
+- รุ่นก่อนหน้า: ปล่อย [v0.5.0](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.5.0) แล้ว วันที่ 2026-10-27 เวลา 00:27 น. (ไทย) Release commit `a6909b4`; CI [40367543190](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/40367543190) ผ่านครบ 3 job และ Release [40367543248](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/40367543248) ผ่านทั้งหมดหลังรอ CI ของ commit เดียวกัน
 
 - เจ้าของสั่งให้ทำต่อจนเสร็จแล้ว Release อนุญาต push บน `claude/new-session-1jl58s` ไม่ได้สั่ง PR หรือ merge main
 - โปรแกรมฝึกและเพลง commit `1f4b894` ผ่าน CI [40363674557](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/40363674557) ครบเว็บ/Rust/Windows
@@ -26,19 +28,19 @@
 - เล่นเพลง: 3 ทำนองสาธารณสมบัติ Twinkle/Frère Jacques/Ode to Joy ทำโน้ตฉบับง่ายใหม่และเสียงต่ำ root note มือซ้าย ไม่มีไฟล์เพลง/เสียง/โน้ตเรียบเรียงของผู้อื่น เลือกซ้าย/ขวา/สองมือ ปรับ 25–100% เสียงตัวอย่าง พัก/เล่นต่อ/เริ่มใหม่ ไม่มีคะแนน ซ้ายเขียว ขวาน้ำเงิน มี L/R และสีตรงคีย์ทั้งสองธีม ดู FREE_SONGS.md
 - ลบโลโก้/ชื่อใน sidebar, breadcrumb Today, studio label, หัวข้อเมนูที่ซ้ำ และแบนเนอร์จำลองบน Today ตามที่ชี้ โดยรักษาป้ายผลจำลองในหน้าฝึก มีปุ่มเปิดบทเดิมและแกะโน้ตตามเดิม
 - ตรวจภาพไทย/อังกฤษ/ญี่ปุ่น สว่าง/มืด และ 1024×640 แล้ว รวมตำแหน่งกุญแจซอลโอบ G4 จุดฟาคร่อม F3 คีย์ขาวตามปกติ และบทคอร์ด/ปุ่มถัดไปไม่ล้นจอ ทดสอบเรียนครบ 5 ขั้นแล้วจบ 12 ข้อในเบราว์เซอร์: 11/12, ผิด 1, 92%, จบแบบจำลอง หลัง reload ยังอยู่ จำนวนบทจริงยัง 0/4 นี่เป็นผล QA ไม่ใช่ผลเจ้าของจากเปียโนจริง
-- เวอร์ชัน 0.5.0 ตรงกันครบ package/Cargo/Tauri/lockfile, CHANGELOG วันที่ 2026-10-27 และ release notes ไทย ตรวจ npm install/ci, typecheck, เว็บ 182 เทสต์ (30 ไฟล์), build, Rust fmt/clippy/core 56 เทสต์ผ่านครบ ไม่มี Rust audio callback เปลี่ยน
+- เวอร์ชันปัจจุบัน 0.5.1 ตรงกันครบ package/Cargo/Tauri/lockfile, CHANGELOG วันที่ 2026-10-27 และ release notes ไทย ตรวจ npm install/ci, typecheck, เว็บ 182 เทสต์ (30 ไฟล์), build, Rust fmt/clippy/core 56 เทสต์ผ่านครบ ไม่มี Rust audio callback เปลี่ยน
 
-### ยืนยันไฟล์อัปเดตหลังเผยแพร่
+### ยืนยันไฟล์อัปเดตหลังเผยแพร่ 0.5.1
 
-- endpoint เดียวกับแอป `https://github.com/coolza254-lgtm/mimi-kopi/releases/latest/download/latest.json` ส่ง version 0.5.0 แล้ว มี Windows x64 URL ไป `Mimi.Kopi_0.5.0_x64-setup.exe` พร้อม `.sig` และ `latest.json` เป็น Release จริง ไม่ใช่ draft/prerelease
-- ดาวน์โหลด exe/sig จริงด้วย `.git/verify-release.py 0.5.0` แล้ว ลายเซ็นใน manifest ตรงกับไฟล์ sig และตรวจ Minisign ตัวติดตั้งผ่านด้วย public key เดิมจาก v0.3.1 (commit 0aa40f1) ไม่เปลี่ยนกุญแจ updater และไม่ได้อ่าน private key
-- SHA-256 ตัวติดตั้ง `fe72d57d313570f5deef8b2129a885d7f91219202118de1df69601f1c254c49a` ตรงกับ digest ของ asset บน GitHub ขนาด 3,540,965 ไบต์
-- หลักฐานตรวจอยู่ `.git/release-verification/` (ไม่ commit ไฟล์ตัวติดตั้ง) ตัวตรวจลายเซ็นอยู่ `%TEMP%/mimi-release-verify-0aa40f1/Cargo.toml`
+- endpoint เดียวกับแอป `https://github.com/coolza254-lgtm/mimi-kopi/releases/latest/download/latest.json` ส่ง version 0.5.1 แล้ว มี Windows x64 URL ไป `Mimi.Kopi_0.5.1_x64-setup.exe` พร้อม `.sig` และ `latest.json` เป็น Release จริง ไม่ใช่ draft/prerelease
+- ดาวน์โหลด exe/sig จริงด้วย `.git/verify-release.py 0.5.1` แล้ว ลายเซ็นใน manifest ตรงกับไฟล์ sig และตรวจ Minisign ตัวติดตั้งผ่านด้วย public key เดิมจาก v0.3.1 (commit 0aa40f1) ไม่เปลี่ยนกุญแจ updater และไม่ได้อ่าน private key
+- SHA-256 ตัวติดตั้ง `ab2af9f3a5b371d5789a0fd5a52aa52ffab44062a29eae65a3287066240eba60` ตรงกับ digest ของ asset บน GitHub ขนาด 3,542,118 ไบต์
+- หลักฐานตรวจทั้ง 0.5.0 และ 0.5.1 อยู่ `.git/release-verification/` (ไม่ commit ตัวติดตั้ง) ตัวตรวจลายเซ็นอยู่ `%TEMP%/mimi-release-verify-0aa40f1/Cargo.toml`
 
 ### งานต่อไป
 
-1. เจ้าของกด **ตั้งค่า → ตรวจหาอัปเดต** เพื่อติดตั้ง 0.5.0 แล้วลอง MIDI/เสียงจริงตาม MIDI_AUDIO_TEST_PLAN.md, LEARNING_TEST_PLAN.md และ DRILL_TEST_PLAN.md โดยเฉพาะ latch/พัก/เปลี่ยนบท/คอร์ด/เสียงตัวอย่าง ไม่มีการอ้างว่ากดติดตั้งหรือทดสอบฮาร์ดแวร์จริงจากเบราว์เซอร์
-2. งานตามคำขอรอบนี้และ Release ทำครบแล้ว ระยะถัดไปค่อยเพิ่มค่าตัวโน้ต จังหวะ ตัวหยุด เครื่องหมายแปลงเสียง และสองมือเต็มหลักสูตร ไม่ใช่งานค้างของ 0.5.0 โหมดรอปัจจุบันยังไม่วัดความเร็วการอ่านหรือจังหวะ
+1. เจ้าของกด **ตั้งค่า → ตรวจหาอัปเดต** เพื่อติดตั้ง 0.5.1 แล้วลอง MIDI/เสียงจริงตาม MIDI_AUDIO_TEST_PLAN.md, LEARNING_TEST_PLAN.md และ DRILL_TEST_PLAN.md โดยเฉพาะ latch/พัก/เปลี่ยนบท/คอร์ด/เสียงตัวอย่าง ไม่มีการอ้างว่ากดติดตั้งหรือทดสอบฮาร์ดแวร์จริงจากเบราว์เซอร์
+2. งานตามคำขอรอบนี้และ Release ทำครบแล้ว ระยะถัดไปค่อยเพิ่มค่าตัวโน้ต จังหวะ ตัวหยุด เครื่องหมายแปลงเสียง และสองมือเต็มหลักสูตร ไม่ใช่งานค้างของ 0.5.1 โหมดรอปัจจุบันยังไม่วัดความเร็วการอ่านหรือจังหวะ
 3. ก่อนพัฒนาต่ออ่าน AGENTS/ไฟล์นี้และสเปก ใช้ branch เดิม รักษาข้อมูล `learning.v1`, `drill-history.v1`, ประวัติบทเดิมและเพลงส่วนตัว เพิ่มเวอร์ชัน/ลายเซ็นตาม RELEASING.md สำหรับ Release ถัดไป
 
 ## ประวัติงานก่อนหน้า
