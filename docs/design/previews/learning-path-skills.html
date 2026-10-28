@@ -1,0 +1,161 @@
+<div id="mk-learning-preview" lang="th">
+  <div class="mk-preview-label">ต้นแบบสำหรับดูแนวทาง · ยังไม่เชื่อมผลของคุณ</div>
+  <div class="mk-window">
+    <nav class="mk-nav" aria-label="เมนูต้นแบบ">
+      <button type="button" data-view="path" aria-pressed="true" class="cursor-interaction"><i data-lucide="route" aria-hidden="true"></i>เส้นทางเรียน</button>
+      <button type="button" data-view="skills" aria-pressed="false" class="cursor-interaction"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i>ทักษะของฉัน</button>
+      <button type="button" data-view="ear" aria-pressed="false" class="cursor-interaction"><i data-lucide="ear" aria-hidden="true"></i>ฝึกฟัง</button>
+    </nav>
+    <main class="mk-content">
+      <section data-screen="path">
+        <div class="mk-heading"><div><p class="mk-overline">จากคีย์แรก สู่การแกะเพลงด้วยตัวเอง</p><h1>รู้ว่ากำลังเรียนอะไร<br>และจะไปต่อทางไหน</h1></div><span class="mk-tag">แผนหลักสูตรที่เสนอ</span></div>
+        <div class="mk-path-layout">
+          <ol class="mk-route" aria-label="ลำดับการเรียนที่เสนอ"></ol>
+          <section class="mk-unit" aria-label="รายละเอียดบทที่เลือก"><div id="mk-unit-content"></div></section>
+        </div>
+      </section>
+      <section data-screen="skills" hidden>
+        <div class="mk-heading"><div><p class="mk-overline">หลักฐานจากการเล่นของคุณ</p><h1>ทักษะของฉัน</h1></div></div>
+        <div class="mk-data-controls"><label>ข้อมูลที่แสดง <select id="mk-data-source"><option value="unlinked">ยังไม่เชื่อมข้อมูล</option><option value="example">ตัวอย่างจำลองสำหรับดูแบบ</option></select></label><span id="mk-data-label" class="mk-muted">ต้นแบบนี้ไม่ได้อ่านประวัติของคุณ</span></div>
+        <div class="mk-stats-grid" id="mk-stats"></div>
+        <section class="mk-evidence" aria-label="หลักฐานการประเมิน"><div id="mk-evidence-content"></div></section>
+        <div class="mk-unmeasured"><h2>สิ่งที่ยังประเมินไม่ได้</h2><div class="mk-skill-row"><span>ความคล่องในการอ่าน · จังหวะ · การฟัง · การใช้สองมือ</span><span class="mk-muted">ยังไม่มีแบบประเมิน</span></div><p class="mk-muted">MIDI บอกได้ว่ากดคีย์ใด แต่ยืนยันการใช้นิ้วหรือท่ามือไม่ได้</p></div>
+      </section>
+      <section data-screen="ear" hidden>
+        <div class="mk-heading"><div><p class="mk-overline">ฟังให้ออก แล้วค่อยหาคีย์</p><h1>ฝึกหูไปพร้อมกับมือ</h1></div><span class="mk-tag">บทใหม่ที่เสนอ</span></div>
+        <div class="mk-ear-intro"><div><h2>เริ่มจากเสียงสูง–ต่ำ</h2><p>ฟังสองเสียง แล้วบอกว่าเสียงที่สองสูงขึ้นหรือต่ำลง</p><button type="button" class="mk-primary cursor-interaction" id="mk-start-ear">ลองโจทย์ฟัง <i data-lucide="arrow-right" aria-hidden="true"></i></button><p class="mk-muted">เปิดเสียงตามที่คุณกด · ไม่บันทึกเป็นผลฝึก</p></div><ol class="mk-ear-stages"><li><span>01</span><div>ฟังทิศทางเสียง<small>สูงขึ้น · ต่ำลง · เท่าเดิม</small></div></li><li><span>02</span><div>ฟังแล้วเล่นตาม<small>เริ่ม 2–3 โน้ต มีเสียงตั้งต้นให้</small></div></li><li><span>03</span><div>แกะทำนองสั้น<small>ฟังซ้ำ ทดลอง และเทียบทีละท่อน</small></div></li><li><span>04</span><div>ฟังเบสและคอร์ด<small>ต่อยอดเมื่อหาเมโลดี้ได้แล้ว</small></div></li></ol></div>
+      </section>
+    </main>
+    <section class="mk-focus" aria-label="ตัวอย่างโจทย์ฝึกฟัง" hidden>
+      <button type="button" class="mk-back cursor-interaction" id="mk-exit-ear"><i data-lucide="arrow-left" aria-hidden="true"></i>ออกจากตัวอย่าง</button>
+      <div class="mk-focus-inner"><p class="mk-overline">ฝึกฟัง · ตัวอย่างจำลอง</p><h1>เสียงที่สอง<br>ไปทางไหน?</h1><button type="button" id="mk-listen" class="mk-listen cursor-interaction"><i data-lucide="volume-2" aria-hidden="true"></i>ฟังสองเสียง</button><div class="mk-answers"><button type="button" data-answer="up" class="cursor-interaction" disabled>สูงขึ้น</button><button type="button" data-answer="down" class="cursor-interaction" disabled>ต่ำลง</button></div><p id="mk-feedback" role="status" aria-live="polite">ฟังก่อน แล้วค่อยตอบ</p><button type="button" id="mk-next-ear" class="mk-back cursor-interaction" hidden>ลองอีกข้อ <i data-lucide="arrow-right" aria-hidden="true"></i></button></div>
+    </section>
+  </div>
+</div>
+<style>
+#mk-learning-preview{--mk-bg:light-dark(#f7f7f5,#000);--mk-panel:light-dark(#fff,#111);--mk-text:light-dark(#27282a,#f1f1f1);--mk-sub:light-dark(#616369,#aaa);--mk-line:light-dark(#dddeda,#343434);--mk-soft:light-dark(#efefec,#202020);--mk-on:light-dark(#fff,#111);--mk-accent:light-dark(#96546b,#ececec);--mk-ok:light-dark(#296649,#a0d5b4);--mk-error:light-dark(#9d3030,#f3aaa5);color:var(--mk-text);font:400 15px/1.65 "Leelawadee UI",Tahoma,system-ui,sans-serif;color-scheme:light dark}
+#mk-learning-preview *{box-sizing:border-box}
+#mk-learning-preview [hidden]{display:none!important}
+#mk-learning-preview button,#mk-learning-preview select{font:inherit;color:inherit}
+#mk-learning-preview button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;border:1px solid var(--mk-line);border-radius:12px;background:var(--mk-panel)}
+#mk-learning-preview button:hover{background:var(--mk-soft)}
+#mk-learning-preview button:disabled{opacity:.45;cursor:default}
+#mk-learning-preview button:focus-visible,#mk-learning-preview select:focus-visible{outline:2px solid var(--mk-accent);outline-offset:4px}
+#mk-learning-preview h1{font-size:30px;font-weight:500;line-height:1.4;letter-spacing:-.6px;margin:6px 0 12px}
+#mk-learning-preview h2{font-size:20px;font-weight:500;line-height:1.5;margin:0 0 12px}
+#mk-learning-preview p{margin:0 0 16px}
+#mk-learning-preview small{font-size:13px;display:block;color:var(--mk-sub)}
+#mk-learning-preview .mk-preview-label{padding:8px 20px;color:var(--mk-sub);font-size:12px}
+#mk-learning-preview .mk-window{background:var(--mk-bg);border:1px solid var(--mk-line);border-radius:20px;overflow:clip;min-height:690px}
+#mk-learning-preview .mk-nav{display:flex;gap:8px;padding:20px 24px;border-bottom:1px solid var(--mk-line);padding-right:96px;flex-wrap:wrap}
+#mk-learning-preview .mk-nav button{background:transparent;border-color:transparent}
+#mk-learning-preview .mk-nav button[aria-pressed="true"]{background:var(--mk-panel);border-color:var(--mk-line)}
+#mk-learning-preview .mk-content{padding:36px;max-width:1060px;margin:auto}
+#mk-learning-preview .mk-overline{font-size:13px;color:var(--mk-sub);margin-bottom:6px}
+#mk-learning-preview .mk-heading{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:28px}
+#mk-learning-preview .mk-tag{display:inline-block;white-space:nowrap;font-size:12px;background:var(--mk-soft);padding:5px 10px;border-radius:6px;color:var(--mk-sub)}
+#mk-learning-preview .mk-muted{color:var(--mk-sub);font-size:13px}
+#mk-learning-preview .mk-path-layout{display:grid;grid-template-columns:minmax(240px,.85fr) minmax(0,1.15fr);gap:40px;align-items:start}
+#mk-learning-preview .mk-route{list-style:none;padding:0;margin:0}
+#mk-learning-preview .mk-route li{position:relative;padding-bottom:12px}
+#mk-learning-preview .mk-route li:not(:last-child):before{content:"";position:absolute;width:1px;background:var(--mk-line);left:29px;top:50px;bottom:-8px}
+#mk-learning-preview .mk-route button{width:100%;justify-content:start;text-align:left;border-color:transparent;background:transparent;padding:10px 4px;gap:16px}
+#mk-learning-preview .mk-node{flex-shrink:0;display:grid;place-items:center;width:48px;height:48px;border:1px solid var(--mk-line);background:var(--mk-bg);border-radius:50%;font-variant-numeric:tabular-nums;font-size:13px;position:relative}
+#mk-learning-preview .mk-route button[aria-pressed="true"] .mk-node{background:var(--mk-text);color:var(--mk-on);border-color:var(--mk-text)}
+#mk-learning-preview .mk-route button[aria-pressed="true"] strong{color:var(--mk-accent)}
+#mk-learning-preview strong{font-weight:500}
+#mk-learning-preview .mk-unit{background:var(--mk-panel);padding:28px;border:1px solid var(--mk-line);border-radius:20px;min-height:400px}
+#mk-learning-preview .mk-step{display:flex;align-items:start;gap:14px;padding:17px 0;border-bottom:1px solid var(--mk-line)}
+#mk-learning-preview .mk-step svg{flex-shrink:0;margin-top:4px;color:var(--mk-sub)}
+#mk-learning-preview .mk-step:last-of-type{border-bottom:0}
+#mk-learning-preview .mk-primary{background:var(--mk-text);color:var(--mk-on);border-color:var(--mk-text);margin-top:20px}
+#mk-learning-preview .mk-primary:hover{background:var(--mk-text);opacity:.88}
+#mk-learning-preview .mk-unit .mk-tag{margin-bottom:16px;white-space:normal}
+#mk-learning-preview .mk-data-controls{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-bottom:24px}
+#mk-learning-preview select{border:1px solid var(--mk-line);border-radius:8px;padding:8px;max-width:100%;background:var(--mk-panel);margin-left:8px}
+#mk-learning-preview .mk-stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#mk-learning-preview .mk-stat{background:var(--mk-panel);border:1px solid var(--mk-line);border-radius:16px;padding:22px}
+#mk-learning-preview .mk-stat-value{font-size:30px;font-weight:500;font-variant-numeric:tabular-nums;margin:8px 0}
+#mk-learning-preview .mk-stat-value small{display:inline;font-size:14px}
+#mk-learning-preview .mk-evidence{margin-top:24px;border-top:1px solid var(--mk-line);padding-top:24px}
+#mk-learning-preview .mk-evidence table{width:100%;border-collapse:collapse;text-align:left;font-size:14px;margin:16px 0}
+#mk-learning-preview .mk-evidence th,#mk-learning-preview .mk-evidence td{padding:12px 6px;border-bottom:1px solid var(--mk-line);font-weight:400}
+#mk-learning-preview .mk-evidence td:not(:first-child){font-variant-numeric:tabular-nums}
+#mk-learning-preview .mk-unmeasured{margin-top:32px}
+#mk-learning-preview .mk-skill-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:8px 0}
+#mk-learning-preview .mk-ear-intro{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:40px}
+#mk-learning-preview .mk-ear-intro>div{background:var(--mk-panel);padding:28px;border:1px solid var(--mk-line);border-radius:20px}
+#mk-learning-preview .mk-ear-intro .mk-muted{margin:16px 0 0}
+#mk-learning-preview .mk-ear-stages{list-style:none;margin:0;padding:0}
+#mk-learning-preview .mk-ear-stages li{display:flex;gap:20px;padding:18px 0;border-bottom:1px solid var(--mk-line)}
+#mk-learning-preview .mk-ear-stages li>span{color:var(--mk-sub);font-size:13px}
+#mk-learning-preview .mk-focus{padding:24px;min-height:640px}
+#mk-learning-preview .mk-back{border-color:transparent;background:transparent}
+#mk-learning-preview .mk-focus-inner{max-width:520px;margin:56px auto;text-align:center}
+#mk-learning-preview .mk-focus-inner h1{font-size:42px;margin-bottom:32px}
+#mk-learning-preview .mk-listen{padding:16px 28px;border-radius:32px}
+#mk-learning-preview .mk-answers{display:flex;justify-content:center;gap:12px;margin:28px 0 20px}
+#mk-learning-preview .mk-answers button{min-width:120px}
+#mk-learning-preview #mk-feedback{min-height:26px}
+#mk-learning-preview #mk-feedback[data-result="correct"]{color:var(--mk-ok)}
+#mk-learning-preview #mk-feedback[data-result="wrong"]{color:var(--mk-error)}
+@media(max-width:720px){#mk-learning-preview .mk-content{padding:24px}#mk-learning-preview .mk-path-layout,#mk-learning-preview .mk-ear-intro{grid-template-columns:1fr;gap:24px}#mk-learning-preview .mk-heading{flex-direction:column}#mk-learning-preview .mk-route{display:grid;grid-template-columns:1fr 1fr;gap:4px}#mk-learning-preview .mk-route li:before{display:none}#mk-learning-preview .mk-node{width:32px;height:32px}#mk-learning-preview .mk-route button{gap:8px}#mk-learning-preview .mk-route small{display:none}#mk-learning-preview .mk-stats-grid{grid-template-columns:1fr}#mk-learning-preview .mk-nav{padding:12px;gap:0}#mk-learning-preview .mk-nav button{padding:10px;font-size:13px}#mk-learning-preview .mk-nav svg{display:none}#mk-learning-preview h1{font-size:26px}#mk-learning-preview select{display:block;margin:8px 0}#mk-learning-preview .mk-focus{padding:16px}#mk-learning-preview .mk-focus-inner h1{font-size:36px}}
+</style>
+<script>
+(()=>{
+ const root=document.getElementById('mk-learning-preview');
+ const $=s=>root.querySelector(s), $$=s=>[...root.querySelectorAll(s)];
+ const units=[
+ {name:'รู้จักคีย์และเสียง',sub:'C–G · เสียงสูง–ต่ำ',goal:'เชื่อมเสียงที่ได้ยินกับคีย์ที่กด',learn:'หาคีย์ C–G และฟังเสียงสูง–ต่ำ',practice:'ลองกดตามชื่อ แล้วลองฟังสองเสียง',check:'หาคีย์โดยไม่มีตัวช่วย',apply:'นำไปเล่นทำนองมือขวาสั้น ๆ',status:'มีบทคีย์แล้ว · เพิ่มบทฝึกฟัง'},
+ {name:'อ่านทำนองและจังหวะ',sub:'กุญแจซอล · ความยาวเสียง',goal:'อ่านแล้วเล่นทำนองสั้นได้',learn:'อ่าน C4–G4 และเข้าใจความยาวเสียง',practice:'อ่านทีละตัว แล้วต่อเป็นวลีสั้น',check:'อ่านโน้ตชุดใหม่ที่ยังไม่เคยซ้อม',apply:'ลองทำนองจากเพลงพื้นฐาน',status:'มีอ่านโน้ตแล้ว · เพิ่มบทจังหวะ'},
+ {name:'รู้จักมือซ้าย',sub:'กุญแจฟา · เสียงเบส',goal:'อ่านเบสและเล่นด้วยมือซ้าย',learn:'หาตำแหน่ง C3–G3 บนกุญแจฟา',practice:'กดเสียงเบสทีละตัว ด้วยมือซ้าย',check:'อ่านเบสโดยไม่มีชื่อโน้ตช่วย',apply:'เล่นเบสจากเพลงที่เลือก',status:'มีบทกุญแจฟาแล้ว · เพิ่มบทนำไปใช้'},
+ {name:'จับและเปลี่ยนคอร์ด',sub:'C · G/B · Am',goal:'เปลี่ยนคอร์ดต่อกันได้อย่างผ่อนคลาย',learn:'ดูคีย์และนิ้วแนะนำของแต่ละคอร์ด',practice:'วนคู่คอร์ดที่ติดขัด ปรับจำนวนรอบได้',check:'ตรวจความถูกต้อง แยกจากจังหวะ',apply:'จับคอร์ดประกอบทำนองสั้น',status:'มีบทคอร์ดแล้ว · เพิ่มการฝึกต่อเนื่อง'},
+ {name:'เล่นสองมือเป็นเพลง',sub:'แยกมือ → รวมมือ',goal:'เล่นทำนองกับเบสไปด้วยกัน',learn:'แบ่งท่อนและรู้หน้าที่แต่ละมือ',practice:'ซ้อมแยกมือ แล้วค่อยรวมช้า ๆ',check:'ประเมินทีละท่อน เมื่อระบบรองรับ',apply:'เล่นเพลงพื้นฐานฉบับง่าย',status:'มีโน้ตตกแล้ว · ยังไม่มีบท/การประเมินสองมือ'},
+ {name:'แกะเพลงด้วยตัวเอง',sub:'ฟัง → หา → เล่น → เทียบ',goal:'ถอดทำนองสั้นจากเสียงที่ได้ยิน',learn:'ฟังจุดเริ่มต้นและทิศทางทำนอง',practice:'เล่นตาม 2–3 โน้ต แล้วต่อเป็นวลี',check:'เล่นตามวลีใหม่ โดยไม่เห็นเฉลย',apply:'ลองแกะเพลงที่คุณเลือกจากเครื่อง',status:'มีเครื่องมือแกะโน้ตแล้ว · เพิ่มหลักสูตรฝึกหู'}
+ ];
+ const saved=window.openai?.widgetState?.modelContent||{};
+ let state={view:['path','skills','ear'].includes(saved.view)?saved.view:'path',unit:Number.isInteger(saved.unit)&&saved.unit>=0&&saved.unit<6?saved.unit:0,example:saved.example===true};
+ let audio=null,activeNodes=[],question=0,heard=false,correct=false;
+ function remember(){window.openai?.setWidgetState({modelContent:{...state},privateContent:null})?.catch(()=>{});}
+ function icons(){if(globalThis.lucide)lucide.createIcons({attrs:{width:18,height:18}});}
+ function unitRender(){
+  $('.mk-route').innerHTML=units.map((u,i)=>`<li><button type="button" data-unit="${i}" aria-pressed="${i===state.unit}" class="cursor-interaction"><span class="mk-node">${String(i+1).padStart(2,'0')}</span><span><strong>${u.name}</strong><small>${u.sub}</small></span></button></li>`).join('');
+  const u=units[state.unit];
+  $('#mk-unit-content').innerHTML=`<p class="mk-overline">บท ${state.unit+1} · เป้าหมาย</p><h2>${u.goal}</h2><span class="mk-tag">${u.status}</span><div class="mk-step"><i data-lucide="book-open" aria-hidden="true"></i><div>เข้าใจ<small>${u.learn}</small></div></div><div class="mk-step"><i data-lucide="piano" aria-hidden="true"></i><div>ลองเล่น<small>${u.practice}</small></div></div><div class="mk-step"><i data-lucide="check-check" aria-hidden="true"></i><div>เช็กด้วยตัวเอง<small>${u.check}</small></div></div><div class="mk-step"><i data-lucide="music-2" aria-hidden="true"></i><div>นำไปใช้<small>${u.apply}</small></div></div><p class="mk-muted" style="margin:20px 0 0">ย้อนทบทวนหรือข้ามไปลองบทอื่นได้</p>${state.unit===0||state.unit===5?'<button type="button" class="mk-primary cursor-interaction" data-go-ear>ดูตัวอย่างฝึกฟัง <i data-lucide="arrow-right" aria-hidden="true"></i></button>':''}`;
+  $$('[data-unit]').forEach(b=>b.onclick=()=>{state.unit=Number(b.dataset.unit);unitRender();remember();});
+  const b=$('[data-go-ear]');if(b)b.onclick=()=>show('ear');icons();
+ }
+ function stats(){
+  $('#mk-data-source').value=state.example?'example':'unlinked';
+  $('#mk-data-label').textContent=state.example?'ตัวเลขสมมติทั้งหมด · ไม่ใช่ผลของคุณ':'ต้นแบบนี้ไม่ได้อ่านประวัติของคุณ';
+  const items=state.example?[['หาคีย์ตามชื่อ','22 <small>/ 24 ข้อ</small>','ถูกครั้งแรก · ตัวอย่างจำลอง'],['อ่านบรรทัดโน้ต','—','ยังไม่มีข้อมูลในตัวอย่าง'],['จับคอร์ด','—','ยังไม่มีข้อมูลในตัวอย่าง']]:[['หาคีย์ตามชื่อ','—','รอเชื่อมผลประเมิน'],['อ่านบรรทัดโน้ต','—','รอเชื่อมผลประเมิน'],['จับคอร์ด','—','รอเชื่อมผลประเมิน']];
+  $('#mk-stats').innerHTML=items.map(a=>`<article class="mk-stat"><span>${a[0]}</span><div class="mk-stat-value">${a[1]}</div><small>${a[2]}</small></article>`).join('');
+  $('#mk-evidence-content').innerHTML=state.example?'<h2>พัฒนาการเมื่อใช้แบบประเมินเดียวกัน</h2><p class="mk-muted">ตัวอย่างจำลอง · หาคีย์ C4–G4 · 24 ข้อ · โหมดรอ</p><table><thead><tr><th>รอบตัวอย่าง</th><th>ถูกครั้งแรก</th><th>กดผิด</th></tr></thead><tbody><tr><td>ครั้งที่ 1</td><td>18 / 24</td><td>8 ครั้ง</td></tr><tr><td>ครั้งที่ 2</td><td>21 / 24</td><td>4 ครั้ง</td></tr><tr><td>ครั้งที่ 3</td><td>22 / 24</td><td>2 ครั้ง</td></tr></tbody></table><details><summary class="cursor-interaction">ผลนี้บอกอะไรได้บ้าง</summary><p class="mk-muted">ตอบถูกครั้งแรก 22 จาก 24 โจทย์ในรอบล่าสุด ตัวอย่างนี้พลาด D4 และ F4 อย่างละ 1 ครั้ง เทียบได้เฉพาะโจทย์อ้างอิง รุ่น จำนวนข้อ และแหล่งรับคีย์เดียวกัน ไม่ใช่คะแนนจังหวะหรือการรับรองว่าเล่นคล่อง</p></details>':'<h2>ยังไม่แสดงคะแนนของคุณ</h2><p class="mk-muted">เมื่อต่อเข้าระบบจริง จะแสดงแบบประเมินล่าสุด วันที่ ช่วงโน้ต จำนวนข้อ และแยกเปียโนจริงกับจำลอง</p><p class="mk-muted">เรียนจบ ≠ เล่นคล่อง · ประวัติรอบฝึกปัจจุบันเก็บล่าสุด 200 รอบ</p>';
+ }
+ function show(view){state.view=view;$$('[data-screen]').forEach(s=>s.hidden=s.dataset.screen!==view);$$('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));remember();}
+ function stopAudio(){activeNodes.forEach(n=>{try{n.stop();}catch{}});activeNodes=[];}
+ function resetQuestion(){stopAudio();heard=false;correct=false;$('#mk-feedback').textContent='ฟังก่อน แล้วค่อยตอบ';$('#mk-feedback').dataset.result='';$('#mk-next-ear').hidden=true;$$('[data-answer]').forEach(b=>b.disabled=true);}
+ function focusOpen(){resetQuestion();$('.mk-nav').hidden=true;$('.mk-content').hidden=true;$('.mk-focus').hidden=false;}
+ function focusClose(){stopAudio();$('.mk-nav').hidden=false;$('.mk-content').hidden=false;$('.mk-focus').hidden=true;}
+ $('#mk-start-ear').onclick=focusOpen;$('#mk-exit-ear').onclick=focusClose;
+ $('#mk-listen').onclick=async()=>{
+  try{
+   stopAudio();const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error('unsupported');audio=audio||new Audio();await audio.resume();
+   const up=question%2===0,start=audio.currentTime+.04;
+   [261.6256,up?329.6276:220].forEach((hz,i)=>{const o=audio.createOscillator(),g=audio.createGain(),t=start+i*.7;o.type='sine';o.frequency.value=hz;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12,t+.025);g.gain.setValueAtTime(.12,t+.35);g.gain.linearRampToValueAtTime(0,t+.5);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.52);o.onended=()=>{o.disconnect();g.disconnect();};activeNodes.push(o);});
+   heard=true;$$('[data-answer]').forEach(b=>b.disabled=correct);$('#mk-feedback').textContent=correct?'ถูกแล้ว':'ฟังซ้ำได้ แล้วเลือกคำตอบ';
+  }catch{$('#mk-feedback').textContent='เปิดเสียงไม่ได้ในหน้านี้ กรุณาลองใหม่';}
+ };
+ $$('[data-answer]').forEach(b=>b.onclick=()=>{if(!heard||correct)return;correct=b.dataset.answer===(question%2===0?'up':'down');$('#mk-feedback').textContent=correct?'ถูกแล้ว':'ยังไม่ตรง ลองฟังอีกครั้ง';$('#mk-feedback').dataset.result=correct?'correct':'wrong';$('#mk-next-ear').hidden=!correct;if(correct)$$('[data-answer]').forEach(x=>x.disabled=true);});
+ $('#mk-next-ear').onclick=()=>{question++;resetQuestion();};
+ $$('[data-view]').forEach(b=>b.onclick=()=>show(b.dataset.view));
+ $('#mk-data-source').onchange=e=>{state.example=e.target.value==='example';stats();remember();};
+ root.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('.mk-focus').hidden)focusClose();});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAudio();});
+ window.addEventListener('pagehide',()=>{stopAudio();if(audio)audio.close().catch(()=>{});});
+ window.addEventListener('openai:set_globals',e=>{const v=e.detail?.globals?.widgetState?.modelContent;if(!v)return;if(['path','skills','ear'].includes(v.view))state.view=v.view;if(Number.isInteger(v.unit)&&v.unit>=0&&v.unit<6)state.unit=v.unit;state.example=v.example===true;unitRender();stats();showWithoutSaving();});
+ function showWithoutSaving(){$$('[data-screen]').forEach(s=>s.hidden=s.dataset.screen!==state.view);$$('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===state.view)));}
+ unitRender();stats();showWithoutSaving();icons();
+ if(globalThis.Tweak){const options={radius:20};const tweak=new Tweak({container:root,onChange:()=>{root.querySelector('.mk-window').style.borderRadius=options.radius+'px';}});tweak.addSlider(options,'radius',{label:'ความโค้งของกรอบ',min:0,max:28,unit:'px'});}
+})();
+</script>
