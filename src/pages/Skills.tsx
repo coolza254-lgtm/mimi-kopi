@@ -1,5 +1,7 @@
 import { useState } from "react";
 import ExerciseEvidence from "../components/ExerciseEvidence";
+import { noteName } from "../features/midi/notes";
+import { chordTargets } from "../features/lessons/drills";
 import { courseChapters, learningStatus } from "../features/lessons/course";
 import { weakTargets } from "../features/lessons/drillHistory";
 import { lessons } from "../features/lessons/lessons";
@@ -27,7 +29,7 @@ export default function Skills({ t, locale, onPractice }: Props) {
       const { latest, previous } = skillEvidence(data.drills, simulated, kind);
       return <section className="skill-card" key={kind}><h2>{t(kind === "notes" ? "pathNotes" : kind === "staff" ? "pathStaff" : "pathChords")}</h2>
         {latest ? <><span className="eyebrow">{t("pathFamiliar")}</span><div className="skill-value">{latest.trials.filter((q) => q.firstTry).length}<span> / {latest.trials.length}</span></div><span className="small muted">{t("pathFirst")} · {source}</span><dl className="rows"><dt>{t("pathScope")}</dt><dd>{t(scopeMessage(skillScope(latest)))}</dd><dt>{t("pathDate")}</dt><dd>{new Date(latest.at).toLocaleString(locale)}</dd><dt>{t("pathWrong")}</dt><dd>{latest.trials.reduce((sum, q) => sum + q.wrong, 0)}</dd></dl>
-          <details><summary>{t("pathEvidence")}</summary><p className="small muted">{t("pathSame")}</p><table className="skill-table"><thead><tr><th>{t("pathDate")}</th><th>{t("pathFirst")}</th></tr></thead><tbody>{[...previous, latest].map((r) => <tr key={r.id}><td>{new Date(r.at).toLocaleDateString(locale)}</td><td>{r.trials.filter((q) => q.firstTry).length} / {r.trials.length}</td></tr>)}</tbody></table><p className="small">{weakTargets(latest).map((w) => `${w.id} × ${w.wrong}`).join(" · ")}</p></details>
+          <details><summary>{t("pathEvidence")}</summary><p className="small muted">{t("pathSame")}</p><table className="skill-table"><thead><tr><th>{t("pathDate")}</th><th>{t("pathFirst")}</th></tr></thead><tbody>{[...previous, latest].map((r) => <tr key={r.id}><td>{new Date(r.at).toLocaleDateString(locale)}</td><td>{r.trials.filter((q) => q.firstTry).length} / {r.trials.length}</td></tr>)}</tbody></table><p className="small">{weakTargets(latest).map((w) => `${/^\d+$/.test(w.id)?noteName(Number(w.id)):chordTargets.find((q)=>q.id===w.id)?.name??w.id} × ${w.wrong}`).join(" · ")}</p></details>
         </> : <p className="skill-empty">{t("pathNoData")}</p>}
       </section>;
     })}</div>

@@ -183,7 +183,7 @@ function CheckTrend({ records, t, locale }: { records: DrillRecord[]; t: Props["
   const series = real.length > 1 ? real : simulated;
   if (series.length < 2) return null;
   const points = series.map((r, i) => ({ x: 40 + i * 300 / (series.length - 1), y: 125 - firstTryRate(r) * 95, r }));
-  return <div className="check-trend"><p className="small muted">{t("drillProgress")} · {t(series[0].simulated ? "drillSimulated" : "todayPianoRuns")}</p><svg viewBox="0 0 380 170" role="img" aria-label={`${t("drillProgress")}: ${series.map((r) => pct(firstTryRate(r))).join(", ")}`}>
+  return <div className="check-trend"><p className="small muted">{t("pathFamiliar")} · {t(series[0].simulated ? "drillSimulated" : "todayPianoRuns")}</p><svg viewBox="0 0 380 170" role="img" aria-label={`${t("drillProgress")}: ${series.map((r) => pct(firstTryRate(r))).join(", ")}`}>
     <line className="trend-axis" x1="25" x2="355" y1="125" y2="125" />
     <polyline className="trend-line" points={points.map(({ x, y }) => `${x},${y}`).join(" ")} />
     {points.map(({ x, y, r }) => <g key={r.id}><circle className="trend-point" cx={x} cy={y} r="4" /><text x={x} y={y - 10} textAnchor="middle">{pct(firstTryRate(r))}</text><text x={x} y="150" textAnchor="middle">{new Date(r.at).toLocaleDateString(locale, { day: "numeric", month: "numeric" })}</text></g>)}

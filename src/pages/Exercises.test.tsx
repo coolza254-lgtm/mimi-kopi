@@ -32,8 +32,10 @@ it("preserves errors and partial rounds through pause, help, resume and leaving"
 it("requires listening and keeps guide events out of MIDI answers; reset cancels sound and subscriptions are cleaned",async()=>{
  desktop.mockReturnValue(true);start("melody");await act(async()=>{});
  expect(screen.getByText(en.exListenFirst)).toBeTruthy();
+ expect(screen.getByText(new RegExp(en.exNoInput))).toBeTruthy();
  const guide=(p:number,simulated:boolean,kind="noteOn")=>act(()=>{listeners.forEach((cb)=>cb({pitch:p,simulated,kind} as MidiEvent));});
  await act(async()=>{fireEvent.click(screen.getByRole("button",{name:en.exListen}));});const notes=pitches();
+ const beforeInput=readExercises();if(!beforeInput.ok)throw Error();expect(beforeInput.data.records[0].simulated).toBe(true);
  for(const p of notes){guide(p,true);guide(p,true,"noteOff");}
  expect(screen.queryByRole("button",{name:en.exNext})).toBeNull();
  for(const p of notes){guide(p,false);guide(p,false,"noteOff");}
@@ -46,4 +48,12 @@ it("cannot answer an audio question after failed playback or overwrite malformed
  expect(screen.getByRole("button",{name:en.exUp})).toHaveProperty("disabled",true);
  await act(async()=>{fireEvent.click(screen.getByRole("button",{name:en.exListen}));});
  expect(screen.getByText(en.exAudioError)).toBeTruthy();expect(screen.getByRole("button",{name:en.exUp})).toHaveProperty("disabled",true);expect(localStorage.getItem(EXERCISE_KEY)).toBe("broken");
+});
+it("stays paused when an outstanding audio request fails after pausing",async()=>{
+ let reject!: (reason:Error)=>void;play.mockImplementation(()=>new Promise<boolean>((_,fail)=>{reject=fail;}));
+ start("direction");fireEvent.click(screen.getByRole("button",{name:en.exListen}));fireEvent.click(screen.getByRole("button",{name:en.exPause}));
+ await act(async()=>{reject(Error("late output failure"));});
+ expect(screen.getByRole("heading",{name:en.exPaused})).toBeTruthy();
+ expect(screen.getByRole("button",{name:en.exResume})).toBeTruthy();
+ expect(screen.queryByRole("button",{name:en.exUp})).toBeNull();
 });
