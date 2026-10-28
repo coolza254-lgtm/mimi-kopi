@@ -37,8 +37,8 @@ describe("practice navigation", () => {
     saveProgress(recordRun({}, lessons[0], { accuracy: 0.95, durationMs: 1000, simulated: false }, new Date("2026-10-26T00:00:00Z")));
     fireEvent.click(screen.getByRole("button", { name: en.navToday }));
     expect(screen.getByRole("button", { name: new RegExp(lessons[1].title.en.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) })).toBeTruthy();
-    expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("1");
-    expect(screen.getByText(en.todayResultsHint)).toBeTruthy();
+    expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("0");
+    expect(screen.getByText(en.pathNoMastery)).toBeTruthy();
     expect(document.activeElement).toBe(screen.getByRole("main"));
   });
 

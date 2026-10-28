@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { chapterPlan, courseChapters } from "../features/lessons/course";
 import { loadDrillHistory } from "../features/lessons/drillHistory";
@@ -17,12 +17,13 @@ vi.mock("../lib/backend", () => ({ inDesktopApp: desktop, backend: {
 beforeEach(() => { localStorage.clear(); desktop.mockReturnValue(false); listeners.clear(); resets.clear(); simulate.mockClear(); vi.useFakeTimers(); vi.spyOn(window,"scrollTo").mockImplementation(() => {}); });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); });
 const t = (key: keyof typeof en) => en[key];
+function openChapter(title:string){fireEvent.click(within(screen.getByRole("list",{name:en.pathTitle})).getByRole("button",{name:new RegExp(title)}));fireEvent.click(screen.getByRole("button",{name:`${en.learnOpen} · ${title}`}));}
 function press(pitch: number) { const key = screen.getByLabelText(noteName(pitch), { exact:true, selector:"button" }); fireEvent.keyDown(key,{key:"Enter"}); fireEvent.keyUp(key,{key:"Enter"}); }
 
 it("teaches one step at a time, gates progress on trying the right key and requires all assessment questions before completion", () => {
   const focus = vi.fn();
   render(<Learn t={t} locale="en" onFocusChange={focus} />);
-  fireEvent.click(screen.getByRole("button",{name:`${en.learnOpen} · ${en.learnKeyboard}`}));
+  openChapter(en.learnKeyboard);
   expect(screen.getByRole("button",{name:en.learnNext})).toHaveProperty("disabled",true);
   press(62); expect(screen.getByRole("status").textContent).toBe(en.learnAgain);
   expect(screen.getByRole("button",{name:en.learnNext})).toHaveProperty("disabled",true);
@@ -42,15 +43,15 @@ it("teaches one step at a time, gates progress on trying the right key and requi
 });
 it("does not award completion when leaving a teaching step", () => {
   render(<Learn t={t} locale="en" />);
-  fireEvent.click(screen.getByRole("button",{name:`${en.learnOpen} · ${en.learnBass}`}));
+  openChapter(en.learnBass);
   expect(screen.getByRole("img",{name:"C3"})).toBeTruthy();
   press(48); fireEvent.click(screen.getByRole("button",{name:en.learnBack}));
-  expect(screen.getAllByText(en.learnNew)).toHaveLength(4);
+  expect(screen.getAllByText(en.learnNew)).toHaveLength(8);
   expect(loadDrillHistory()).toHaveLength(0);
 });
 it("uses one playable keyboard for the chord infographic and supports latched simulated chords", () => {
   render(<Learn t={t} locale="en" />);
-  fireEvent.click(screen.getByRole("button",{name:`${en.learnOpen} · ${en.learnChords}`}));
+  openChapter(en.learnChords);
   expect(screen.getAllByRole("group", { name:"Piano keyboard" })).toHaveLength(1);
   press(58); press(60); press(64); press(67);
   expect(screen.getByRole("button",{name:en.learnNext})).toHaveProperty("disabled",true);
@@ -67,7 +68,7 @@ it("uses one playable keyboard for the chord infographic and supports latched si
 it("accepts native chords only when all notes are held and cleans up after reset and unmount", async () => {
   desktop.mockReturnValue(true);
   const app = render(<Learn t={t} locale="en" />);
-  fireEvent.click(screen.getByRole("button",{name:`${en.learnOpen} · ${en.learnChords}`}));
+  openChapter(en.learnChords);
   await act(async () => {});
   const feed = (pitch: number, kind: "noteOn"|"noteOff") => act(() => { listeners.forEach((cb) => cb({pitch,kind,simulated:false} as MidiEvent)); });
   feed(60,"noteOn"); feed(64,"noteOn");

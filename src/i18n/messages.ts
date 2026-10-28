@@ -1,15 +1,17 @@
 import { drillMessages } from "./drillMessages";
-import { songMessages } from "./songMessages";
 import { learnMessages } from "./learnMessages";
 import { updateMessages } from "./updateMessages";
+import { pathMessages } from "./pathMessages";
+import { exerciseMessages } from "./exerciseMessages";
 
 // Thai is the source language (spec §12.5). The other locales are typed
 // against it, so a missing key is a compile error.
 export const th = {
   ...updateMessages.th,
   ...drillMessages.th,
-  ...songMessages.th,
   ...learnMessages.th,
+  ...pathMessages.th,
+  ...exerciseMessages.th,
   midiConnectionConnected: "เชื่อมต่อ MIDI แล้ว",
   midiConnectionDisconnected: "ยังไม่ได้เชื่อมต่อเปียโน",
   midiConnectionWaiting: "กำลังรอเปียโนเชื่อมต่อกลับมา",
@@ -341,8 +343,9 @@ export type Messages = Record<MessageKey, string>;
 export const en: Messages = {
   ...updateMessages.en,
   ...drillMessages.en,
-  ...songMessages.en,
   ...learnMessages.en,
+  ...pathMessages.en,
+  ...exerciseMessages.en,
   midiConnectionConnected: "MIDI connected",
   midiConnectionDisconnected: "No piano connected",
   midiConnectionWaiting: "Waiting for your piano to reconnect",
@@ -671,8 +674,9 @@ export const en: Messages = {
 export const ja: Messages = {
   ...updateMessages.ja,
   ...drillMessages.ja,
-  ...songMessages.ja,
   ...learnMessages.ja,
+  ...pathMessages.ja,
+  ...exerciseMessages.ja,
   midiConnectionConnected: "MIDI接続済み",
   midiConnectionDisconnected: "ピアノは未接続です",
   midiConnectionWaiting: "ピアノの再接続を待っています",

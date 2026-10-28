@@ -14,7 +14,7 @@ describe("today practice plan", () => {
     const onFreePlay = vi.fn();
     const onEditor = vi.fn();
     render(<Today t={(key) => en[key]} locale="en" onPractice={onPractice} onFreePlay={onFreePlay} onEditor={onEditor} onSound={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: en.drillBegin }));
+    fireEvent.click(screen.getByRole("button", { name: en.pathContinue }));
     expect(onPractice).toHaveBeenLastCalledWith(null);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(en.drillLegacyOpen) }));
     expect(onPractice).toHaveBeenLastCalledWith(lessons[0]);
@@ -28,6 +28,6 @@ describe("today practice plan", () => {
     expect(onPractice).toHaveBeenLastCalledWith(null);
     expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("0");
     expect(screen.getByText(en.todayPlanHint)).toBeTruthy();
-    expect(screen.getByText(en.todayProgressEmpty)).toBeTruthy();
+    expect(screen.getByText(en.pathNoMastery)).toBeTruthy();
   });
 });
