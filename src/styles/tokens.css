@@ -1,26 +1,26 @@
-/* Quiet studio: neutral surfaces, warm rose accents, readable in both themes. */
+/* Expressive music studio with shared, accessible surface and accent tokens. */
 :root {
   color-scheme: light;
-  --bg: #f7f7f5;
+  --bg: #f2f5fc;
   --surface: #ffffff;
-  --surface-2: #f1f1ee;
-  --sidebar: #f0f0ed;
-  --text: #282a2d;
-  --muted: #66686b;
-  --line: #e2e3df;
-  --pink: #e2a8bc;
-  --blue: #7996ad;
-  --violet: #9c90b5;
-  --pink-soft: #f8edf1;
-  --blue-soft: #eaf0f4;
-  --violet-soft: #f0edf5;
+  --surface-2: #e9eefb;
+  --sidebar: #eaf0fb;
+  --text: #17223e;
+  --muted: #5c6984;
+  --line: #dce3f1;
+  --pink: #ee84b3;
+  --blue: #4b8dff;
+  --violet: #8d65ec;
+  --pink-soft: #fff0f6;
+  --blue-soft: #e9f2ff;
+  --violet-soft: #f1edff;
   --on-pink: #39232d;
-  --accent: #9c4968;
-  --primary: #2b2d30;
+  --accent: #3652ed;
+  --primary: #3652db;
   --on-primary: #ffffff;
-  --positive: #476b5b;
-  --focus: #9c4968;
-  --shadow-soft: 0 3px 14px #25292d05, 0 1px 2px #25292d04;
+  --positive: #15705e;
+  --focus: #3652ed;
+  --shadow-soft: 0 10px 32px #20387c0a, 0 2px 4px #20387c05;
 
   --radius-sm: 10px;
   --radius-md: 18px;

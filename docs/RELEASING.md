@@ -17,6 +17,7 @@
    เลขต้องมากกว่าเวอร์ชันล่าสุดที่ปล่อยไปแล้ว ไม่งั้นแอปจะไม่เห็นว่าเป็นของใหม่
 2. ย้ายหัวข้อ "Unreleased" ใน `CHANGELOG.md` ไปเป็นหัวข้อเวอร์ชันนั้น
 3. เขียนสิ่งที่เปลี่ยนเป็นภาษาไทยสั้น ๆ ใน `.github/release-notes.md` (แอปแสดงข้อความนี้ก่อนอัปเดต) และอัปเดต `docs/HANDOFF.md`
+   workflow ใช้ `.github/scripts/release-notes.mjs` เขียน UTF-8 พร้อม delimiter แยกบรรทัด แม้ไฟล์ไม่มี newline ท้ายสุด ตรวจตัวช่วยนี้ด้วย `node --test .github/scripts/release-notes.test.mjs` (CI เว็บรันด้วย)
 4. รันการตรวจตาม `AGENTS.md` ให้ผ่าน แล้ว commit และ push
 5. workflow **Release** จะรันเองเมื่อ push แก้ `package.json` หรือ `.github/release-notes.md` และรอ **CI ของ commit เดียวกัน** เขียวครบ 3 job ก่อน build ลงนามและเผยแพร่ ถ้า CI ล้ม/ถูกยกเลิก หรือหา CI ไม่พบจะไม่เผยแพร่
    และจะสร้าง release ก็ต่อเมื่อเวอร์ชันใน `package.json` ยังไม่เคยปล่อย ถ้าเคยปล่อยแล้วจะข้ามไปเฉย ๆ

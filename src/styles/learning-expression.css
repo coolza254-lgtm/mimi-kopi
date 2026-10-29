@@ -1,0 +1,180 @@
+/* Expressive learning surfaces; illustrations never represent assessment data. */
+.learning-expression,
+.skills-expression {
+  --route-accent: var(--accent);
+  --route-soft: color-mix(in srgb, var(--route-accent) 7%, var(--surface));
+  --route-ink: #9d285a;
+}
+.learning-expression [data-step="direction"] { --route-accent: #bb4872; --route-ink: #9b365b; }
+.learning-expression [data-step="rhythm"] { --route-accent: #b15b43; --route-ink: #91412f; }
+.learning-expression [data-step="treble"] { --route-accent: #be3b68; --route-ink: #9f2f54; }
+.learning-expression [data-step="phrase"] { --route-accent: #b53f7a; --route-ink: #952b60; }
+.learning-expression [data-step="melody"] { --route-accent: #cf366a; --route-ink: #a52b53; }
+.learning-expression [data-step="bass"] { --route-accent: #ab5164; --route-ink: #8b3c4d; }
+.learning-expression [data-step="chords"] { --route-accent: #b94a5d; --route-ink: #9a3749; }
+.learning-expression [data-step] { --route-soft: color-mix(in srgb, var(--route-accent) 8%, var(--surface)); }
+.learning-expression-head,
+.skills-expression > header { position: relative; padding-bottom: 6px; }
+.learning-expression-head .title,
+.skills-expression > header .title { font-size: clamp(32px, 3.4vw, 44px); font-weight: 720; letter-spacing: -.035em; margin: 4px 0 8px; }
+.learning-expression-head .eyebrow,
+.skills-expression > header .eyebrow { display: inline-flex; align-items: center; gap: 9px; font-weight: 650; }
+.learning-expression-head .eyebrow::before,
+.skills-expression > header .eyebrow::before { content: ""; width: 19px; height: 5px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--violet)); }
+.learning-expression .learning-route { grid-template-columns: minmax(250px, .95fr) minmax(0, 1.05fr); gap: 32px; }
+.learning-expression .learning-route ol { position: relative; }
+.learning-expression .route-node { padding-bottom: 10px; }
+.learning-expression .route-node:not(:last-child)::before { left: 35px; top: 56px; bottom: -15px; width: 2px; background: linear-gradient(var(--route-accent), var(--line)); opacity: .35; }
+.learning-expression .route-node button { position: relative; isolation: isolate; gap: 14px; padding: 12px; min-height: 78px; border: 1px solid transparent; border-radius: 18px; transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease; }
+.learning-expression .route-node button::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; border-radius: inherit; background: linear-gradient(110deg, var(--route-soft), var(--surface)); transition: opacity 180ms ease; }
+.learning-expression .route-node button:hover,
+.learning-expression .route-node button[aria-pressed="true"] { border-color: color-mix(in srgb, var(--route-accent) 28%, var(--line)); box-shadow: 0 8px 25px color-mix(in srgb, var(--route-accent) 8%, transparent); }
+.learning-expression .route-node button:hover::before,
+.learning-expression .route-node button[aria-pressed="true"]::before { opacity: 1; }
+.learning-expression .route-node .route-number { width: 46px; height: 46px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--route-accent) 22%, var(--line)); color: var(--route-ink); background: var(--route-soft); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--surface) 80%, transparent); font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.learning-expression .route-node button[aria-pressed="true"] .route-number { background: var(--route-accent); color: #fff; border-color: transparent; box-shadow: 0 5px 13px color-mix(in srgb, var(--route-accent) 28%, transparent), inset 0 1px 0 #ffffff3d; }
+.learning-expression .route-node strong { font-weight: 650; font-size: 14px; line-height: 1.55; }
+.learning-expression .route-node small { display: block; margin-top: 2px; font-size: 11px; }
+.learning-expression .route-copy { flex: 1; min-width: 0; }
+.learning-expression .route-arrow { width: 19px; height: 19px; flex-shrink: 0; color: var(--muted); opacity: .45; }
+.learning-expression .route-node button[aria-pressed="true"] .route-arrow { color: var(--route-ink); opacity: 1; }
+.learning-expression .route-node[data-status="completed"] small::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--positive); margin-right: 6px; vertical-align: 1px; }
+.learning-expression .route-detail { position: sticky; top: 24px; isolation: isolate; gap: 18px; padding: 26px; border-radius: 28px; background: radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--route-accent) 13%, transparent), transparent 65%), var(--surface); border-color: color-mix(in srgb, var(--route-accent) 20%, var(--line)); box-shadow: 0 18px 50px color-mix(in srgb, var(--route-accent) 9%, transparent), inset 0 1px 0 #ffffff50; }
+.route-detail-mast { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.learning-expression .route-detail .eyebrow { color: var(--route-ink); font-weight: 650; }
+.route-chapter-number { color: var(--route-ink); font-weight: 700; font-size: 15px; letter-spacing: .03em; opacity: .75; font-variant-numeric: tabular-nums; }
+.route-artwork { width: 100%; height: 126px; display: block; overflow: visible; }
+.route-art-orbit { stroke: var(--route-accent); stroke-width: 1; stroke-dasharray: 3 7; fill: none; opacity: .23; }
+.route-art-orbit.second { stroke-dasharray: none; opacity: .11; }
+.route-art-sheet-shadow { fill: var(--route-accent); opacity: .13; }
+.route-art-paper { fill: var(--surface); stroke: color-mix(in srgb, var(--route-accent) 30%, var(--line)); stroke-width: 1; }
+.route-art-staff { stroke: var(--route-accent); stroke-width: 1; opacity: .2; }
+.route-art-note { stroke: var(--route-accent); stroke-width: 3; stroke-linecap: round; fill: none; }
+.route-art-notehead { fill: var(--route-accent); }
+.route-art-key-shadow { fill: var(--route-accent); opacity: .22; }
+.route-art-key-body { fill: #fffdfd; stroke: #ead3dd; }
+.route-art-divider { stroke: #ead3dd; stroke-width: 1; }
+.route-art-black { fill: #35252b; }
+.route-art-spark { fill: var(--route-accent); opacity: .55; }
+.route-art-spark-line { stroke: var(--route-accent); stroke-width: 2; stroke-linecap: round; opacity: .45; }
+.learning-expression .route-detail h2 { font-size: clamp(23px, 2.1vw, 30px); line-height: 1.4; font-weight: 700; letter-spacing: -.02em; }
+.route-detail-copy p { margin-top: 9px !important; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.learning-expression .route-actions { gap: 9px; }
+.learning-expression .route-actions .btn { border-radius: 12px; min-height: 43px; }
+.learning-expression .route-actions .btn.primary { color: #fff; border-color: transparent; background: var(--route-accent); box-shadow: 0 6px 18px color-mix(in srgb, var(--route-accent) 18%, transparent); }
+.learning-expression .route-actions .btn:not(.primary):not(.text) { background: color-mix(in srgb, var(--surface) 75%, transparent); }
+.route-detail-notes { border-top: 1px solid var(--line); padding-top: 13px; }
+.route-detail-notes p { font-size: 10px; line-height: 1.75; }
+.route-detail-notes p + p { margin-top: 5px !important; }
+
+.skills-expression .path-source { width: fit-content; padding: 5px; border: 1px solid var(--line); background: var(--surface); border-radius: 15px; gap: 4px; box-shadow: var(--shadow-soft); }
+.skills-expression .path-source .btn { border: 0; border-radius: 10px; padding: 8px 18px; }
+.skills-expression .path-source .btn[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 11px color-mix(in srgb, var(--accent) 15%, transparent); }
+.skills-expression .skills-completion { position: relative; isolation: isolate; overflow: hidden; padding: 25px 28px; border-radius: 24px; background: linear-gradient(120deg, var(--surface), color-mix(in srgb, var(--violet) 8%, var(--surface))); box-shadow: var(--shadow-soft); }
+.skills-expression .skills-completion::after { content: ""; position: absolute; width: 200px; height: 200px; right: -90px; top: -116px; border: 32px solid color-mix(in srgb, var(--violet) 10%, transparent); border-radius: 50%; z-index: -1; }
+.skills-expression .path-progress strong { font-size: clamp(30px, 3vw, 42px); letter-spacing: -.045em; line-height: 1.2; font-weight: 720; font-variant-numeric: tabular-nums; color: var(--accent); }
+.skills-expression .path-progress > div > span { font-weight: 600; }
+.skills-expression .path-progress p { max-width: 680px; }
+.skills-expression .skill-grid { gap: 20px; align-items: stretch; }
+.skills-expression .skill-card { --skill-accent: var(--accent); position: relative; isolation: isolate; display: flex; flex-direction: column; overflow: hidden; padding: 24px; border-radius: 24px; border-color: color-mix(in srgb, var(--skill-accent) 15%, var(--line)); box-shadow: 0 12px 32px color-mix(in srgb, var(--skill-accent) 5%, transparent); background: radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--skill-accent) 7%, transparent), transparent 65%), var(--surface); }
+.skills-expression .skill-card[data-kind="staff"] { --skill-accent: #b74b79; }
+.skills-expression .skill-card[data-kind="chords"] { --skill-accent: #b35c49; }
+.skills-expression .skill-card::before { content: ""; position: absolute; top: 0; left: 24px; right: 24px; height: 3px; background: linear-gradient(90deg, var(--skill-accent), color-mix(in srgb, var(--skill-accent) 12%, transparent)); border-radius: 0 0 5px 5px; }
+.skill-card-heading { display: flex; gap: 12px; align-items: center; margin: 0 0 24px; }
+.skills-expression .skill-card h2 { font-size: 16px; line-height: 1.5; font-weight: 650; margin: 0; }
+.skill-mark { display: grid; place-items: center; width: 46px; height: 46px; flex: 0 0 46px; border-radius: 14px; background: color-mix(in srgb, var(--skill-accent) 10%, var(--surface)); color: var(--skill-accent); border: 1px solid color-mix(in srgb, var(--skill-accent) 14%, var(--line)); }
+.skill-mark svg { width: 29px; height: 29px; }
+.skills-expression .skill-value { margin: 8px 0 2px; font-size: 48px; font-weight: 720; line-height: 1.2; letter-spacing: -.035em; }
+.skills-expression .skill-value span { font-size: 20px; font-weight: 500; letter-spacing: 0; }
+.skills-expression .skill-card > .eyebrow { color: var(--muted); }
+.skills-expression .skill-card .rows { gap: 12px 14px; margin: 24px 0; font-size: 12px; }
+.skills-expression .skill-card .rows dt { color: var(--muted); }
+.skills-expression .skill-card details { border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 20px; }
+.skills-expression .skill-card summary { font-size: 12px; font-weight: 550; }
+.skills-expression .skill-card > .btn { margin-top: auto; width: 100%; padding: 9px 12px; font-size: 12px; border-radius: 11px; border-color: color-mix(in srgb, var(--skill-accent) 20%, var(--line)); background: color-mix(in srgb, var(--skill-accent) 5%, var(--surface)); }
+.skills-expression .skill-card > .btn:hover { background: color-mix(in srgb, var(--skill-accent) 11%, var(--surface)); border-color: var(--skill-accent); }
+.skills-expression .skill-empty { display: grid; place-items: center; text-align: center; min-height: 92px; font-size: 19px; font-weight: 550; margin: 0 0 26px; color: var(--muted); }
+.skills-expression .exercise-evidence { padding: 26px; border: 1px solid var(--line); border-radius: 24px; background: var(--surface); box-shadow: var(--shadow-soft); }
+.skills-expression .exercise-evidence h2 { font-size: 22px; font-weight: 650; }
+.skills-expression .exercise-evidence table { width: 100%; overflow-wrap: anywhere; }
+.skills-expression .exercise-evidence > section { border-top: 1px solid var(--line); padding-top: 20px; }
+
+:root[data-theme="dark"] .learning-expression,
+:root[data-theme="dark"] .skills-expression { --route-accent: #dedede; --route-ink: var(--text); }
+:root[data-theme="dark"] .learning-expression [data-step] { --route-accent: #dedede; --route-ink: var(--text); --route-soft: color-mix(in srgb, var(--route-accent) 8%, var(--surface)); }
+:root[data-theme="dark"] .learning-expression [data-step="direction"] { --route-accent: #bdbdbd; }
+:root[data-theme="dark"] .learning-expression [data-step="rhythm"] { --route-accent: #e8e8e8; }
+:root[data-theme="dark"] .learning-expression [data-step="treble"] { --route-accent: #c9c9c9; }
+:root[data-theme="dark"] .learning-expression [data-step="phrase"] { --route-accent: #dddddd; }
+:root[data-theme="dark"] .learning-expression [data-step="melody"] { --route-accent: #bbbbbb; }
+:root[data-theme="dark"] .learning-expression [data-step="bass"] { --route-accent: #e1e1e1; }
+:root[data-theme="dark"] .learning-expression [data-step="chords"] { --route-accent: #d7d7d7; }
+:root[data-theme="dark"] .learning-expression .route-node button[aria-pressed="true"] .route-number,
+:root[data-theme="dark"] .learning-expression .route-actions .btn.primary { color: #101010; }
+:root[data-theme="dark"] .learning-expression .route-node button { box-shadow: none; }
+:root[data-theme="dark"] .learning-expression .route-node button[aria-pressed="true"] { box-shadow: 0 0 24px color-mix(in srgb, var(--route-accent) 12%, transparent); }
+:root[data-theme="dark"] .learning-expression .route-detail { background: radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--route-accent) 23%, transparent), transparent 70%), var(--surface); box-shadow: inset 0 1px 0 #ffffff09, 0 18px 50px #00000025; }
+:root[data-theme="dark"] .route-art-paper { fill: #151515; }
+:root[data-theme="dark"] .route-art-notehead { fill: #e7e7e7; }
+:root[data-theme="dark"] .route-art-note { stroke: #e7e7e7; }
+:root[data-theme="dark"] .route-art-staff { stroke: #bfbfbf; }
+:root[data-theme="dark"] .route-art-key-body { fill: #fafafa; stroke: #bdbdbd; }
+:root[data-theme="dark"] .route-art-divider { stroke: #bdbdbd; }
+:root[data-theme="dark"] .route-art-black { fill: #181818; }
+:root[data-theme="dark"] .route-art-orbit,
+:root[data-theme="dark"] .route-art-spark,
+:root[data-theme="dark"] .route-art-spark-line { opacity: .4; }
+:root[data-theme="dark"] .skills-expression .skill-card { --skill-accent: #dedede; background: radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--skill-accent) 7%, transparent), transparent 65%), var(--surface); }
+:root[data-theme="dark"] .skills-expression .skill-card[data-kind="staff"] { --skill-accent: #c9c9c9; }
+:root[data-theme="dark"] .skills-expression .skill-card[data-kind="chords"] { --skill-accent: #bdbdbd; }
+:root[data-theme="dark"] .skills-expression .skill-mark { color: var(--text); background: color-mix(in srgb, var(--skill-accent) 10%, var(--surface)); }
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .learning-expression .route-node button:hover { transform: translateX(3px); }
+  .learning-expression .route-node button[aria-pressed="true"] .route-arrow { transform: translateX(2px); }
+}
+@media (min-width: 901px) and (max-width: 1120px) {
+  .skills-expression .skill-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .skills-expression .skill-card { padding: 20px 18px; }
+  .skills-expression .skill-card h2 { font-size: 14px; }
+  .skill-card-heading { gap: 10px; align-items: flex-start; }
+  .skill-mark { width: 38px; height: 40px; flex-basis: 38px; border-radius: 12px; }
+  .skill-mark svg { width: 25px; height: 25px; }
+  .skills-expression .skill-value { font-size: 42px; }
+  .skills-expression .skill-card .rows { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .skills-expression .skill-card .rows dt:not(:first-child) { margin-top: 8px; }
+  .learning-expression .learning-route { grid-template-columns: minmax(220px, .9fr) minmax(0, 1.1fr); gap: 20px; }
+  .learning-expression .route-node button { gap: 11px; padding: 10px; min-height: 74px; }
+  .learning-expression .route-node .route-number { width: 41px; height: 43px; border-radius: 13px; flex: 0 0 41px; }
+  .learning-expression .route-node:not(:last-child)::before { left: 31px; }
+  .learning-expression .route-node strong { font-size: 13px; }
+  .learning-expression .route-arrow { width: 14px; }
+  .learning-expression .route-detail { padding: 22px; gap: 13px; border-radius: 24px; }
+  .route-artwork { height: 95px; }
+  .learning-expression .route-detail h2 { font-size: 24px; }
+  .learning-expression .route-actions .btn { padding: 9px 12px; font-size: 12px; }
+}
+@media (max-width: 900px) {
+  .learning-expression .learning-route { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .learning-expression .route-detail { position: static; }
+  .learning-expression .learning-route ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .learning-expression .route-node { padding: 0; }
+  .learning-expression .route-node::before { display: none; }
+  .learning-expression .route-node button { height: 100%; border-color: var(--line); background: var(--surface); }
+  .learning-expression .route-arrow { display: none; }
+  .skills-expression .skill-card { padding: 23px; }
+}
+@media (max-width: 600px) {
+  .learning-expression-head .title,
+  .skills-expression > header .title { font-size: 30px; }
+  .learning-expression .learning-route ol { grid-template-columns: minmax(0, 1fr); }
+  .learning-expression .route-detail,
+  .skills-expression .exercise-evidence,
+  .skills-expression .skills-completion { padding: 20px; border-radius: 22px; }
+  .skills-expression .path-progress > div { align-items: flex-start; }
+  .skills-expression .path-progress strong { white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .learning-expression .route-node button,
+  .learning-expression .route-node button::before { transition: none; }
+}

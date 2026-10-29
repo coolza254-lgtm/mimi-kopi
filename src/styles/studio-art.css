@@ -1,0 +1,93 @@
+.practice-artwork.studio-art {
+  --studio-art-glow: #f5a3be;
+  --studio-art-glow-soft: #f9cfbc;
+  --studio-art-glass: #ffeef3;
+  --studio-art-glass-shade: #d87f9e;
+  --studio-art-rim: #fff5f8;
+  --studio-art-body-top: #d99aaf;
+  --studio-art-body-bottom: #8f5067;
+  --studio-art-white: #ffffff;
+  --studio-art-white-mid: #fff8f8;
+  --studio-art-white-shade: #f0dce2;
+  --studio-art-black-top: #4a3c42;
+  --studio-art-black-mid: #241f22;
+  --studio-art-black: #111111;
+  --studio-art-note: #ed86a9;
+  --studio-art-note-light: #fff1f5;
+  --studio-art-note-alt: #f4b29a;
+  --studio-art-note-alt-light: #ffe2d4;
+  --studio-art-shadow: #74384f;
+  --studio-art-orbit: #ffebf1;
+  --studio-art-muted: #b9788e;
+  --studio-art-lowlight: #71394e;
+  --studio-art-inlay: #f0b6cb;
+  width: 100%;
+  max-width: 460px;
+  overflow: visible;
+  justify-self: center;
+  pointer-events: none;
+  isolation: isolate;
+}
+:root[data-theme="dark"] .practice-artwork.studio-art {
+  --studio-art-glow: #aaaaaa;
+  --studio-art-glow-soft: #555555;
+  --studio-art-glass: #dddddd;
+  --studio-art-glass-shade: #777777;
+  --studio-art-rim: #ffffff;
+  --studio-art-body-top: #545454;
+  --studio-art-body-bottom: #222222;
+  --studio-art-white: #ffffff;
+  --studio-art-white-mid: #f4f4f4;
+  --studio-art-white-shade: #c9c9c9;
+  --studio-art-black-top: #454545;
+  --studio-art-black-mid: #1f1f1f;
+  --studio-art-black: #080808;
+  --studio-art-note: #eeeeee;
+  --studio-art-note-light: #ffffff;
+  --studio-art-note-alt: #aaaaaa;
+  --studio-art-note-alt-light: #f0f0f0;
+  --studio-art-shadow: #000000;
+  --studio-art-orbit: #cccccc;
+  --studio-art-muted: #858585;
+  --studio-art-lowlight: #171717;
+  --studio-art-inlay: #bbbbbb;
+}
+.studio-art-keyboard {
+  transform-origin: 50% 65%;
+  animation: studio-instrument-float 7s ease-in-out infinite;
+}
+.studio-art-glass {
+  animation: studio-glass-float 8s ease-in-out infinite;
+}
+.studio-art-note-primary {
+  animation: studio-note-primary-float 6s ease-in-out infinite;
+}
+.studio-art-note-secondary {
+  animation: studio-note-secondary-float 7s ease-in-out infinite;
+}
+.studio-art-orbits {
+  opacity: .9;
+}
+@keyframes studio-instrument-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+@keyframes studio-glass-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -7px; }
+}
+@keyframes studio-note-primary-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
+}
+@keyframes studio-note-secondary-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-art-keyboard,
+  .studio-art-glass,
+  .studio-art-note {
+    animation: none;
+  }
+}

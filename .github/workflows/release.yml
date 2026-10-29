@@ -103,11 +103,7 @@ jobs:
         env:
           NOTES: ${{ inputs.notes }}
         run: |
-          {
-            echo "body<<END_OF_NOTES"
-            if [ -n "$NOTES" ]; then echo "$NOTES"; else cat .github/release-notes.md; fi
-            echo "END_OF_NOTES"
-          } >> "$GITHUB_OUTPUT"
+          node .github/scripts/release-notes.mjs
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

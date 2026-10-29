@@ -1,0 +1,280 @@
+/* Instrument workspaces share the studio palette without decorating live questions. */
+.programs,
+.drill-results,
+.exercise-setup,
+.exercise-results,
+.free,
+.editor {
+  --tool-tint: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  --tool-edge: color-mix(in srgb, var(--blue) 23%, var(--line));
+  --tool-peach: #e99c89;
+}
+:root[data-theme="dark"] :is(.programs, .drill-results, .exercise-setup, .exercise-results, .free, .editor) { --tool-peach: #a8a8a8; }
+
+.programs .page-head .title,
+.drill-results .title,
+.exercise-setup > header .title,
+.exercise-results h1,
+.free > .page-head .title,
+.editor > .page-head .title,
+.shell[data-page="settings"] .main > .title,
+.shell[data-page="sound"] .main > .title {
+  font-weight: 740;
+  letter-spacing: -.035em;
+  line-height: 1.35;
+}
+
+.program-choice {
+  --program-color: var(--blue);
+  position: relative;
+  isolation: isolate;
+  min-height: 154px;
+  overflow: hidden;
+  padding: 25px;
+  border-color: color-mix(in srgb, var(--program-color) 24%, var(--line));
+  border-radius: 22px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--program-color) 9%, var(--surface)), var(--surface) 75%);
+  box-shadow: 0 8px 26px color-mix(in srgb, var(--program-color) 7%, transparent);
+}
+.program-choice:nth-child(2) { --program-color: var(--violet); }
+.program-choice:nth-child(3) { --program-color: var(--tool-peach); }
+.program-choice::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -8px;
+  bottom: -20px;
+  width: 100px;
+  height: 90px;
+  border: 18px solid color-mix(in srgb, var(--program-color) 12%, transparent);
+  border-radius: 26px;
+  transform: rotate(-22deg);
+  pointer-events: none;
+}
+.program-choice strong { font-size: 20px; font-weight: 700; letter-spacing: -.025em; }
+.program-choice span { max-width: 28ch; line-height: 1.8; }
+.program-choice.selected {
+  border-color: var(--program-color);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--program-color) 17%, var(--surface)), var(--surface));
+  box-shadow: inset 0 0 0 1px var(--program-color), 0 10px 30px color-mix(in srgb, var(--program-color) 14%, transparent);
+}
+.program-choice.selected strong { color: var(--accent); }
+
+.programs .program-settings,
+.programs .program-history,
+.drill-results > .card,
+.exercise-setup .exercise-card,
+.editor .editor-song,
+.editor .editor-tools,
+.editor .editor-play,
+.free .tone-panel {
+  border: 1px solid var(--tool-edge);
+  border-radius: 22px;
+  background: linear-gradient(130deg, var(--surface), var(--tool-tint));
+  box-shadow: 0 9px 28px color-mix(in srgb, var(--blue) 5%, transparent);
+}
+.programs .program-history { padding: 22px 24px; }
+.programs .program-history h2,
+.drill-results .card h2,
+.exercise-card h2,
+.tone-panel h2 { font-weight: 700; letter-spacing: -.025em; }
+
+.programs .field select,
+.programs .field input,
+.exercise-setup select,
+.editor .field input,
+.editor .field select,
+.shell[data-page="settings"] .field select,
+.shell[data-page="sound"] .field select,
+.shell[data-page="sound"] .field input {
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--blue) 19%, var(--line));
+  background: var(--surface);
+  color: var(--text);
+}
+.programs .field select:focus-visible,
+.programs .field input:focus-visible,
+.exercise-setup select:focus-visible,
+.editor .field input:focus-visible,
+.editor .field select:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.programs .choice[aria-pressed="true"],
+.editor .choice.on,
+.free .choice.on {
+  border-color: var(--accent);
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+.exercise-setup .exercise-card {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  background: radial-gradient(ellipse at 100% 0, color-mix(in srgb, var(--violet) 13%, transparent), transparent 65%), var(--surface);
+}
+.exercise-setup .exercise-card .phrase-score { max-width: 500px; }
+.exercise-setup > .btn.primary { justify-self: start; min-width: 158px; }
+.exercise-results {
+  padding: 32px;
+  border: 1px solid var(--tool-edge);
+  border-radius: 26px;
+  background: radial-gradient(ellipse at 100% 0, color-mix(in srgb, var(--violet) 12%, transparent), transparent 50%), var(--surface);
+  box-shadow: 0 12px 40px color-mix(in srgb, var(--blue) 7%, transparent);
+}
+.exercise-results h1 { margin: 0; font-size: clamp(30px, 3.2vw, 40px); }
+.exercise-summary,
+.drill-result-stats { gap: 12px; }
+.exercise-summary > div,
+.drill-result-stats > div {
+  flex: 1 1 120px;
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid color-mix(in srgb, var(--blue) 17%, var(--line));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--blue) 7%, var(--surface));
+}
+.exercise-summary > div:nth-child(2),
+.drill-result-stats > div:nth-child(2) { background: color-mix(in srgb, var(--violet) 8%, var(--surface)); }
+.exercise-summary strong,
+.drill-result-stats strong { color: var(--accent); font-weight: 720; font-variant-numeric: tabular-nums; }
+.exercise-results .exercise-controls { justify-content: flex-start; }
+.exercise-result-detail { border-top: 1px solid var(--line); padding-top: 14px; }
+.exercise-result-detail summary { color: var(--muted); font-size: 13px; }
+.drill-weak li { border-radius: 14px; border-color: var(--tool-edge); background: var(--tool-tint); }
+.drill-comparison { color: var(--accent); letter-spacing: -.035em; font-weight: 700; }
+
+.learn-lesson .learn-top > span { font-weight: 650; font-variant-numeric: tabular-nums; color: var(--accent); }
+.learn-step-meter { gap: 8px; }
+.learn-step-meter i { height: 6px; border-radius: 6px; }
+.learn-step-meter i.reached { background: linear-gradient(90deg, var(--blue), var(--violet)); }
+.learn-explanation .title { font-weight: 740; letter-spacing: -.035em; }
+.learn-explanation .eyebrow { color: var(--accent); font-weight: 650; }
+.learn-explanation p { color: var(--muted); }
+.learn-example .reading-staff { filter: drop-shadow(0 12px 22px color-mix(in srgb, var(--blue) 8%, transparent)); }
+.learn-example-feedback { color: var(--accent); font-weight: 650; }
+.learn-lesson .learn-actions { padding-top: 16px; border-top: 1px solid var(--line); }
+.learn-check-intro {
+  max-width: 800px;
+  padding: 30px;
+  border: 1px solid color-mix(in srgb, var(--violet) 25%, var(--line));
+  border-radius: 26px;
+  background: radial-gradient(ellipse at 100% 0, color-mix(in srgb, var(--violet) 15%, transparent), transparent 65%), var(--surface);
+  box-shadow: 0 12px 36px color-mix(in srgb, var(--blue) 7%, transparent);
+}
+.learn-check-intro > .btn { justify-self: start; }
+
+.free {
+  --play-text: #53223c;
+  --play-muted: #815366;
+  --play-panel: #fff8fc;
+  --play-panel-raised: #fbe6ef;
+  --play-edge: #efc5d6;
+  --play-primary: #c83678;
+  --play-on-primary: #ffffff;
+  --play-accent: #b92b6b;
+  --play-positive: #a32664;
+  --play-wash: #f7bed466;
+  --play-glow: #f9d6c84d;
+  --play-base: #fffdfd;
+  --play-shadow: #b9316614;
+  --play-note-shadow: #d55c9322;
+  --play-idle: #b86588;
+  --play-chip-edge: #eabed0;
+  --play-chip-base: #ffffff;
+  --play-chip-text: #78364f;
+}
+:root[data-theme="dark"] .free {
+  --play-text: #f4f4f4;
+  --play-muted: #b9b9b9;
+  --play-panel: #141414;
+  --play-panel-raised: #222222;
+  --play-edge: #474747;
+  --play-primary: #ededed;
+  --play-on-primary: #111111;
+  --play-accent: #e4e4e4;
+  --play-positive: #dedede;
+  --play-wash: #ffffff0d;
+  --play-glow: #ffffff05;
+  --play-base: #080808;
+  --play-shadow: #00000033;
+  --play-note-shadow: #ffffff0d;
+  --play-idle: #a8a8a8;
+  --play-chip-edge: #555555;
+  --play-chip-base: #222222;
+  --play-chip-text: #eeeeee;
+}
+.free .stage {
+  --text: var(--play-text);
+  --muted: var(--play-muted);
+  --surface: var(--play-panel);
+  --surface-2: var(--play-panel-raised);
+  --line: var(--play-edge);
+  --primary: var(--play-primary);
+  --on-primary: var(--play-on-primary);
+  --accent: var(--play-accent);
+  --positive: var(--play-positive);
+  border: 1px solid var(--play-edge);
+  border-radius: 26px;
+  background: radial-gradient(ellipse at 20% 0, var(--play-wash), transparent 62%), radial-gradient(ellipse at 95% 100%, var(--play-glow), transparent 60%), var(--play-base);
+  box-shadow: 0 16px 40px var(--play-shadow);
+  color: var(--text);
+}
+.free .stage-chord { font-weight: 700; letter-spacing: -.045em; text-shadow: 0 8px 28px var(--play-note-shadow); }
+.free .stage-chord.idle { color: var(--play-idle); }
+.free .stage-stats dt { color: var(--muted); }
+.free .stage-stats dd { font-weight: 650; color: var(--text); }
+.free .stage .note-chip { border-color: var(--play-chip-edge); background: var(--play-chip-base); color: var(--play-chip-text); }
+.free .stage .pill.on { background: var(--play-primary); color: var(--play-on-primary); }
+.free .free-keyboard { border-radius: 22px; border-color: var(--tool-edge); box-shadow: 0 10px 30px color-mix(in srgb, var(--blue) 6%, transparent); }
+.free .tone-panel legend { font-weight: 650; }
+.free .tone-panel input[type="range"] { accent-color: var(--accent); }
+
+.editor .editor-tools { background: color-mix(in srgb, var(--blue) 6%, var(--surface)); }
+.editor .tool-group > span { font-size: 12px; color: var(--muted); }
+.editor .score-card { border-radius: 24px; border-color: var(--tool-edge); box-shadow: 0 12px 34px color-mix(in srgb, var(--blue) 7%, transparent); }
+.editor .score-foot { border-top: 1px solid var(--line); padding-top: 14px; }
+.editor .editor-play { background: linear-gradient(120deg, var(--surface), color-mix(in srgb, var(--violet) 9%, var(--surface))); }
+
+.shell[data-page="settings"] .main > .cards > .card,
+.shell[data-page="sound"] .main > .cards > .card {
+  border-radius: 24px;
+  border-color: color-mix(in srgb, var(--blue) 20%, var(--line));
+  background: linear-gradient(145deg, var(--surface), color-mix(in srgb, var(--blue) 5%, var(--surface)));
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--blue) 6%, transparent);
+}
+.shell[data-page="settings"] .main > .cards > .card:nth-child(2),
+.shell[data-page="sound"] .main > .cards > .card:nth-child(2) {
+  background: linear-gradient(145deg, var(--surface), color-mix(in srgb, var(--violet) 6%, var(--surface)));
+}
+.shell[data-page="settings"] .card > h2,
+.shell[data-page="sound"] .card > h2 { font-weight: 700; letter-spacing: -.025em; }
+.shell[data-page="settings"] .card > h2::before,
+.shell[data-page="sound"] .card > h2::before { content: ""; display: inline-block; width: 8px; height: 19px; border-radius: 6px; margin-right: 10px; vertical-align: -3px; background: linear-gradient(var(--blue), var(--violet)); }
+.shell[data-page="settings"] .notice,
+.shell[data-page="sound"] .notice,
+.free > .notice { border-radius: 15px; }
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .program-choice { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+  .program-choice:hover { transform: translateY(-3px); }
+}
+@media (max-width: 1050px) {
+  .program-choice { padding: 18px; min-height: 148px; }
+  .program-choice strong { font-size: 17px; }
+  .exercise-results { padding: 24px; }
+  .exercise-summary > div, .drill-result-stats > div { padding: 15px 16px; }
+  .learn-check-intro { padding: 24px; }
+}
+@media (max-width: 700px) {
+  .program-choice { min-height: 110px; }
+  .programs .program-history { padding: 18px; }
+  .exercise-setup .exercise-card, .exercise-results { padding: 20px; }
+  .free .stage { border-radius: 20px; }
+}
+@media (max-height: 720px) {
+  .learn-lesson .learn-explanation .title { font-size: 29px; margin: 8px 0; }
+  .learn-lesson .learn-explanation p { font-size: 14px; line-height: 1.7; }
+  .learn-lesson .learn-actions { padding-top: 10px; }
+}

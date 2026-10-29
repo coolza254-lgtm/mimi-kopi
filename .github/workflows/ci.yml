@@ -22,6 +22,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      - run: node --test .github/scripts/release-notes.test.mjs
       - run: npm run build
 
   core:

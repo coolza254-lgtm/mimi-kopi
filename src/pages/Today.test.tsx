@@ -31,9 +31,9 @@ it("passes the chosen round size to the next listening exercise without fake dai
 });
 it("keeps personal playing, skills and practice tools reachable", () => {
   const actions = setup();
-  fireEvent.click(screen.getByRole("button", { name: new RegExp(en.dailyFreeBody) }));
-  fireEvent.click(screen.getByRole("button", { name: new RegExp(en.dailyOwnBody) }));
-  fireEvent.click(screen.getByRole("button", { name: new RegExp(en.dailyEvidenceBody) }));
+  fireEvent.click(screen.getByRole("button", { name: en.dailyFree }));
+  fireEvent.click(screen.getByRole("button", { name: en.dailyOwn }));
+  fireEvent.click(screen.getByRole("button", { name: en.pathLinkSkills }));
   fireEvent.click(screen.getByText(en.dailyMore));
   fireEvent.click(screen.getByRole("button", { name: en.dailyPracticeOpen }));
   expect(actions.onFreePlay).toHaveBeenCalledTimes(1);
