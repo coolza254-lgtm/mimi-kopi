@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { keyAlter, lastUsedMeasure, loadSongs, newSong, pitchAt, saveSongs, snapStart, spell, toSteps, type Song } from "./score";
+import { keyAlter, lastUsedMeasure, loadSongs, newSong, pitchAt, readSongs, saveSongs, snapStart, spell, toSteps, type Song } from "./score";
 
 const now = new Date("2026-10-25T00:00:00Z");
 
@@ -67,6 +67,48 @@ describe("timing", () => {
 });
 
 describe("song storage", () => {
+  it("distinguishes an empty library from unreadable data without repairing the original", () => {
+    expect(readSongs({ getItem: () => null })).toEqual({ ok: true, songs: [] });
+    expect(readSongs({ getItem: () => "[]" })).toEqual({ ok: true, songs: [] });
+    const valid = song([{ id: "a", pitch: 60, start: 0, dur: 4, hand: "R" }]);
+    expect(readSongs({ getItem: () => JSON.stringify([valid]) })).toEqual({ ok: true, songs: [valid] });
+    for (const raw of ["", "nope", "null", "{}", JSON.stringify([valid, null]), JSON.stringify([valid, valid]),
+      JSON.stringify([{ ...valid, notes: [{ ...valid.notes[0], pitch: 500 }] }]),
+      JSON.stringify([{ ...valid, notes: [{ ...valid.notes[0], hand: "Q" }] }]),
+      JSON.stringify([{ ...valid, futureVersion: 2 }]),
+      JSON.stringify([{ ...valid, notes: [{ ...valid.notes[0], futureArticulation: "accent" }] }]),
+      JSON.stringify([{ ...valid, tempo: 0 }])]) {
+      expect(readSongs({ getItem: () => raw })).toEqual({ ok: false, raw });
+    }
+    expect(readSongs({ getItem: () => { throw new Error("Storage unavailable"); } })).toEqual({ ok: false, raw: null });
+  });
+
+  it("reports failed persistence so the editor can retain and export its in-memory work", () => {
+    const s = song([]);
+    expect(saveSongs([s], { getItem: () => null, setItem: () => { throw new Error("Storage full"); } })).toBe(false);
+    let raw = "";
+    expect(saveSongs([s], { getItem: () => null, setItem: (_key, value) => { raw = value; } })).toBe(true);
+    expect(JSON.parse(raw)).toEqual([s]);
+  });
+
+  it("does not overwrite a library that became unreadable after the editor opened", () => {
+    const damaged = "damaged original";
+    let raw = damaged;
+    const storage = { getItem: () => raw, setItem: (_key: string, value: string) => { raw = value; } };
+    expect(saveSongs([song([])], storage)).toBe(false);
+    expect(raw).toBe(damaged);
+  });
+
+  it("does not write an in-memory song that the strict reader could not reopen", () => {
+    const original = JSON.stringify([song([])]);
+    let raw = original;
+    const storage = { getItem: () => raw, setItem: (_key: string, value: string) => { raw = value; } };
+    expect(saveSongs([{ ...song([]), tempo: 80.5 }], storage)).toBe(false);
+    expect(raw).toBe(original);
+    expect(saveSongs([{ ...song([]), measures: 401 }], storage)).toBe(false);
+    expect(raw).toBe(original);
+  });
+
   it("round-trips and drops broken notes", () => {
     const data = new Map<string, string>();
     const storage = { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string, v: string) => void data.set(k, v) };

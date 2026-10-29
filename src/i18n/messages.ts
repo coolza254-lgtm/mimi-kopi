@@ -3,6 +3,9 @@ import { learnMessages } from "./learnMessages";
 import { updateMessages } from "./updateMessages";
 import { pathMessages } from "./pathMessages";
 import { exerciseMessages } from "./exerciseMessages";
+import { editorMessages } from "./editorMessages";
+import { freePlayMessages } from "./freePlayMessages";
+import { dailyMessages } from "./dailyMessages";
 
 // Thai is the source language (spec §12.5). The other locales are typed
 // against it, so a missing key is a compile error.
@@ -12,6 +15,9 @@ export const th = {
   ...learnMessages.th,
   ...pathMessages.th,
   ...exerciseMessages.th,
+  ...editorMessages.th,
+  ...freePlayMessages.th,
+  ...dailyMessages.th,
   midiConnectionConnected: "เชื่อมต่อ MIDI แล้ว",
   midiConnectionDisconnected: "ยังไม่ได้เชื่อมต่อเปียโน",
   midiConnectionWaiting: "กำลังรอเปียโนเชื่อมต่อกลับมา",
@@ -346,6 +352,9 @@ export const en: Messages = {
   ...learnMessages.en,
   ...pathMessages.en,
   ...exerciseMessages.en,
+  ...editorMessages.en,
+  ...freePlayMessages.en,
+  ...dailyMessages.en,
   midiConnectionConnected: "MIDI connected",
   midiConnectionDisconnected: "No piano connected",
   midiConnectionWaiting: "Waiting for your piano to reconnect",
@@ -677,6 +686,9 @@ export const ja: Messages = {
   ...learnMessages.ja,
   ...pathMessages.ja,
   ...exerciseMessages.ja,
+  ...editorMessages.ja,
+  ...freePlayMessages.ja,
+  ...dailyMessages.ja,
   midiConnectionConnected: "MIDI接続済み",
   midiConnectionDisconnected: "ピアノは未接続です",
   midiConnectionWaiting: "ピアノの再接続を待っています",

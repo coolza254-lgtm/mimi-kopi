@@ -77,43 +77,41 @@ export function nextLesson(all: readonly Lesson[], progress: Progress): Lesson |
   return all.find((l) => recordFor(progress, l).pianoRuns === 0) ?? null;
 }
 
-function readRecord(value: unknown): LessonRecord | null {
-  if (typeof value !== "object" || value === null) return null;
+function validRecord(value: unknown): value is LessonRecord {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
   const v = value as Record<string, unknown>;
-  const count = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x >= 0 ? x : 0);
-  const num = (x: unknown) => (typeof x === "number" && Number.isFinite(x) && x >= 0 ? x : null);
-  if (typeof v.version !== "number") return null;
-  const accuracy = num(v.bestAccuracy);
-  return {
-    version: v.version,
-    pianoRuns: count(v.pianoRuns),
-    screenRuns: count(v.screenRuns),
-    bestAccuracy: accuracy === null ? null : Math.min(1, accuracy),
-    bestTimeMs: num(v.bestTimeMs),
-    lastPlayedAt: typeof v.lastPlayedAt === "string" ? v.lastPlayedAt : null,
-  };
+  const count = (x: unknown) => typeof x === "number" && Number.isSafeInteger(x) && x >= 0;
+  const num = (x: unknown) => x === null || typeof x === "number" && Number.isFinite(x) && x >= 0;
+  const fields = ["version", "pianoRuns", "screenRuns", "bestAccuracy", "bestTimeMs", "lastPlayedAt"];
+  return Object.keys(v).every((key) => fields.includes(key)) && count(v.version) && count(v.pianoRuns) && count(v.screenRuns)
+    && num(v.bestAccuracy) && (v.bestAccuracy === null || (v.bestAccuracy as number) <= 1) && num(v.bestTimeMs)
+    && (v.lastPlayedAt === null || typeof v.lastPlayedAt === "string" && Number.isFinite(Date.parse(v.lastPlayedAt)));
 }
 
-export function loadProgress(storage: Pick<Storage, "getItem"> | undefined = globalThis.localStorage): Progress {
+function validProgress(value: unknown): value is Progress {
+  return !!value && typeof value === "object" && !Array.isArray(value) && Object.values(value).every(validRecord);
+}
+
+export type ProgressRead = { ok: true; progress: Progress } | { ok: false };
+export function readProgress(storage?: Pick<Storage, "getItem">): ProgressRead {
   try {
-    const raw = storage?.getItem(KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const out: Progress = {};
-    for (const [id, value] of Object.entries(parsed)) {
-      const r = readRecord(value);
-      if (r) out[id] = r;
-    }
-    return out;
-  } catch {
-    return {};
-  }
+    const raw = (storage ?? globalThis.localStorage).getItem(KEY);
+    if (raw === null) return { ok: true, progress: {} };
+    if (raw.length > 3000000) return { ok: false };
+    const parsed: unknown = JSON.parse(raw);
+    return validProgress(parsed) ? { ok: true, progress: parsed } : { ok: false };
+  } catch { return { ok: false }; }
 }
 
-export function saveProgress(progress: Progress, storage?: Pick<Storage, "setItem">): boolean {
+export function loadProgress(storage?: Pick<Storage, "getItem">): Progress {
+  const result = readProgress(storage);
+  return result.ok ? result.progress : {};
+}
+
+export function saveProgress(progress: Progress, storage?: Pick<Storage, "getItem" | "setItem">): boolean {
   try {
     const target = storage ?? globalThis.localStorage;
-    if (!target) return false;
+    if (!target || !validProgress(progress) || !readProgress(target).ok) return false;
     target.setItem(KEY, JSON.stringify(progress));
     return true;
   } catch {

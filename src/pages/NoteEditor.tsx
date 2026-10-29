@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import type { Lesson } from "../features/lessons/lessons";
-import { loadProgress, recordFor, recordRun, saveProgress } from "../features/lessons/progress";
+import { readProgress, recordFor, recordRun, saveProgress, type Progress } from "../features/lessons/progress";
 import { noteName } from "../features/midi/notes";
 import {
   baseDuration,
@@ -10,7 +10,7 @@ import {
   KEYS,
   keySignatureLetters,
   lastUsedMeasure,
-  loadSongs,
+  readSongs,
   newSong,
   pitchAt,
   saveSongs,
@@ -59,12 +59,59 @@ const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(
 type Accidental = 1 | -1 | 0 | null;
 type Hands = "R" | "L" | "both";
 
-export default function NoteEditor({ t, locale, onFocusChange }: Props) {
+async function saveSongBackup(contents: string, filename: string, fileType: string): Promise<"songExported" | "songDownloadStarted" | null> {
+  if (inDesktopApp()) {
+    const path = await save({ defaultPath: filename, filters: [{ name: fileType, extensions: ["json"] }] });
+    if (!path) return null;
+    await backend.songFileWrite(path, contents);
+    return "songExported";
+  }
+  const url = URL.createObjectURL(new Blob([contents], { type: "application/json" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return "songDownloadStarted";
+}
+
+export default function NoteEditor(props: Props) {
+  const [loaded, setLoaded] = useState(readSongs);
+  const [backupBusy, setBackupBusy] = useState(false);
+  const [backupMessage, setBackupMessage] = useState<MessageKey | null>(null);
+  const { t } = props;
+  if (loaded.ok) return <Editor {...props} initialSongs={loaded.songs} />;
+  const backupRaw = async () => {
+    if (loaded.raw === null) return;
+    setBackupBusy(true);
+    setBackupMessage(null);
+    try {
+      const result = await saveSongBackup(loaded.raw, "mimi-kopi-songs-recovery.json", t("songStorageRecovery"));
+      if (result) setBackupMessage(result === "songExported" ? "songStorageRecoverySaved" : "songStorageRecoveryDownloaded");
+    } catch {
+      setBackupMessage("songStorageRecoveryFailed");
+    } finally {
+      setBackupBusy(false);
+    }
+  };
+  return <section className="editor">
+    <h1 className="title">{t("editorTitle")}</h1>
+    <div className="notice error" role="alert"><p>{t("songStorageReadError")}</p></div>
+    <div className="actions">
+      <button type="button" className="btn primary" disabled={backupBusy} onClick={() => { setBackupMessage(null); setLoaded(readSongs()); }}>{t("songStorageRetryLoad")}</button>
+      {loaded.raw !== null && <button type="button" className="btn" disabled={backupBusy} onClick={() => void backupRaw()}>{t("songStorageRecovery")}</button>}
+    </div>
+    {loaded.raw !== null && <p className="small muted">{t("songStorageRecoveryHint")}</p>}
+    {backupMessage && <p role={backupMessage === "songStorageRecoveryFailed" ? "alert" : "status"}>{t(backupMessage)}</p>}
+  </section>;
+}
+
+function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSongs: Song[] }) {
   const desktop = inDesktopApp();
   const [songs, setSongs] = useState<Song[]>(() => {
-    const saved = loadSongs();
-    return saved.length > 0 ? saved : [newSong(uid(), t("songUntitled"), new Date())];
+    return initialSongs.length > 0 ? initialSongs : [newSong(uid(), t("songUntitled"), new Date())];
   });
+  const [saveFailed, setSaveFailed] = useState(false);
   const [songId, setSongId] = useState(() => songs[0].id);
   const song = songs.find((s) => s.id === songId) ?? songs[0];
   const [history, setHistory] = useState<{ undo: Song[]; redo: Song[] }>({ undo: [], redo: [] });
@@ -104,7 +151,13 @@ export default function NoteEditor({ t, locale, onFocusChange }: Props) {
   }, [song, cursor, noteDur, midiInput, practice, fileBusy]);
   useEffect(() => { lastInput.current = null; }, [songId, noteDur, midiInput, practice, fileBusy]);
 
-  useEffect(() => saveSongs(songs), [songs]);
+  useEffect(() => { setSaveFailed(!saveSongs(songs)); }, [songs]);
+  useEffect(() => {
+    if (!saveFailed) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [saveFailed]);
 
   /** Replaces the current song; `record` false while dragging, so one drag is one undo step. */
   const update = useCallback(
@@ -396,21 +449,9 @@ export default function NoteEditor({ t, locale, onFocusChange }: Props) {
       const contents = serializeSongFile(song);
       // An exported file must be readable again without changing its notes.
       parseSongFile(contents, song.id, new Date());
-      const filename = songFilename(song.title);
-      if (desktop) {
-        const path = await save({ defaultPath: filename, filters: [{ name: t("songFileType"), extensions: ["json"] }] });
-        if (!path) return;
-        await backend.songFileWrite(path, contents);
-        setFileMessage("songExported");
-      } else {
-        const url = URL.createObjectURL(new Blob([contents], { type: "application/json" }));
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = filename;
-        link.click();
-        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-        setFileMessage("songDownloadStarted");
-      }
+      const message = await saveSongBackup(contents, songFilename(song.title), t("songFileType"));
+      if (!message) return;
+      setFileMessage(message);
       setFileError(false);
     } catch {
       setFileError(true);
@@ -451,19 +492,23 @@ export default function NoteEditor({ t, locale, onFocusChange }: Props) {
     });
   };
 
-  const [progress, setProgress] = useState(() => loadProgress());
+  const [progressData] = useState(readProgress);
+  const [progress, setProgress] = useState<Progress>(() => progressData.ok ? progressData.progress : {});
   if (practice) {
     return (
       <LessonPlayer
         lesson={practice}
         record={recordFor(progress, practice)}
+        historyAvailable={progressData.ok}
         next={null}
         t={t}
         locale={locale}
         onFinish={(l, result) => {
+          if (!progressData.ok) return false;
           const next = recordRun(progress, l, result, new Date());
-          setProgress(next);
-          return saveProgress(next);
+          const saved = saveProgress(next);
+          if (saved) setProgress(next);
+          return saved;
         }}
         onOpen={setPractice}
         onBack={() => setPractice(null)}
@@ -542,6 +587,14 @@ export default function NoteEditor({ t, locale, onFocusChange }: Props) {
         <span className="badge">{t("editorPrivate")}</span>
       </header>
 
+      {saveFailed && <div className="notice error" role="alert">
+        <p>{t("songStorageSaveError")}</p>
+        <div className="actions">
+          <button type="button" className="btn" onClick={() => setSaveFailed(!saveSongs(songs))}>{t("songStorageRetrySave")}</button>
+          <button type="button" className="btn" disabled={fileBusy} onClick={() => void exportSong()}>{t("songExport")}</button>
+        </div>
+      </div>}
+
       <section className="card editor-song">
         <label className="field">
           {t("songPick")}
@@ -584,7 +637,7 @@ export default function NoteEditor({ t, locale, onFocusChange }: Props) {
             min={30}
             max={240}
             value={song.tempo}
-            onChange={(e) => update((s) => ({ ...s, tempo: Math.max(30, Math.min(240, Number(e.target.value) || 80)) }), false)}
+            onChange={(e) => update((s) => ({ ...s, tempo: Math.round(Math.max(30, Math.min(240, Number(e.target.value) || 80))) }), false)}
           />
         </label>
         <div className="actions">

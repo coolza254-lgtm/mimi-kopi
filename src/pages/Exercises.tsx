@@ -13,12 +13,13 @@ import "../styles/path.css";
 export const exerciseTitles:Record<ExerciseKind,MessageKey>={direction:"exDirection",melody:"exMelody",phrase:"exPhrase",rhythm:"exRhythm"};
 const helpKeys:Record<ExerciseKind,MessageKey>={direction:"exDirectionHelp",melody:"exMelodyHelp",phrase:"exPhraseHelp",rhythm:"exRhythmHelp"};
 type Session={id:string;kind:ExerciseKind;mode:"learn"|"check";questions:ExerciseQuestion[];index:number;done:ExerciseTrial[];trial:ExerciseTrial|null;input:SequenceInput;simulated:boolean;sourceKnown:boolean;pauses:number;phase:"ready"|"playing"|"answer"|"feedback"|"paused"|"results";feedback:"good"|"wrong"|null;issue:boolean;saved:boolean;};
-interface Props {t:(key:MessageKey)=>string;initialKind:ExerciseKind;onBack:()=>void;onFocusChange?:(focus:boolean)=>void;}
-export default function Exercises({t,initialKind,onBack,onFocusChange}:Props){
+interface Props {t:(key:MessageKey)=>string;initialKind:ExerciseKind;initialMode?:"learn"|"check";initialCount?:number;onBack:()=>void;onFocusChange?:(focus:boolean)=>void;}
+export default function Exercises({t,initialKind,initialMode="learn",initialCount=6,onBack,onFocusChange}:Props){
   const desktop=inDesktopApp();
-  const [kind,setKind]=useState(initialKind),[mode,setMode]=useState<"learn"|"check">("learn"),[count,setCount]=useState(6),[keyboard,setKeyboard]=useState(!desktop),[explaining,setExplaining]=useState(true);
+  const [kind,setKind]=useState(initialKind),[mode,setMode]=useState<"learn"|"check">(initialMode),[count,setCount]=useState([3,6,12,24].includes(initialCount)?initialCount:6),[keyboard,setKeyboard]=useState(!desktop),[explaining,setExplaining]=useState(true);
   const session=useRef<Session|null>(null),live=useRef(true),screenKeys=useRef(new Set<number>());
   const heading=useRef<HTMLDivElement>(null);
+  const nextButton=useRef<HTMLButtonElement>(null);
   const [,redraw]=useReducer((n:number)=>n+1,0);
   const audio=useMemo(()=>new ExerciseAudio(desktop?(pitch,down)=>backend.midiSimulate(down?[0x90,pitch,80]:[0x80,pitch,0]):undefined),[desktop]);
   const clearKeys=useCallback(()=>{screenKeys.current.forEach((p)=>{if(desktop)void backend.midiSimulate([0x80,p,0]).catch(()=>undefined);});screenKeys.current.clear();const s=session.current;if(s)s.input={...s.input,held:[],release:false};},[desktop]);
@@ -36,7 +37,7 @@ export default function Exercises({t,initialKind,onBack,onFocusChange}:Props){
   const pause=useCallback(()=>{
     audio.stop();clearKeys();const s=session.current;
     if(s&&s.phase!=="results"&&s.phase!=="paused"){
-      if(s.phase!=="feedback"){s.pauses++;s.input=sequenceStart();s.phase="paused";}persist();
+      s.pauses++;s.input=sequenceStart();s.phase="paused";persist();
       if(live.current)redraw();
     }
   },[audio,clearKeys,persist]);
@@ -59,8 +60,8 @@ export default function Exercises({t,initialKind,onBack,onFocusChange}:Props){
     return()=>{active=false;subs.forEach((p)=>void p.then((stop)=>stop(),()=>undefined));};
   },[desktop,receive,pause]);
   const playingFocus=!!session.current&&session.current.phase!=="results";
-  const focusKey=session.current?`${session.current.id}:${session.current.index}:${session.current.phase==="paused"?"paused":session.current.phase==="results"?"results":"question"}`:"setup";
-  useEffect(()=>{heading.current?.focus({preventScroll:true});window.scrollTo(0,0);},[focusKey]);
+  const focusKey=session.current?`${session.current.id}:${session.current.index}:${session.current.phase==="paused"?"paused":session.current.phase==="results"?"results":session.current.phase==="feedback"?"feedback":"question"}`:"setup";
+  useEffect(()=>{(nextButton.current??heading.current)?.focus({preventScroll:true});window.scrollTo(0,0);},[focusKey]);
   useEffect(()=>{onFocusChange?.(playingFocus);return()=>onFocusChange?.(false);},[playingFocus,onFocusChange]);
   const listen=async()=>{
     const s=session.current;if(!s||s.phase==="playing"||s.phase==="results"||s.phase==="feedback")return;
@@ -71,34 +72,60 @@ export default function Exercises({t,initialKind,onBack,onFocusChange}:Props){
       if(live.current&&session.current===s&&s.phase==="playing"&&finished){s.phase="answer";redraw();}
     }catch{if(live.current&&session.current===s){if(s.phase==="playing")s.phase="ready";s.issue=true;redraw();}}
   };
-  const start=()=>{
+  const start=(nextMode:"learn"|"check"=mode,nextCount=count,nextKind=kind)=>{
     const data=readExercises();const values=new Uint32Array(1);crypto.getRandomValues(values);
-    const questions=exercisePlan(kind,count,values[0],data.ok?data.data.seen:{},mode);
-    session.current={id:crypto.randomUUID(),kind,mode,questions,index:0,done:[],trial:null,input:sequenceStart(),simulated:true,sourceKnown:false,pauses:0,phase:kind==="melody"||kind==="direction"?"ready":"answer",feedback:null,issue:false,saved:data.ok};
-    if(kind==="phrase"||kind==="rhythm")expose();setExplaining(false);redraw();window.scrollTo(0,0);
+    const questions=exercisePlan(nextKind,nextCount,values[0],data.ok?data.data.seen:{},nextMode);
+    setKind(nextKind);setMode(nextMode);setCount(nextCount);
+    session.current={id:crypto.randomUUID(),kind:nextKind,mode:nextMode,questions,index:0,done:[],trial:null,input:sequenceStart(),simulated:true,sourceKnown:false,pauses:0,phase:nextKind==="melody"||nextKind==="direction"?"ready":"answer",feedback:null,issue:false,saved:data.ok};
+    if(nextKind==="phrase"||nextKind==="rhythm")expose();setExplaining(false);redraw();window.scrollTo(0,0);
   };
   const answer=(value:string)=>{
     const s=session.current;if(!s||s.phase!=="answer")return;expose();s.simulated=true;s.sourceKnown=true;
     if(value===s.questions[s.index].answer){s.trial!.finished=true;s.phase="feedback";s.feedback="good";}else{s.trial!.wrong++;s.feedback="wrong";}
     persist();redraw();
   };
-  const next=()=>{
+  const next=useCallback(()=>{
     const s=session.current;if(!s||s.phase!=="feedback"||!s.trial)return;
     audio.stop();clearKeys();s.done.push(s.trial);s.trial=null;
     if(s.index===s.questions.length-1){s.phase="results";}else{s.index++;s.input=sequenceStart();s.feedback=null;s.phase=s.kind==="direction"||s.kind==="melody"?"ready":"answer";if(s.kind==="phrase"||s.kind==="rhythm")expose();}
     persist();redraw();
-  };
+  },[audio,clearKeys,expose,persist]);
+  useEffect(()=>{
+    const current=session.current;
+    if(!current||current.phase!=="feedback"||current.index===current.questions.length-1)return;
+    const timer=window.setTimeout(()=>{if(live.current&&session.current===current&&current.phase==="feedback")next();},700);
+    return()=>window.clearTimeout(timer);
+  },[focusKey,next]);
   const screenInput=(pitch:number,down:boolean)=>{
     if(down)screenKeys.current.add(pitch);else screenKeys.current.delete(pitch);
     receive(pitch,down,true);
     if(desktop)void backend.midiSimulate(down?[0x90,pitch,80]:[0x80,pitch,0]).catch(()=>{if(live.current&&session.current){session.current.issue=true;redraw();}});
   };
   const s=session.current;
-  if(!s)return <div className="path-page exercise-setup"><header><button className="btn text" onClick={onBack}>{t("exBack")}</button><h1 className="title">{t("exTitle")}</h1><p className="muted">{t("exIntro")}</p></header><div className="exercise-setup-grid"><label>{t("pathScope")}<select value={kind} onChange={(e)=>{setKind(e.target.value as ExerciseKind);setExplaining(true);}}>{Object.entries(exerciseTitles).map(([value,key])=><option key={value} value={value}>{t(key)}</option>)}</select></label><label>{t("exMode")}<select value={mode} onChange={(e)=>setMode(e.target.value as "learn"|"check")}><option value="learn">{t("exLearn")}</option><option value="check">{t("exCheck")}</option></select></label><label>{t("exCount")}<select value={count} onChange={(e)=>setCount(Number(e.target.value))}>{[3,6,12,24].map((n)=><option key={n}>{n}</option>)}</select></label></div><section className="exercise-card"><h2>{t(exerciseTitles[kind])}</h2><p>{t(helpKeys[kind])}</p>{kind==="phrase"&&<PhraseStaff pitches={[60,62,64]} label="C4 D4 E4" />}{kind==="rhythm"&&<div className="exercise-answer-options">{[1,2,4].map((beats)=><div key={beats}><RhythmNote beats={beats} label={t("exBeats").replace("{count}",String(beats))}/><span>{t("exBeats").replace("{count}",String(beats))}</span></div>)}</div>}<p className="small muted">{t(kind==="rhythm"?"exRhythmTheoryOnly":kind==="direction"?"exDirectionsOnly":"pathPitchOnly")}</p>{mode==="check"&&<p className="small muted">{t("exIndependentRule")}</p>}</section><button className="btn primary" onClick={start}>{t("exStart")}</button></div>;
-  if(s.phase==="results")return <div className="exercise-results" ref={heading} tabIndex={-1}><span className="eyebrow">{t(exerciseTitles[s.kind])} · {t(s.simulated?"pathSim":"pathReal")}</span><h1>{t("exResults")}</h1><p>{t(s.mode==="learn"?"exPracticeOnly":"exNoTiming")}</p><div className="exercise-summary"><div><strong>{s.done.filter((q)=>s.mode==="learn"?q.wrong===0:independentTrial(q,s.kind)).length} / {s.done.length}</strong>{t(s.mode==="learn"?"pathFirst":"exFirst")}</div><div><strong>{s.done.reduce((n,q)=>n+q.wrong,0)}</strong>{t("pathWrong")}</div><div><strong>{s.pauses}</strong>{t("exPauses")}</div></div><p className="small muted">{t("pathNewForm")}</p><table><thead><tr><th>{t("exForm")}</th><th>{t("pathWrong")}</th><th>{t("exPlays")}</th></tr></thead><tbody>{s.done.map((q,i)=><tr key={i}><td>{i+1} · {s.kind==="rhythm"?t("exBeats").replace("{count}",String(s.questions[i].beats)):s.questions[i].pitches.map(noteName).join(" → ")}<small className="muted"> · {t(q.unseen===true?"exExposure":q.unseen===false?"exKnown":"exUnknown")}{q.helped?` · ${t("exHintUsed")}`:""}</small></td><td>{q.wrong}</td><td>{q.plays}</td></tr>)}</tbody></table><p role="status">{t(s.saved?"exSaved":"exSaveError")}</p><button className="btn primary" onClick={()=>{session.current=null;redraw();}}>{t("exNewRound")}</button><button className="btn" onClick={onBack}>{t("exBack")}</button></div>;
-  const q=s.questions[s.index],auditory=s.kind==="direction"||s.kind==="melody",helped=s.trial?.helped??s.mode==="learn";
+  if(!s)return <div className="path-page exercise-setup"><header><button className="btn text" onClick={onBack}>{t("exBack")}</button><h1 className="title">{t("exTitle")}</h1><p className="muted">{t("exIntro")}</p></header><div className="exercise-setup-grid"><label>{t("pathScope")}<select value={kind} onChange={(e)=>{setKind(e.target.value as ExerciseKind);setExplaining(true);}}>{Object.entries(exerciseTitles).map(([value,key])=><option key={value} value={value}>{t(key)}</option>)}</select></label><label>{t("exMode")}<select value={mode} onChange={(e)=>setMode(e.target.value as "learn"|"check")}><option value="learn">{t("exLearn")}</option><option value="check">{t("exCheck")}</option></select></label><label>{t("exCount")}<select value={count} onChange={(e)=>setCount(Number(e.target.value))}>{[3,6,12,24].map((n)=><option key={n}>{n}</option>)}</select></label></div><section className="exercise-card"><h2>{t(exerciseTitles[kind])}</h2><p>{t(helpKeys[kind])}</p>{kind==="phrase"&&<PhraseStaff pitches={[60,62,64]} label="C4 D4 E4" />}{kind==="rhythm"&&<div className="exercise-answer-options">{[1,2,4].map((beats)=><div key={beats}><RhythmNote beats={beats} label={t("exBeats").replace("{count}",String(beats))}/><span>{t("exBeats").replace("{count}",String(beats))}</span></div>)}</div>}<p className="small muted">{t(kind==="rhythm"?"exRhythmTheoryOnly":kind==="direction"?"exDirectionsOnly":"pathPitchOnly")}</p>{mode==="check"&&<p className="small muted">{t("exIndependentRule")}</p>}</section><button className="btn primary" onClick={()=>start()}>{t("exStart")}</button></div>;
+    if(s.phase==="results"){
+    const auditory=s.kind==="direction"||s.kind==="melody";
+    const wrong=s.done.reduce((n,q)=>n+q.wrong,0);
+    const followUpMode=wrong>0?"learn":s.mode==="learn"?"check":null;
+    return <div className="exercise-results" ref={heading} tabIndex={-1}>
+      <span className="eyebrow">{t(exerciseTitles[s.kind])} · {t(s.simulated?"pathSim":"pathReal")}</span>
+      <h1>{t("exResults")}</h1><p>{t(s.mode==="learn"?"exPracticeOnly":"exNoTiming")}</p>
+      <div className="exercise-summary"><div><strong>{s.done.filter((q)=>s.mode==="learn"?q.wrong===0:independentTrial(q,s.kind)).length} / {s.done.length}</strong>{t(s.mode==="learn"?"pathFirst":"exFirst")}</div><div><strong>{wrong}</strong>{t("pathWrong")}</div><div><strong>{s.pauses}</strong>{t("exPauses")}</div></div>
+      <div className="exercise-controls">
+        {followUpMode?<button className="btn primary" onClick={()=>start(followUpMode,3,s.kind)}>{t(followUpMode==="learn"?"dailyPracticeAgain":"dailyIndependentNext")}</button>:<button className="btn primary" onClick={onBack}>{t("exBack")}</button>}
+        {followUpMode&&<button className="btn" onClick={onBack}>{t("exBack")}</button>}
+        <button className="btn text" onClick={()=>{session.current=null;redraw();}}>{t("exNewRound")}</button>
+      </div>
+      <p role="status">{t(s.saved?"exSaved":"exSaveError")}</p>
+      <details className="exercise-result-detail"><summary>{t("dailyRoundDetails")}</summary><p className="small muted">{t("pathNewForm")}</p>
+        <table><thead><tr><th>{t("exForm")}</th><th>{t("pathWrong")}</th>{auditory&&<th>{t("dailyAudioRequests")}</th>}</tr></thead><tbody>{s.done.map((q,i)=><tr key={i}><td>{i+1} · {s.kind==="rhythm"?t("exBeats").replace("{count}",String(s.questions[i].beats)):s.questions[i].pitches.map(noteName).join(" → ")}<small className="muted"> · {t(q.unseen===true?"exExposure":q.unseen===false?"exKnown":"exUnknown")}{q.helped?` · ${t("exHintUsed")}`:""}</small></td><td>{q.wrong}</td>{auditory&&<td>{q.plays}</td>}</tr>)}</tbody></table>
+        {auditory&&<p className="small muted">{t("dailyAudioAttemptsHint")}</p>}
+      </details>
+    </div>;
+  }
+const q=s.questions[s.index],auditory=s.kind==="direction"||s.kind==="melody",helped=s.trial?.helped??s.mode==="learn";
   return <div className="exercise-focus" ref={heading} tabIndex={-1}><header><button className="btn text" onClick={()=>{pause();onBack();}}>{t("exReturn")}</button><span className="exercise-status">{s.index+1} / {s.questions.length}</span><button className="btn" onClick={pause}>{t("exPause")}</button></header>
-    {s.phase==="paused"?<section className="exercise-question"><h1>{t("exPaused")}</h1><p>{t("exResumeHint")}</p><label><input type="checkbox" checked={keyboard} onChange={(e)=>setKeyboard(e.target.checked)} />{t("exShowKeyboard")}</label><button className="btn primary" onClick={()=>{s.input=sequenceStart();s.phase=auditory?"ready":"answer";redraw();}}>{t("exResume")}</button></section>:<>
+    {s.phase==="paused"?<section className="exercise-question"><h1>{t("exPaused")}</h1><p>{t("exResumeHint")}</p>{(s.kind==="phrase"||s.kind==="melody")&&<label><input type="checkbox" checked={keyboard} onChange={(e)=>setKeyboard(e.target.checked)} />{t("exShowKeyboard")}</label>}<button className="btn primary" onClick={()=>{s.input=sequenceStart();s.phase=s.trial?.finished?"feedback":auditory?"ready":"answer";redraw();}}>{t("exResume")}</button></section>:<>
     <section className="exercise-question"><span className="eyebrow">{t(exerciseTitles[s.kind])} · {t(!s.sourceKnown?"exNoInput":s.simulated?"pathSim":"pathReal")}</span><h1>{t(({direction:"exAnswerDirection",melody:"exAnswerMelody",phrase:"exAnswerPhrase",rhythm:"exAnswerRhythm"} as const)[s.kind])}</h1>
       {s.kind==="phrase"&&<PhraseStaff pitches={q.pitches} label={t("exAnswerPhrase")} />}
       {s.kind==="rhythm"&&<RhythmNote beats={q.beats??1} label={t("exAnswerRhythm")} />}
@@ -108,7 +135,7 @@ export default function Exercises({t,initialKind,onBack,onFocusChange}:Props){
       {(s.kind==="melody"||s.kind==="phrase")&&s.phase==="answer"&&<span className="exercise-status">{s.input.cursor} / {q.pitches.length} · {t("exInstruction")}</span>}
     </section>
     <div className="exercise-feedback" role="status" aria-live="polite">{s.feedback?t(s.feedback==="good"?"exGood":"exWrong"):s.phase==="ready"?t("exListenFirst"):""}</div>
-    {s.phase==="feedback"?<div className="exercise-controls"><button className="btn primary" onClick={next}>{t(s.index===s.questions.length-1?"exFinish":"exNext")}</button></div>:<>
+    {s.phase==="feedback"?<div className="exercise-controls"><button ref={nextButton} className="btn primary" onClick={next}>{t(s.index===s.questions.length-1?"exFinish":"exNext")}</button></div>:<>
       {keyboard&&(s.kind==="melody"||s.kind==="phrase")&&s.phase==="answer"&&<div><span className="small muted">{t("exShowKeyboard")}</span><PianoKeyboard low={60} high={67} held={s.input.held} onPress={(p)=>screenInput(p,true)} onRelease={(p)=>screenInput(p,false)} /></div>}
       {helped&&s.kind!=="direction"&&s.kind!=="rhythm"&&s.phase!=="playing"&&<p className="small muted" style={{textAlign:"center"}}>{t("exNoteNames")}: {q.pitches.map(noteName).join(" → ")}</p>}
       {helped&&(s.kind==="direction"||s.kind==="rhythm")&&s.phase!=="playing"&&<p className="small muted" style={{textAlign:"center"}}>{t(helpKeys[s.kind])}</p>}

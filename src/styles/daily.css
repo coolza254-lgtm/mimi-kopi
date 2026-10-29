@@ -1,0 +1,33 @@
+.daily-page { width: 100%; gap: 28px; }
+.daily-hero { grid-template-columns: minmax(0, 1fr) 225px; padding: 30px 32px; gap: 28px; }
+.daily-hero h2 { font-size: clamp(26px, 2.8vw, 37px); margin: 8px 0; letter-spacing: -.02em; }
+.daily-hero .daily-reason { color: var(--text); margin-top: 13px; max-width: 520px; }
+.daily-round-label { display: block; color: var(--muted); font-size: 12px; margin: 18px 0; }
+.daily-size { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; border: 0; margin: 20px 0; }
+.daily-size legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.daily-size label { cursor: pointer; position: relative; }
+.daily-size input { position: absolute; opacity: 0; }
+.daily-size span { display: block; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; }
+.daily-size input:checked + span { color: var(--text); background: var(--surface-2); border-color: var(--muted); }
+.daily-size input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 3px; }
+.daily-evidence { color: var(--muted); font-size: 11px; margin-top: 18px; }
+.daily-evidence p { font-size: 11px; margin-top: 5px; }
+.daily-source { display: block; font-size: 11px; color: var(--muted); margin: -6px 0 16px; }
+.daily-below { display: grid; grid-template-columns: minmax(0, 1fr) minmax(245px, .72fr); gap: 28px; align-items: start; }
+.daily-options > h2 { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
+.daily-options > button { display: flex; gap: 15px; width: 100%; padding: 17px 4px; text-align: left; background: transparent; color: var(--text); border: 0; border-bottom: 1px solid var(--line); cursor: pointer; align-items: center; }
+.daily-options > button:hover { background: var(--surface-2); }
+.daily-options > button > span { display: grid; gap: 2px; flex: 1; }
+.daily-options strong { font-size: 13px; font-weight: 550; }
+.daily-options small { color: var(--muted); font-size: 11px; }
+.daily-options .app-icon { width: 18px; color: var(--muted); }
+.daily-more { margin-top: 15px; font-size: 11px; color: var(--muted); }
+.daily-activity { border-top: 1px solid var(--line); margin-top: 17px; padding-top: 14px; }
+.daily-activity h3 { font-weight: 550; font-size: 12px; margin: 0 0 5px; }
+.daily-activity p { color: var(--muted); font-size: 12px; margin: 0; }
+.daily-activity strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.daily-activity small { display: block; margin-top: 7px; color: var(--muted); font-size: 10px; }
+.side { overflow-y: auto; }
+@media (max-width: 1050px) { .daily-hero { grid-template-columns: minmax(0, 1fr) 160px; padding: 24px; gap: 20px; } .daily-below { gap: 22px; } }
+@media (max-width: 760px) { .daily-hero { grid-template-columns: minmax(0, 1fr); } .daily-hero .practice-artwork { display: none; } .daily-below { grid-template-columns: minmax(0, 1fr); } }
+@media (max-height: 700px) and (min-width: 761px) { .side-space { height: 20px; } .side > .nav { margin-top: 10px; } .side { padding-top: 18px; padding-bottom: 16px; } .side-foot { padding-top: 18px; gap: 12px; } .daily-page { gap: 20px; } }

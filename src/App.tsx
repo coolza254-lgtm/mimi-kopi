@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import AppIcon, { type IconName } from "./components/AppIcon";
 import UpdateScreen from "./components/UpdateScreen";
 import type { Lesson } from "./features/lessons/lessons";
+import { courseChapters } from "./features/lessons/course";
+import type { LearningLaunchOptions } from "./features/lessons/learningPath";
+import { chapterPracticePlan, type PracticeIntent } from "./features/lessons/practiceNavigation";
 import { locales, type MessageKey } from "./i18n/messages";
 import { loadAudioPrefs, saveAudioPrefs } from "./lib/audioPrefs";
 import { backend, inDesktopApp, type AppInfo } from "./lib/backend";
@@ -15,6 +18,7 @@ import SoundMidi from "./pages/SoundMidi";
 import Today from "./pages/Today";
 import Skills from "./pages/Skills";
 import Learn from "./pages/Learn";
+import PracticePrograms from "./pages/PracticePrograms";
 
 type Page = "today" | "learn" | "practice" | "skills" | "free" | "editor" | "sound" | "settings";
 
@@ -55,6 +59,10 @@ export default function App() {
   const [page, setPage] = useState<Page>("today");
   const [initialLesson, setInitialLesson] = useState<Lesson | null>(null);
   const [practiceVisit, setPracticeVisit] = useState(0);
+  const [practiceIntent, setPracticeIntent] = useState<PracticeIntent | null>(null);
+  const [learnStep, setLearnStep] = useState<string>();
+  const [learnOptions, setLearnOptions] = useState<LearningLaunchOptions>();
+  const [learnVisit, setLearnVisit] = useState(0);
   const [practiceFocus, setPracticeFocus] = useState(false);
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [update, setUpdate] = useState<UpdateState>({ kind: "idle" });
@@ -66,13 +74,26 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
     mainRef.current?.focus({ preventScroll: true });
-  }, [page, practiceVisit]);
+  }, [page, practiceVisit, learnVisit]);
 
   const navigate = (target: Page, lesson: Lesson | null = null) => {
     setInitialLesson(lesson);
-    if (target === "practice") setPracticeVisit((visit) => visit + 1);
+    if (target === "practice") { setPracticeIntent(null); setPracticeVisit((visit) => visit + 1); }
+    if (target === "learn") { setLearnStep(undefined); setLearnOptions(undefined); setLearnVisit((visit) => visit + 1); }
     setPage(target);
   };
+
+  const openLearning = (stepId?: string, options?: LearningLaunchOptions) => {
+    navigate("learn");
+    setLearnStep(stepId);
+    setLearnOptions(options);
+  };
+  const openPractice = (intent?: PracticeIntent) => {
+    navigate("practice");
+    setPracticeIntent(intent ?? null);
+  };
+  const practiceChapter = practiceIntent?.kind === "chapter" ? courseChapters.find((chapter) => chapter.id === practiceIntent.chapterId) : undefined;
+  const chapterPractice = practiceChapter ? { plan: chapterPracticePlan(practiceChapter), title: t(practiceChapter.title), purpose: "practice" as const, onComplete: () => true } : undefined;
 
   const checkUpdate = useCallback(async () => {
     if (updateBusy.current) return;
@@ -183,9 +204,9 @@ export default function App() {
             onInstall={() => void install()}
           />
         ) : page === "learn" ? (
-          <Learn t={t} locale={settings.locale} onFocusChange={setPracticeFocus} onOpenSound={() => navigate("sound")} onSkills={()=>navigate("skills")} onPractice={()=>navigate("practice")} />
+          <Learn key={learnVisit} t={t} locale={settings.locale} initialStep={learnStep} initialExercise={learnOptions} onFocusChange={setPracticeFocus} onOpenSound={() => navigate("sound")} onSkills={()=>navigate("skills")} onPractice={openPractice} />
         ) : page === "skills" ? (
-          <Skills t={t} locale={settings.locale} onPractice={() => navigate("practice")} />
+          <Skills t={t} locale={settings.locale} onPractice={openPractice} />
         ) : page === "editor" ? (
           <NoteEditor t={t} locale={settings.locale} onFocusChange={setPracticeFocus} />
         ) : page === "free" ? (
@@ -193,11 +214,12 @@ export default function App() {
         ) : page === "sound" ? (
           <SoundMidi t={t} />
         ) : page === "practice" ? (
-          <Practice key={practiceVisit} t={t} locale={settings.locale} initialLesson={initialLesson} onOpenSound={() => navigate("sound")} onFocusChange={setPracticeFocus} />
+          practiceIntent ? <PracticePrograms key={practiceVisit} t={t} locale={settings.locale} initialConfig={practiceIntent.kind === "drill" ? practiceIntent.config : undefined} course={chapterPractice} onLegacy={() => openPractice()} onOpenSound={() => navigate("sound")} onFocusChange={setPracticeFocus} />
+            : <Practice key={practiceVisit} t={t} locale={settings.locale} initialLesson={initialLesson} onOpenSound={() => navigate("sound")} onFocusChange={setPracticeFocus} />
         ) : (
           <Today t={t} locale={settings.locale}
             onPractice={(lesson) => navigate("practice", lesson)}
-            onFreePlay={() => navigate("free")} onEditor={() => navigate("editor")} onSound={() => navigate("sound")} onLearn={()=>navigate("learn")} onSkills={()=>navigate("skills")} />
+            onFreePlay={() => navigate("free")} onEditor={() => navigate("editor")} onSound={() => navigate("sound")} onLearn={openLearning} onSkills={()=>navigate("skills")} />
         )}
       </main>
       </div>

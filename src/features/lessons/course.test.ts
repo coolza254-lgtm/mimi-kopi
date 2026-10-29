@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { chapterPlan, chapterStatus, chapterTargets, courseChapters, learningStatus, loadLearningProgress, saveChapterCompletion } from "./course";
+import { chapterPlan, chapterStatus, chapterTargets, courseChapters, learningStatus, loadLearningProgress, readLearningProgress, saveChapterCompletion } from "./course";
 import { advanceDrill, inputDrill, startDrill } from "./drills";
 import { drillRecord } from "./drillHistory";
 
@@ -43,4 +43,19 @@ it("requires a finished check, distinguishes simulation and keeps real completio
   raw = '{"keyboard":{"realAt":"invalid"},"injected":{"realAt":"2026-10-26"}}';
   expect(learningStatus(chapter, loadLearningProgress(storage))).toBe("new");
   raw = "not json"; expect(loadLearningProgress(storage)).toEqual({});
+});
+it("distinguishes no completion from an unreadable or invalid completion store", () => {
+  expect(readLearningProgress({ getItem: () => null })).toEqual({ ok: true, progress: {} });
+  expect(readLearningProgress({ getItem: () => "{}" })).toEqual({ ok: true, progress: {} });
+  expect(readLearningProgress({ getItem: () => { throw Error("Denied"); } })).toEqual({ ok: false });
+});
+it.each(["", "not json", "[]", "null", '{"keyboard":{"realAt":"invalid"}}', '{"keyboard":{"simulatedAt":"2026-10-26"},"bass":null}', '{"future-chapter":{"realAt":"2026-10-26"}}', " ".repeat(10001)])("never overwrites raw completion data when reading or validation fails (case %#)", (raw) => {
+  const chapter = courseChapters[0], plan = chapterPlan(chapter);
+  const record = drillRecord(plan, { ...startDrill(), step: 12, phase: "finished", trials: plan.targets.map((target) => ({ target: target.id, firstTry: true, wrong: 0 })) }, new Date("2026-10-26T10:00:00Z"), "new");
+  let value = raw, writes = 0;
+  const storage = { getItem: () => value, setItem: (_key: string, next: string) => { writes++; value = next; } };
+  expect(readLearningProgress(storage)).toEqual({ ok: false });
+  expect(saveChapterCompletion(chapter, record, storage)).toBe(false);
+  expect(value).toBe(raw);
+  expect(writes).toBe(0);
 });

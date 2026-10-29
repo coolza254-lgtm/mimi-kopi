@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { lessons } from "../features/lessons/lessons";
-import { recordFor } from "../features/lessons/progress";
+import { recordFor, recordRun } from "../features/lessons/progress";
 import { en } from "../i18n/messages";
 import type { MidiEvent } from "../lib/backend";
 import Practice, { LessonPlayer } from "./Practice";
@@ -161,6 +161,43 @@ describe("guided lesson experience", () => {
     }
     expect(screen.getByText(en.resultSaveFailed).getAttribute("role")).toBe("status");
     expect(screen.queryByText(en.resultNote)).toBeNull();
+    expect(screen.queryByText(en.newBest)).toBeNull();
     expect(screen.getByText("100%")).toBeTruthy();
+  });
+  it("preserves unreadable legacy history without showing a new best or an empty progress map", async () => {
+    const raw = '{"earlier-result":{"version":"broken"}}';
+    localStorage.setItem("mimi-kopi.lessons", raw);
+    await act(async () => render(<Practice t={(key) => en[key]} locale="en" initialLesson={lessons[0]} />));
+    expect(screen.getByRole("alert").textContent).toBe(en.pathLoadError);
+    fireEvent.click(screen.getByRole("button", { name: en.lessonStart }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    for (const step of lessons[0].steps) {
+      for (const pitch of step) await send(pitch);
+      for (const pitch of step) await send(pitch, false, "noteOff");
+    }
+    expect(screen.getByText(en.resultSaveFailed)).toBeTruthy();
+    expect(screen.queryByText(en.newBest)).toBeNull();
+    expect(localStorage.getItem("mimi-kopi.lessons")).toBe(raw);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.allLessons) }));
+    expect(screen.getByRole("alert").textContent).toBe(en.pathLoadError);
+    expect(screen.queryByText(en.overallLabel)).toBeNull();
+    localStorage.setItem("mimi-kopi.lessons", "{}");
+    fireEvent.click(screen.getByRole("button", { name: en.pathRetry }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getAllByText(en.overallLabel).length).toBeGreaterThan(0);
+  });
+  it("requires reloading an unreadable history before saving over a later repaired store", async () => {
+    localStorage.setItem("mimi-kopi.lessons", "broken");
+    await act(async () => render(<Practice t={(key) => en[key]} locale="en" initialLesson={lessons[0]} />));
+    const repaired = JSON.stringify(recordRun({}, lessons[1], { accuracy: 0.8, durationMs: 1000, simulated: false }, new Date("2026-10-26T10:00:00Z")));
+    localStorage.setItem("mimi-kopi.lessons", repaired);
+    fireEvent.click(screen.getByRole("button", { name: en.lessonStart }));
+    for (const step of lessons[0].steps) {
+      for (const pitch of step) await send(pitch);
+      for (const pitch of step) await send(pitch, false, "noteOff");
+    }
+    expect(localStorage.getItem("mimi-kopi.lessons")).toBe(repaired);
+    expect(screen.getByText(en.resultSaveFailed)).toBeTruthy();
+    expect(screen.queryByText(en.newBest)).toBeNull();
   });
 });

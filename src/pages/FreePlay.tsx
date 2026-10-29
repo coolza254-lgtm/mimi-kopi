@@ -13,6 +13,7 @@ interface Props {
 }
 
 const SCREEN_VELOCITY = 90;
+type SoundIssue = "status" | "midi" | "input" | "tone" | "gain" | "sound" | "storage";
 
 const touchOptions: { value: Touch; label: MessageKey; hint: MessageKey }[] = [
   { value: "natural", label: "touchNatural", hint: "touchNaturalHint" },
@@ -51,78 +52,136 @@ export default function FreePlay({ t, onOpenSound }: Props) {
   const [lastVelocity, setLastVelocity] = useState<number | null>(null);
   const [pedal, setPedal] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [issues, setIssues] = useState<Partial<Record<SoundIssue, boolean>>>({});
+  const [retrying, setRetrying] = useState(false);
+  const [connectionAttempt, setConnectionAttempt] = useState(0);
+  const live = useRef(true);
+  const lifetime = useRef(0);
+  const requestedSound = useRef<"basic" | "file" | null>(null);
   const screenHeld = useRef(new Set<number>());
   const savedFile = loadAudioPrefs().soundFontPath;
 
+  useEffect(() => { live.current = true; lifetime.current++; return () => { live.current = false; lifetime.current++; }; }, []);
+  const setIssue = useCallback((kind: SoundIssue, failed: boolean) => {
+    if (live.current) setIssues((current) => current[kind] === failed ? current : { ...current, [kind]: failed });
+  }, []);
+  const runNative = useCallback(async <T,>(kind: SoundIssue, action: () => Promise<T>): Promise<T | undefined> => {
+    const started = lifetime.current;
+    try {
+      const result = await action();
+      if (started === lifetime.current) setIssue(kind, false);
+      return result;
+    } catch {
+      if (started === lifetime.current) setIssue(kind, true);
+      return undefined;
+    }
+  }, [setIssue]);
+
   const feed = useCallback((e: MidiEvent) => {
+    if (!live.current) return;
     dispatch({ type: "event", event: e });
     if (e.kind === "noteOn" && e.velocity !== null) setLastVelocity(e.velocity);
   }, []);
-
-  useEffect(() => {
-    if (!desktop) return;
-    void backend.audioStatus().then(setAudio, () => undefined);
-    const subscriptions = [backend.onMidiEvent(feed), backend.onMidiReset(() => dispatch({ type: "reset" }))];
-    return () => subscriptions.forEach((p) => void p.then((unlisten) => unlisten()));
-  }, [desktop, feed]);
 
   const sendKey = useCallback(
     (pitch: number, down: boolean) => {
       if (down) screenHeld.current.add(pitch);
       else screenHeld.current.delete(pitch);
       if (desktop) {
-        void backend.midiSimulate(down ? [0x90, pitch, SCREEN_VELOCITY] : [0x80, pitch, 0]).catch(() => undefined);
+        void runNative("input", () => backend.midiSimulate(down ? [0x90, pitch, SCREEN_VELOCITY] : [0x80, pitch, 0]));
       } else {
         feed(simulatedEvent(pitch, down, SCREEN_VELOCITY));
       }
     },
-    [desktop, feed],
+    [desktop, feed, runNative],
   );
 
-  // Losing focus mid-click must not leave an on-screen key or pedal stuck.
+  const releaseScreenInput = useCallback(() => {
+    [...screenHeld.current].forEach((p) => sendKey(p, false));
+    if (live.current) setPedal(false);
+    if (desktop) void runNative("input", () => backend.midiSimulate([0xb0, 64, 0]));
+  }, [desktop, sendKey, runNative]);
+
   useEffect(() => {
-    const onBlur = () => [...screenHeld.current].forEach((p) => sendKey(p, false));
-    window.addEventListener("blur", onBlur);
-    return () => window.removeEventListener("blur", onBlur);
-  }, [sendKey]);
+    if (!desktop) return;
+    let active = true;
+    let connected = 0;
+    void backend.audioStatus().then((status) => {
+      if (active) { setAudio(status); setIssue("status", !!status.error); }
+    }, () => { if (active) setIssue("status", true); });
+    const subscriptions = [backend.onMidiEvent((event) => { if (active) feed(event); }), backend.onMidiReset(() => {
+      if (!active) return;
+      releaseScreenInput();
+      dispatch({ type: "reset" });
+    })];
+    subscriptions.forEach((p) => void p.then(() => {
+      connected++;
+      if (active && connected === subscriptions.length) setIssue("midi", false);
+    }, () => { if (active) setIssue("midi", true); }));
+    return () => {
+      active = false;
+      subscriptions.forEach((p) => void p.then((unlisten) => unlisten(), () => undefined));
+    };
+  }, [desktop, feed, releaseScreenInput, setIssue, connectionAttempt]);
 
-  useEffect(
-    () => () => {
-      if (desktop) void backend.midiSimulate([0xb0, 64, 0]).catch(() => undefined);
-    },
-    [desktop],
-  );
+  // Losing focus or leaving the page releases both on-screen keys and sustain.
+  useEffect(() => {
+    window.addEventListener("blur", releaseScreenInput);
+    return () => {
+      window.removeEventListener("blur", releaseScreenInput);
+      releaseScreenInput();
+    };
+  }, [releaseScreenInput]);
 
   const changeTone = (change: Partial<TonePrefs>) => {
     const next = { ...tone, ...change };
     setTone(next);
-    saveAudioPrefs({ tone: next });
-    if (desktop) void backend.audioSetTone(next).catch(() => undefined);
+    setIssue("storage", !saveAudioPrefs({ tone: next }));
+    if (desktop) void runNative("tone", () => backend.audioSetTone(next));
   };
 
   const changeVolume = (value: number) => {
     setVolume(value);
-    saveAudioPrefs({ master: value });
-    if (desktop) void backend.audioSetGain("master", value / 100).catch(() => undefined);
+    setIssue("storage", !saveAudioPrefs({ master: value }));
+    if (desktop) void runNative("gain", () => backend.audioSetGain("master", value / 100));
   };
 
   const togglePedal = () => {
     const on = !pedal;
     setPedal(on);
-    if (desktop) void backend.midiSimulate([0xb0, 64, on ? 127 : 0]).catch(() => undefined);
+    if (desktop) void runNative("input", () => backend.midiSimulate([0xb0, 64, on ? 127 : 0]));
   };
 
   const switchSound = async (kind: "basic" | "file") => {
     if (!desktop || switching) return;
+    requestedSound.current = kind;
     setSwitching(true);
     try {
-      if (kind === "basic") setAudio(await backend.audioUseBasic());
-      else if (savedFile) setAudio(await backend.audioLoadSoundFont(savedFile));
-    } catch {
-      // The status line keeps showing the sound that is still playing.
+      const status = await runNative("sound", () => kind === "basic" ? backend.audioUseBasic() : backend.audioLoadSoundFont(savedFile!));
+      if (live.current && status) { setAudio(status); setIssue("sound", !!status.error); }
     } finally {
-      setSwitching(false);
+      if (live.current) setSwitching(false);
     }
+  };
+
+  const retry = async () => {
+    if (retrying) return;
+    setRetrying(true);
+    if (issues.storage) setIssue("storage", !saveAudioPrefs({ tone, master: volume }));
+    if (issues.midi) setConnectionAttempt((attempt) => attempt + 1);
+    if (issues.input) setPedal(false);
+    if (desktop) {
+      await Promise.all([
+        runNative("status", () => backend.audioStatus()).then((status) => {
+          if (live.current && status) { setAudio(status); setIssue("status", !!status.error); }
+        }),
+        ...(issues.tone ? [runNative("tone", () => backend.audioSetTone(tone))] : []),
+        ...(issues.gain ? [runNative("gain", () => backend.audioSetGain("master", volume / 100))] : []),
+        ...(issues.input ? [runNative("input", () => backend.midiSimulate([0xb0, 64, 0]))] : []),
+        ...(issues.sound && requestedSound.current ? [switchSound(requestedSound.current)] : []),
+      ]);
+    }
+    if (live.current) setRetrying(false);
   };
 
   const held = view.held;
@@ -130,6 +189,7 @@ export default function FreePlay({ t, onOpenSound }: Props) {
   const usingFile = audio !== null && audio.instrument !== "basic";
   const fileName = savedFile?.split(/[\\/]/).pop() ?? null;
   const sustainOn = view.sustain || pedal;
+  const issue = (Object.keys(issues) as SoundIssue[]).find((kind) => issues[kind]);
 
   return (
     <div className="free">
@@ -140,6 +200,14 @@ export default function FreePlay({ t, onOpenSound }: Props) {
         </div>
         <span className="badge">{t("freeNoScore")}</span>
       </header>
+
+      {issue && <div className="notice error" role="alert">
+        <p>{t(issue === "storage" ? "freePrefsError" : issue === "midi" || issue === "input" ? "freeInputError" : "freeSoundError")}</p>
+        <div className="actions">
+          <button type="button" className="btn" disabled={retrying || switching} onClick={() => void retry()}>{t("freeRetry")}</button>
+          {issue !== "storage" && <button type="button" className="btn" onClick={onOpenSound}>{t("midiConnectionOpen")}</button>}
+        </div>
+      </div>}
 
       <div className="free-grid">
         <section className="card stage" aria-labelledby="stage-title">
@@ -186,7 +254,7 @@ export default function FreePlay({ t, onOpenSound }: Props) {
               disabled={!desktop}
               onClick={() => {
                 setPedal(false);
-                void backend.midiReleaseAll().catch(() => undefined);
+                void runNative("input", () => backend.midiReleaseAll());
               }}
             >
               {t("freeStopAll")}

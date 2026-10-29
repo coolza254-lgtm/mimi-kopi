@@ -59,9 +59,9 @@ function readTone(value: unknown): TonePrefs {
   };
 }
 
-export function loadAudioPrefs(storage: Pick<Storage, "getItem"> | undefined = globalThis.localStorage): AudioPrefs {
+export function loadAudioPrefs(storage?: Pick<Storage, "getItem">): AudioPrefs {
   try {
-    const raw = storage?.getItem(KEY);
+    const raw = (storage ?? globalThis.localStorage)?.getItem(KEY);
     if (!raw) return defaultAudioPrefs;
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     return {
@@ -78,11 +78,14 @@ export function loadAudioPrefs(storage: Pick<Storage, "getItem"> | undefined = g
 
 export function saveAudioPrefs(
   change: Partial<AudioPrefs>,
-  storage: Pick<Storage, "getItem" | "setItem"> | undefined = globalThis.localStorage,
-): void {
+  storage?: Pick<Storage, "getItem" | "setItem">,
+): boolean {
   try {
-    storage?.setItem(KEY, JSON.stringify({ ...loadAudioPrefs(storage), ...change }));
+    const target = storage ?? globalThis.localStorage;
+    if (!target) return false;
+    target.setItem(KEY, JSON.stringify({ ...loadAudioPrefs(target), ...change }));
+    return true;
   } catch {
-    // Unavailable or full storage only means the choice is not remembered.
+    return false;
   }
 }

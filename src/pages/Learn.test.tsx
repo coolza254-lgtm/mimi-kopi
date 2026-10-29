@@ -49,6 +49,46 @@ it("does not award completion when leaving a teaching step", () => {
   expect(screen.getAllByText(en.learnNew)).toHaveLength(8);
   expect(loadDrillHistory()).toHaveLength(0);
 });
+it("opens a requested chapter directly and falls back safely for an unknown step", () => {
+  const view = render(<Learn t={t} locale="en" initialStep="bass" />);
+  expect(screen.getByRole("img", { name: "C3" })).toBeTruthy();
+  expect(screen.queryByRole("list", { name: en.pathTitle })).toBeNull();
+  expect(localStorage.getItem("mimi-kopi.learning.v1")).toBeNull();
+  view.unmount();
+  render(<Learn t={t} locale="en" initialStep="missing-step" />);
+  expect(screen.getByRole("list", { name: en.pathTitle })).toBeTruthy();
+});
+it("opens a requested exercise with its intended mode and round length", () => {
+  render(<Learn t={t} locale="en" initialStep="phrase" initialExercise={{ mode: "check", count: 3 }} />);
+  expect((screen.getByRole("combobox", { name: en.pathScope }) as HTMLSelectElement).value).toBe("phrase");
+  expect((screen.getByRole("combobox", { name: en.exMode }) as HTMLSelectElement).value).toBe("check");
+  expect((screen.getByRole("combobox", { name: en.exCount }) as HTMLSelectElement).value).toBe("3");
+});
+it("retries unreadable path history after it is recovered without overwriting it", () => {
+  localStorage.setItem("mimi-kopi.drill-history.v1", "broken-test-history");
+  render(<Learn t={t} locale="en" />);
+  expect(screen.getByRole("alert").textContent).toBe(en.pathLoadError);
+  expect(localStorage.getItem("mimi-kopi.drill-history.v1")).toBe("broken-test-history");
+  localStorage.setItem("mimi-kopi.drill-history.v1", "[]");
+  fireEvent.click(screen.getByRole("button", { name: en.pathRetry }));
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByRole("list", { name: en.pathTitle })).toBeTruthy();
+});
+it("passes the selected bass chapter as a focused practice intent", () => {
+  const practice = vi.fn();
+  render(<Learn t={t} locale="en" onPractice={practice} />);
+  fireEvent.click(within(screen.getByRole("list", { name: en.pathTitle })).getByRole("button", { name: new RegExp(en.learnBass) }));
+  fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${en.pathPractice}`) }));
+  expect(practice).toHaveBeenCalledWith({ kind: "chapter", chapterId: "bass" });
+});
+it("can practise the chapter being explained without marking its assessment complete", () => {
+  const practice = vi.fn();
+  render(<Learn t={t} locale="en" initialStep="bass" onPractice={practice} />);
+  fireEvent.click(screen.getByRole("button", { name: en.pathPractice }));
+  expect(practice).toHaveBeenCalledWith({ kind: "chapter", chapterId: "bass" });
+  expect(loadDrillHistory()).toHaveLength(0);
+  expect(localStorage.getItem("mimi-kopi.learning.v1")).toBeNull();
+});
 it("uses one playable keyboard for the chord infographic and supports latched simulated chords", () => {
   render(<Learn t={t} locale="en" />);
   openChapter(en.learnChords);

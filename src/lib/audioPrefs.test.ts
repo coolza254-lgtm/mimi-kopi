@@ -45,8 +45,9 @@ describe("audio prefs", () => {
     expect(prefs.tone).toEqual({ touch: defaultTone.touch, fixedVelocity: 1, reverb: 0, brightness: 13 });
   });
 
-  it("ignores storage write failures", () => {
+  it("reports storage write failures without throwing", () => {
     const broken = { getItem: () => null, setItem: () => { throw new Error("full"); } };
-    expect(() => saveAudioPrefs({ outputDevice: "x" }, broken)).not.toThrow();
+    expect(saveAudioPrefs({ outputDevice: "x" }, broken)).toBe(false);
+    expect(saveAudioPrefs({ outputDevice: "x" }, memoryStorage())).toBe(true);
   });
 });

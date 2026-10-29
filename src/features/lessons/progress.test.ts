@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { lessons } from "./lessons";
-import { loadProgress, nextLesson, recordFor, recordRun, saveProgress, stars, type Progress } from "./progress";
+import { loadProgress, nextLesson, readProgress, recordFor, recordRun, saveProgress, stars, type Progress } from "./progress";
 
 const lesson = lessons[0];
 const now = new Date("2026-10-25T12:00:00Z");
@@ -54,21 +54,37 @@ describe("lesson progress", () => {
     expect(nextLesson(lessons, p)).toBe(lessons[1]);
   });
 
-  it("round-trips through storage and drops bad records", () => {
+  it("round-trips existing records and distinguishes an invalid store from empty progress", () => {
     const storage = memoryStorage();
     const p = recordRun({}, lesson, { accuracy: 0.9, durationMs: 5000, simulated: false }, now);
     expect(saveProgress(p, storage)).toBe(true);
     expect(loadProgress(storage)).toEqual(p);
     const bad = JSON.stringify({ a: { version: "x" }, b: 3, c: { version: 1, pianoRuns: -2, bestAccuracy: 7 } });
-    expect(loadProgress({ getItem: () => bad })).toEqual({
-      c: { version: 1, pianoRuns: 0, screenRuns: 0, bestAccuracy: 1, bestTimeMs: null, lastPlayedAt: null },
-    });
+    expect(readProgress(storage)).toEqual({ ok: true, progress: p });
+    expect(readProgress({ getItem: () => bad })).toEqual({ ok: false });
+    expect(loadProgress({ getItem: () => bad })).toEqual({});
     expect(loadProgress({ getItem: () => "{oops" })).toEqual({});
+    expect(readProgress({ getItem: () => null })).toEqual({ ok: true, progress: {} });
+    expect(readProgress({ getItem: () => "{}" })).toEqual({ ok: true, progress: {} });
+    expect(readProgress({ getItem: () => { throw Error("Denied"); } })).toEqual({ ok: false });
+  });
+
+  it.each(["", "broken", "[]", "null", '{"a":{"version":"x"}}', JSON.stringify({ a: recordFor({}, lesson), b: { ...recordFor({}, lesson), screenRuns: -1 } }), " ".repeat(3000001)])("never overwrites raw lesson history when any record cannot be read or validated (case %#)", (raw) => {
+    let value = raw, writes = 0;
+    const storage = { getItem: () => value, setItem: (_key: string, next: string) => { writes++; value = next; } };
+    const progress = recordRun({}, lesson, { accuracy: 0.9, durationMs: 5000, simulated: false }, now);
+    expect(readProgress(storage)).toEqual({ ok: false });
+    expect(saveProgress(progress, storage)).toBe(false);
+    expect(value).toBe(raw);
+    expect(writes).toBe(0);
   });
 
   it("reports a failed write while keeping the completed result intact", () => {
     const progress = recordRun({}, lesson, { accuracy: 0.9, durationMs: 5000, simulated: false }, now);
-    expect(saveProgress(progress, { setItem: () => { throw new Error("Storage full"); } })).toBe(false);
+    expect(saveProgress(progress, { getItem: () => null, setItem: () => { throw new Error("Storage full"); } })).toBe(false);
+    let writes = 0;
+    expect(saveProgress(progress, { getItem: () => { throw Error("Denied"); }, setItem: () => { writes++; } })).toBe(false);
+    expect(writes).toBe(0);
     expect(recordFor(progress, lesson)).toMatchObject({ pianoRuns: 1, bestAccuracy: 0.9 });
   });
 });

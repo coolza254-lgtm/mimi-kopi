@@ -3,6 +3,7 @@ import type { DrillRecord } from "./drillHistory";
 import type { ExerciseKind, ExerciseRecord, ExerciseTrial } from "./exercises";
 import type { MessageKey } from "../../i18n/messages";
 export type PathStep={id:string;chapter?:string;exercise?:ExerciseKind;title:MessageKey;goal:MessageKey};
+export type LearningLaunchOptions = { mode: "learn" | "check"; count: number };
 export const learningPath:readonly PathStep[]=[
  {id:"keyboard",chapter:"keyboard",title:"learnKeyboard",goal:"learnKeyboardIntro"},
  {id:"direction",exercise:"direction",title:"exDirection",goal:"exDirectionHelp"},
@@ -19,7 +20,7 @@ export function pathStepStatus(step:PathStep,progress:LearningProgress,drills:Dr
  return rounds.some((r)=>!r.simulated)?"completed":rounds.length?"simulated":"new";
 }
 export function nextPathStep(progress:LearningProgress,drills:DrillRecord[],exercises:ExerciseRecord[]):PathStep{
- return learningPath.find((s)=>pathStepStatus(s,progress,drills,exercises)==="new")??learningPath[0];
+ return learningPath.find((s)=>pathStepStatus(s,progress,drills,exercises)==="new")??learningPath.find((s)=>s.id==="phrase")!;
 }
 export function independentTrial(trial:ExerciseTrial,kind:ExerciseKind):boolean{
  return trial.finished&&!trial.helped&&trial.wrong===0&&((kind==="melody"||kind==="direction")?trial.plays===1:true);

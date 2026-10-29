@@ -168,9 +168,45 @@ function readSong(value: unknown): Song | null {
   };
 }
 
-export function loadSongs(storage: Pick<Storage, "getItem"> | undefined = globalThis.localStorage): Song[] {
+export type SongReadResult = { ok: true; songs: Song[] } | { ok: false; raw: string | null };
+
+/** The editor must not replace unreadable or partially damaged songs with an empty library. */
+export function readSongs(storage?: Pick<Storage, "getItem">): SongReadResult {
+  let raw: string | null = null;
   try {
-    const raw = storage?.getItem(KEY);
+    const target = storage ?? globalThis.localStorage;
+    if (!target) return { ok: false, raw };
+    raw = target.getItem(KEY);
+    if (raw === null) return { ok: true, songs: [] };
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return { ok: false, raw };
+    const songs: Song[] = [];
+    const ids = new Set<string>();
+    for (const value of parsed) {
+      const song = readSong(value);
+      if (!song || ids.has(song.id)) return { ok: false, raw };
+      const source = value as Record<string, unknown>;
+      const originalNotes = source.notes as Record<string, unknown>[];
+      // Recovery is explicit: never silently drop notes or alter stored settings on open.
+      const changed = Object.keys(source).length !== Object.keys(song).length || Object.entries(song).some(([key, field]) => key === "notes"
+        ? originalNotes.length !== song.notes.length || song.notes.some((note, i) => {
+          const original = originalNotes[i];
+          return Object.keys(original).length !== Object.keys(note).length || Object.entries(note).some(([name, part]) => original[name] !== part);
+        })
+        : source[key] !== field);
+      if (changed) return { ok: false, raw };
+      ids.add(song.id);
+      songs.push(song);
+    }
+    return { ok: true, songs };
+  } catch {
+    return { ok: false, raw };
+  }
+}
+
+export function loadSongs(storage?: Pick<Storage, "getItem">): Song[] {
+  try {
+    const raw = (storage ?? globalThis.localStorage)?.getItem(KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? parsed.map(readSong).filter((s): s is Song => s !== null) : [];
@@ -179,10 +215,15 @@ export function loadSongs(storage: Pick<Storage, "getItem"> | undefined = global
   }
 }
 
-export function saveSongs(songs: Song[], storage: Pick<Storage, "setItem"> | undefined = globalThis.localStorage): void {
+export function saveSongs(songs: Song[], storage?: Pick<Storage, "getItem" | "setItem">): boolean {
   try {
-    storage?.setItem(KEY, JSON.stringify(songs));
+    const target = storage ?? globalThis.localStorage;
+    if (!target || !readSongs(target).ok) return false;
+    const encoded = JSON.stringify(songs);
+    if (!readSongs({ getItem: () => encoded }).ok) return false;
+    target.setItem(KEY, encoded);
+    return true;
   } catch {
-    // Storage can be unavailable or full; the editor keeps working in memory.
+    return false;
   }
 }

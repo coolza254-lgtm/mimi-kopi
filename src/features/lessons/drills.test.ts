@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { advanceDrill, chordTargets, createDrillPlan, inputDrill, pauseDrill, resetDrillInput, resumeDrill, startDrill, type DrillConfig } from "./drills";
-import { appendDrillHistory, comparableChecks, drillRecord, firstTryRate, loadDrillHistory, weakTargets } from "./drillHistory";
+import { appendDrillHistory, comparableChecks, drillRecord, firstTryRate, HISTORY_LIMIT, loadDrillHistory, readDrillHistory, weakTargets } from "./drillHistory";
 
 const config: DrillConfig = { kind: "notes", level: 1, count: 12, mode: "check" };
 const note = (pitch: number, kind: "noteOn" | "noteOff" = "noteOn", simulated = false) => ({ pitch, kind, simulated, timeMs: 0 });
@@ -69,6 +69,33 @@ describe("drill history", () => {
     expect(weakTargets(record)).toEqual([{ id: plan.targets[0].id, wrong: 2 }]);
     expect(appendDrillHistory(record, { ...storage, setItem: () => { throw new Error("Full"); } })).toBe(false);
     expect(loadDrillHistory({ getItem: () => JSON.stringify([{ ...record, trials: [{ target: "x", firstTry: true, wrong: 1 }] }]) })).toEqual([]);
+  });
+  it("distinguishes missing and empty history from an unreadable store", () => {
+    expect(readDrillHistory({ getItem: () => null })).toEqual({ ok: true, records: [] });
+    expect(readDrillHistory({ getItem: () => "[]" })).toEqual({ ok: true, records: [] });
+    expect(readDrillHistory({ getItem: () => { throw Error("Denied"); } })).toEqual({ ok: false });
+    let writes = 0;
+    expect(appendDrillHistory(record, { getItem: () => { throw Error("Denied"); }, setItem: () => { writes++; } })).toBe(false);
+    expect(writes).toBe(0);
+  });
+  it.each(["", "broken", "{}", "null", JSON.stringify([record, { ...record, trials: [{ target: "x", firstTry: true, wrong: 1 }] }]), " ".repeat(3000001)])("preserves all raw history when any part cannot be read or validated (case %#)", (raw) => {
+    let value = raw;
+    let writes = 0;
+    const storage = { getItem: () => value, setItem: (_key: string, next: string) => { writes++; value = next; } };
+    expect(readDrillHistory(storage)).toEqual({ ok: false });
+    expect(appendDrillHistory(record, storage)).toBe(false);
+    expect(value).toBe(raw);
+    expect(writes).toBe(0);
+  });
+  it("keeps the documented rolling limit without dropping invalid records silently", () => {
+    let value = JSON.stringify(Array.from({ length: HISTORY_LIMIT }, (_, i) => ({ ...record, id: String(i) })));
+    const storage = { getItem: () => value, setItem: (_key: string, next: string) => { value = next; } };
+    expect(appendDrillHistory({ ...record, id: "next" }, storage)).toBe(true);
+    const loaded = readDrillHistory(storage);
+    if (!loaded.ok) throw Error("Expected readable history");
+    expect(loaded.records).toHaveLength(HISTORY_LIMIT);
+    expect(loaded.records[0].id).toBe("1");
+    expect(loaded.records.at(-1)).toEqual({ ...record, id: "next" });
   });
   it("compares only complete identical check rounds with matching simulation labels", () => {
     const next = { ...record, id: "two" };

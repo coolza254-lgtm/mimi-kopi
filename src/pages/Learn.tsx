@@ -5,19 +5,23 @@ import ReadingStaff from "../components/ReadingStaff";
 import LearningPath from "../components/LearningPath";
 import Exercises from "./Exercises";
 import type { ExerciseKind } from "../features/lessons/exercises";
-import { chapterPlan, chapterTargets, saveChapterCompletion, type CourseChapter } from "../features/lessons/course";
+import { chapterPlan, chapterTargets, courseChapters, saveChapterCompletion, type CourseChapter } from "../features/lessons/course";
 import type { DrillRecord } from "../features/lessons/drillHistory";
 import type { DrillTarget } from "../features/lessons/drills";
+import { learningPath, type LearningLaunchOptions } from "../features/lessons/learningPath";
+import type { PracticeIntent } from "../features/lessons/practiceNavigation";
 import { noteName } from "../features/midi/notes";
 import type { Locale, MessageKey } from "../i18n/messages";
 import { backend, inDesktopApp, type MidiEvent } from "../lib/backend";
 import PracticePrograms from "./PracticePrograms";
 import "../styles/learn.css";
 
-interface Props { t: (key: MessageKey) => string; locale: Locale; onFocusChange?: (focus: boolean) => void; onOpenSound?: () => void; onSkills?:()=>void; onPractice?:()=>void }
-export default function Learn({ t, locale, onFocusChange, onOpenSound, onSkills, onPractice }: Props) {
-  const [exercise,setExercise]=useState<ExerciseKind|null>(null);
-  const [chapter, setChapter] = useState<CourseChapter | null>(null);
+interface Props { t: (key: MessageKey) => string; locale: Locale; initialStep?: string; initialExercise?: LearningLaunchOptions; onFocusChange?: (focus: boolean) => void; onOpenSound?: () => void; onSkills?:()=>void; onPractice?:(intent: PracticeIntent)=>void }
+export default function Learn({ t, locale, initialStep, initialExercise, onFocusChange, onOpenSound, onSkills, onPractice }: Props) {
+  const entry = learningPath.find((item) => item.id === initialStep);
+  const [exercise,setExercise]=useState<ExerciseKind|null>(entry?.exercise ?? null);
+  const [chapter, setChapter] = useState<CourseChapter | null>(() => courseChaptersForEntry(entry?.chapter));
+  const [exerciseOptions, setExerciseOptions] = useState(initialExercise);
   const [step, setStep] = useState(0);
   const [solved, setSolved] = useState(false);
   const [assessment, setAssessment] = useState(false);
@@ -29,7 +33,7 @@ export default function Learn({ t, locale, onFocusChange, onOpenSound, onSkills,
   const solve = useCallback(() => setSolved(true), []);
   useEffect(() => { heading.current?.focus({ preventScroll: true }); window.scrollTo(0, 0); }, [chapter, step, assessment]);
   const back = () => { setAssessment(false); setChapter(null); };
-  if(exercise)return <Exercises key={exercise} initialKind={exercise} t={t} onBack={()=>setExercise(null)} onFocusChange={onFocusChange} />;
+  if(exercise)return <Exercises key={exercise} initialKind={exercise} initialMode={exerciseOptions?.mode} initialCount={exerciseOptions?.count} t={t} onBack={()=>{setExercise(null);setExerciseOptions(undefined);}} onFocusChange={onFocusChange} />;
   if (assessment && course) return <PracticePrograms t={t} locale={locale} course={course} onLegacy={back} onFocusChange={onFocusChange} onOpenSound={onOpenSound} />;
   if (chapter) {
     const target = targets[step];
@@ -40,11 +44,16 @@ export default function Learn({ t, locale, onFocusChange, onOpenSound, onSkills,
       <section className="learn-explanation"><span className="eyebrow">{t(chapter.title)}</span><h1 className="title" ref={heading} tabIndex={-1}>{t("learnTry").replace("{note}", target.name ?? noteName(target.pitches[0]))}</h1><p>{t(chapter.steps[step])}</p></section>
       <LearningExample key={`${chapter.id}:${step}`} chapter={chapter} target={target} t={t} onSolved={solve} />
       <footer className="learn-actions"><button className="btn text" disabled={step === 0} onClick={() => { setStep(step - 1); setSolved(false); }}>{t("learnPrevious")}</button>
+        {onPractice && <button className="btn text" onClick={() => onPractice({ kind: "chapter", chapterId: chapter.id })}>{t("pathPractice")}</button>}
         <div><span className="small muted">{!solved && t("learnContinueHint")}</span><button className="btn primary" disabled={!solved} onClick={() => { if (last) setAssessment(true); else { setStep(step + 1); setSolved(false); } }}>{t(last ? "learnAssessment" : "learnNext")}</button></div>
       </footer>
     </div>;
   }
-  return <LearningPath t={t} onChapter={(item)=>{setStep(0);setSolved(false);setChapter(item);}} onExercise={setExercise} onSkills={onSkills??(()=>{})} onPractice={onPractice??(()=>{})} />;
+  return <LearningPath t={t} onChapter={(item)=>{setStep(0);setSolved(false);setChapter(item);}} onExercise={(kind)=>{setExerciseOptions(undefined);setExercise(kind);}} onSkills={onSkills??(()=>{})} onPractice={onPractice??(()=>{})} />;
+}
+
+function courseChaptersForEntry(id?: string): CourseChapter | null {
+  return courseChapters.find((chapter) => chapter.id === id) ?? null;
 }
 
 function LearningExample({ chapter, target, t, onSolved }: { chapter: CourseChapter; target: DrillTarget; t: Props["t"]; onSolved: () => void }) {

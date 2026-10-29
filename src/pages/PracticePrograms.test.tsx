@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 import { StrictMode } from "react";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
 import { createDrillPlan, type DrillConfig } from "../features/lessons/drills";
+import { chapterPlan, courseChapters } from "../features/lessons/course";
 import { loadDrillHistory } from "../features/lessons/drillHistory";
 import { noteName } from "../features/midi/notes";
 import { en } from "../i18n/messages";
@@ -106,10 +107,62 @@ describe("focused practice programs", () => {
     expect(screen.getByRole("alert").textContent).toBe(en.resultSaveFailed);
     expect(loadDrillHistory()).toHaveLength(0);
   });
+  it.each(["broken", "[{}]"])("reports unreadable history and preserves it when another round ends (case %#)", (raw) => {
+    localStorage.setItem("mimi-kopi.drill-history.v1", raw);
+    render(<PracticePrograms t={t} locale="en" onLegacy={vi.fn()} />);
+    expect(screen.getByRole("alert").textContent).toBe(en.pathLoadError);
+    expect(screen.queryByText(en.drillEmpty)).toBeNull();
+    fireEvent.change(screen.getByLabelText(en.drillAmount), { target: { value: "12" } });
+    fireEvent.change(screen.getByLabelText(en.drillMode), { target: { value: "check" } });
+    fireEvent.click(screen.getByRole("button", { name: en.drillBegin }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    key(createDrillPlan(config, 0).targets[0].pitches[0]);
+    act(() => vi.advanceTimersByTime(450));
+    fireEvent.click(screen.getByRole("button", { name: en.drillPause }));
+    fireEvent.click(screen.getByRole("button", { name: en.drillEnd }));
+    expect(screen.getByText(en.resultSaveFailed)).toBeTruthy();
+    expect(screen.getByText(en.pathLoadError)).toBeTruthy();
+    expect(localStorage.getItem("mimi-kopi.drill-history.v1")).toBe(raw);
+  });
+  it("can reload history after the store becomes readable", () => {
+    localStorage.setItem("mimi-kopi.drill-history.v1", "broken");
+    render(<PracticePrograms t={t} locale="en" onLegacy={vi.fn()} />);
+    expect(screen.getByRole("alert")).toBeTruthy();
+    localStorage.setItem("mimi-kopi.drill-history.v1", "[]");
+    fireEvent.click(screen.getByRole("button", { name: en.pathRetry }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText(en.drillEmpty)).toBeTruthy();
+  });
+  it("opens the requested practice settings including a custom round length", () => {
+    render(<PracticePrograms t={t} locale="en" onLegacy={vi.fn()} initialConfig={{ kind: "chords", level: 2, count: 18, mode: "practice" }} />);
+    expect(screen.getByRole("button", { name: new RegExp(en.drillChords) }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByLabelText(en.drillLevel)).toHaveProperty("value", "2");
+    expect(screen.getByLabelText(en.drillMode)).toHaveProperty("value", "practice");
+    expect(screen.getByRole("spinbutton")).toHaveProperty("value", "18");
+    fireEvent.click(screen.getByRole("button", { name: en.drillBegin }));
+    expect(screen.getByText("1 / 18")).toBeTruthy();
+  });
+  it("keeps chapter-specific practice separate from assessments and never awards chapter completion", () => {
+    const chapter = courseChapters[2], assessment = chapterPlan(chapter), onComplete = vi.fn(() => true);
+    const plan = { ...assessment, key: "learn-practice-v1:bass:12", config: { ...assessment.config, mode: "practice" as const } };
+    render(<PracticePrograms t={t} locale="en" onLegacy={vi.fn()} initialConfig={{ kind: "chords" }} course={{ plan, title: en.learnBass, purpose: "practice", onComplete }} />);
+    expect(screen.getByRole("heading", { name: `${en.learnBass} · ${en.drillPractice}` })).toBeTruthy();
+    expect(screen.queryByText(en.learnCheckHint)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: en.drillBegin }));
+    for (const target of plan.targets) { key(target.pitches[0]); act(() => vi.advanceTimersByTime(450)); }
+    expect(onComplete).not.toHaveBeenCalled();
+    expect(localStorage.getItem("mimi-kopi.learning.v1")).toBeNull();
+    expect(loadDrillHistory()[0]).toMatchObject({ completed: true, simulated: true, key: plan.key, plan: { kind: "staff", mode: "practice" } });
+    expect(screen.getByText(en.drillPracticeResult)).toBeTruthy();
+    cleanup();
+    render(<PracticePrograms t={t} locale="en" onLegacy={vi.fn()} />);
+    expect(document.querySelector(".program-history li")?.textContent).toContain(en.learnBass);
+    expect(document.querySelector(".program-history li")?.textContent).not.toContain(en.drillLow);
+  });
   it("hides the app navigation only inside an active program and restores it after ending", () => {
     localStorage.setItem("mimi-kopi.settings", JSON.stringify({ locale: "en", theme: "dark", autoUpdate: false }));
     render(<App />);
-    fireEvent.click(screen.getByRole("button", { name: en.navPractice }));
+    fireEvent.click(within(screen.getByRole("navigation", { name: en.navSectionPractice })).getByRole("button", { name: en.navPractice }));
     fireEvent.click(screen.getByRole("button", { name: en.drillBegin }));
     expect(document.querySelector(".shell")?.getAttribute("data-focus")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: en.drillPause }));

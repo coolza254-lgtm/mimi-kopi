@@ -33,21 +33,29 @@ function valid(value: unknown): value is DrillRecord {
     && (!r.completed || r.trials.length === r.plan.count)
     && r.trials.every(validTrial) && (r.pending == null || (!r.completed && validTrial(r.pending)));
 }
-export function loadDrillHistory(storage?: Pick<Storage, "getItem">): DrillRecord[] {
+export type DrillHistoryRead = { ok: true; records: DrillRecord[] } | { ok: false };
+export function readDrillHistory(storage?: Pick<Storage, "getItem">): DrillHistoryRead {
   try {
-    const raw = (storage ?? globalThis.localStorage)?.getItem(KEY);
-    if (!raw || raw.length > 3000000) return [];
+    const raw = (storage ?? globalThis.localStorage).getItem(KEY);
+    if (raw === null) return { ok: true, records: [] };
+    if (raw.length > 3000000) return { ok: false };
     const data: unknown = JSON.parse(raw);
-    if (!Array.isArray(data)) return [];
-    return data.filter(valid).slice(-HISTORY_LIMIT);
-  } catch { return []; }
+    if (!Array.isArray(data) || !data.every(valid)) return { ok: false };
+    return { ok: true, records: data.slice(-HISTORY_LIMIT) };
+  } catch { return { ok: false }; }
+}
+export function loadDrillHistory(storage?: Pick<Storage, "getItem">): DrillRecord[] {
+  const result = readDrillHistory(storage);
+  return result.ok ? result.records : [];
 }
 export function appendDrillHistory(record: DrillRecord, storage?: Pick<Storage, "getItem" | "setItem">): boolean {
   try {
     if (!valid(record)) return false;
     const target = storage ?? globalThis.localStorage;
     if (!target) return false;
-    const history = loadDrillHistory(target).filter((r) => r.id !== record.id);
+    const loaded = readDrillHistory(target);
+    if (!loaded.ok) return false;
+    const history = loaded.records.filter((r) => r.id !== record.id);
     target.setItem(KEY, JSON.stringify([...history, record].slice(-HISTORY_LIMIT)));
     return true;
   } catch { return false; }

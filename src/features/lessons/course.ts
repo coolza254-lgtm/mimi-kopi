@@ -26,21 +26,24 @@ export function chapterStatus(chapter: CourseChapter, history: readonly DrillRec
 export interface ChapterCompletion { realAt?: string; simulatedAt?: string }
 export type LearningProgress = Record<string, ChapterCompletion>;
 const PROGRESS_KEY = "mimi-kopi.learning.v1";
-export function loadLearningProgress(storage?: Pick<Storage, "getItem">): LearningProgress {
+export type LearningProgressRead = { ok: true; progress: LearningProgress } | { ok: false };
+export function readLearningProgress(storage?: Pick<Storage, "getItem">): LearningProgressRead {
   try {
-    const raw = (storage ?? globalThis.localStorage)?.getItem(PROGRESS_KEY);
-    if (!raw || raw.length > 10000) return {};
+    const raw = (storage ?? globalThis.localStorage).getItem(PROGRESS_KEY);
+    if (raw === null) return { ok: true, progress: {} };
+    if (raw.length > 10000) return { ok: false };
     const data: unknown = JSON.parse(raw);
-    if (!data || typeof data !== "object" || Array.isArray(data)) return {};
-    const progress: LearningProgress = {};
-    for (const chapter of courseChapters) {
-      const item = (data as LearningProgress)[chapter.id];
-      if (!item || typeof item !== "object") continue;
-      const validDate = (value: unknown): value is string => typeof value === "string" && Number.isFinite(Date.parse(value));
-      progress[chapter.id] = { ...(validDate(item.realAt) ? { realAt: item.realAt } : {}), ...(validDate(item.simulatedAt) ? { simulatedAt: item.simulatedAt } : {}) };
-    }
-    return progress;
-  } catch { return {}; }
+    if (!data || typeof data !== "object" || Array.isArray(data)) return { ok: false };
+    const validDate = (value: unknown): value is string => typeof value === "string" && Number.isFinite(Date.parse(value));
+    const valid = Object.entries(data).every(([id, item]) => courseChapters.some((chapter) => chapter.id === id)
+      && item && typeof item === "object" && !Array.isArray(item)
+      && Object.entries(item).every(([key, value]) => ["realAt", "simulatedAt"].includes(key) && validDate(value)));
+    return valid ? { ok: true, progress: data as LearningProgress } : { ok: false };
+  } catch { return { ok: false }; }
+}
+export function loadLearningProgress(storage?: Pick<Storage, "getItem">): LearningProgress {
+  const result = readLearningProgress(storage);
+  return result.ok ? result.progress : {};
 }
 /** Durable chapter completion is independent of the rolling 200-round drill history. */
 export function saveChapterCompletion(chapter: CourseChapter, record: DrillRecord, storage?: Pick<Storage, "getItem" | "setItem">): boolean {
@@ -48,7 +51,9 @@ export function saveChapterCompletion(chapter: CourseChapter, record: DrillRecor
   try {
     const target = storage ?? globalThis.localStorage;
     if (!target) return false;
-    const progress = loadLearningProgress(target);
+    const loaded = readLearningProgress(target);
+    if (!loaded.ok) return false;
+    const progress = loaded.progress;
     progress[chapter.id] = { ...progress[chapter.id], [record.simulated ? "simulatedAt" : "realAt"]: record.at };
     target.setItem(PROGRESS_KEY, JSON.stringify(progress));
     return true;

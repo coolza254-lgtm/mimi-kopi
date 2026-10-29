@@ -6,7 +6,7 @@ import PianoKeyboard from "../components/PianoKeyboard";
 import { lessonGuide, lessonReview } from "../features/lessons/coaching";
 import { lessonRange, lessons, units, type Hand, type Lesson } from "../features/lessons/lessons";
 import {
-  loadProgress,
+  readProgress,
   played,
   recordFor,
   recordRun,
@@ -40,15 +40,19 @@ const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 export default function Practice({ t, locale, initialLesson = null, onOpenSound, onFocusChange }: Props) {
   const [lesson, setLesson] = useState<Lesson | null>(initialLesson);
   const [programs, setPrograms] = useState(!initialLesson);
-  const [progress, setProgress] = useState<Progress>(() => loadProgress());
+  const [progressData, setProgressData] = useState(readProgress);
+  const [progress, setProgress] = useState<Progress>(() => progressData.ok ? progressData.progress : {});
 
   useEffect(() => { window.scrollTo(0, 0); }, [lesson]);
 
   const finish = useCallback((done: Lesson, result: Parameters<typeof recordRun>[2]) => {
+    if (!progressData.ok) return false;
     const next = recordRun(progress, done, result, new Date());
-    setProgress(next);
-    return saveProgress(next);
-  }, [progress]);
+    const saved = saveProgress(next);
+    if (saved) setProgress(next);
+    else setProgressData(readProgress());
+    return saved;
+  }, [progress, progressData.ok]);
 
   if (!lesson && programs) return <PracticePrograms t={t} locale={locale} onOpenSound={onOpenSound} onFocusChange={onFocusChange} onLegacy={() => setPrograms(false)} />;
   if (lesson) {
@@ -58,6 +62,7 @@ export default function Practice({ t, locale, initialLesson = null, onOpenSound,
         key={lesson.id}
         lesson={lesson}
         record={recordFor(progress, lesson)}
+        historyAvailable={progressData.ok}
         next={lessons[index + 1] ?? null}
         t={t}
         locale={locale}
@@ -69,7 +74,8 @@ export default function Practice({ t, locale, initialLesson = null, onOpenSound,
       />
     );
   }
-  return <><button type="button" className="btn text" onClick={() => setPrograms(true)}>{t("drillExit")}</button><LessonMap t={t} locale={locale} progress={progress} onOpen={setLesson} /></>;
+  const reloadProgress = () => { const data = readProgress(); setProgressData(data); if (data.ok) setProgress(data.progress); };
+  return <><button type="button" className="btn text" onClick={() => setPrograms(true)}>{t("drillExit")}</button>{progressData.ok ? <LessonMap t={t} locale={locale} progress={progress} onOpen={setLesson} /> : <section className="card"><p role="alert">{t("pathLoadError")}</p><button className="btn" onClick={reloadProgress}>{t("pathRetry")}</button></section>}</>;
 }
 
 function Stars({ count, label }: { count: number; label: string }) {
@@ -231,9 +237,10 @@ interface PlayerProps extends Props {
   onFinish: (lesson: Lesson, result: { accuracy: number | null; durationMs: number | null; simulated: boolean }) => boolean;
   onOpen: (lesson: Lesson) => void;
   onBack: () => void;
+  historyAvailable?: boolean;
 }
 
-export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen, onBack, onOpenSound, onFocusChange }: PlayerProps) {
+export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen, onBack, onOpenSound, onFocusChange, historyAvailable = true }: PlayerProps) {
   const desktop = inDesktopApp();
   const [started, setStarted] = useState(false);
   const active = useRef(false);
@@ -335,7 +342,7 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
 
   const earned = run.simulated || result.accuracy === null ? 0 : starsFor(result.accuracy);
   const newBest =
-    !run.simulated && result.accuracy !== null && (before.bestAccuracy === null || result.accuracy > before.bestAccuracy);
+    historyAvailable && !saveFailed && !run.simulated && result.accuracy !== null && (before.bestAccuracy === null || result.accuracy > before.bestAccuracy);
 
   return (
     <div className={`lesson${started && !finished ? " lesson-active" : ""}${!desktop ? " simulator" : ""}`}>
@@ -353,6 +360,7 @@ export function LessonPlayer({ lesson, record, next, t, locale, onFinish, onOpen
         </div>
       </header>
       <p className="muted lesson-goal">{lesson.goal[locale]}</p>
+      {!historyAvailable && (!started || finished) && <p className="notice error" role="alert">{t("pathLoadError")}</p>}
 
       <MidiConnection t={t} onOpenSound={onOpenSound} />
 

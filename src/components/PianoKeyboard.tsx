@@ -1,4 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { isBlackKey, noteName, PIANO_HIGH, PIANO_LOW } from "../features/midi/notes";
 
 interface Props {
@@ -27,6 +27,9 @@ export default function PianoKeyboard({
   high = PIANO_HIGH,
 }: Props) {
   const down = useRef(new Set<number>());
+  const keys = useRef(new Map<number, HTMLButtonElement>());
+  const [focusedPitch, setFocusedPitch] = useState(() => Math.max(low, Math.min(high, 60)));
+  const tabPitch = Math.max(low, Math.min(high, focusedPitch));
   useEffect(() => { if (latch) down.current.forEach((p) => { if (!held.includes(p)) down.current.delete(p); }); }, [held, latch]);
   const pitches = Array.from({ length: high - low + 1 }, (_, i) => low + i);
   const whites = pitches.filter((p) => !isBlackKey(p));
@@ -50,18 +53,29 @@ export default function PianoKeyboard({
 
   const keyProps = (p: number) => ({
     type: "button" as const,
+    ref: (element: HTMLButtonElement | null) => { if (element) keys.current.set(p, element); else keys.current.delete(p); },
+    tabIndex: p === tabPitch ? 0 : -1,
     "aria-label": noteName(p),
     "aria-pressed": heldSet.has(p),
+    onFocus: () => setFocusedPitch(p),
     onPointerDown: (e: PointerEvent) => {
+      setFocusedPitch(p);
       e.currentTarget.setPointerCapture(e.pointerId);
       press(p);
     },
     onPointerUp: () => release(p),
     onPointerCancel: () => release(p),
     onKeyDown: (e: KeyboardEvent) => {
-      if ((e.key === " " || e.key === "Enter") && !e.repeat) {
+      const nextPitch = e.key === "ArrowLeft" ? Math.max(low, p - 1)
+        : e.key === "ArrowRight" ? Math.min(high, p + 1)
+          : e.key === "Home" ? low : e.key === "End" ? high : null;
+      if (nextPitch !== null) {
         e.preventDefault();
-        press(p);
+        setFocusedPitch(nextPitch);
+        keys.current.get(nextPitch)?.focus();
+      } else if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        if (!e.repeat) press(p);
       }
     },
     onKeyUp: (e: KeyboardEvent) => {

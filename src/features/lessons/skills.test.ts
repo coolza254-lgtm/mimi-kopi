@@ -25,3 +25,16 @@ it("distinguishes missing history from unreadable or malformed storage without w
   expect(readSkillData({getItem:()=>"{}"})).toEqual({ok:false});
   expect(readSkillData({getItem:()=>{throw Error("Denied");}})).toEqual({ok:false});
 });
+it("rejects one invalid drill inside an otherwise valid array instead of showing partial evidence", () => {
+  const raw = JSON.stringify([record("1"), { ...record("2"), simulated: "false" }]);
+  const storage = { getItem: (key: string) => key === "mimi-kopi.drill-history.v1" ? raw : null };
+  expect(readSkillData(storage)).toEqual({ ok: false });
+  expect(storage.getItem("mimi-kopi.drill-history.v1")).toBe(raw);
+});
+it("rejects malformed durable chapter data instead of treating it as no completion", () => {
+  expect(readSkillData({ getItem: (key: string) => key === "mimi-kopi.learning.v1" ? JSON.stringify({ bass: { realAt: "invalid-test-date" } }) : null })).toEqual({ ok: false });
+});
+it("rejects invalid legacy lesson data without silently normalising it", () => {
+  const raw = JSON.stringify({ "old-lesson": { version: 1, pianoRuns: "many", screenRuns: 0 } });
+  expect(readSkillData({ getItem: (key: string) => key === "mimi-kopi.lessons" ? raw : null })).toEqual({ ok: false });
+});

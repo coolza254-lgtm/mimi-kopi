@@ -57,3 +57,37 @@ it("stays paused when an outstanding audio request fails after pausing",async()=
  expect(screen.getByRole("button",{name:en.exResume})).toBeTruthy();
  expect(screen.queryByRole("button",{name:en.exUp})).toBeNull();
 });
+it("moves focus to feedback and advances released MIDI answers, while pause cancels the transition",async()=>{
+ vi.useFakeTimers();
+ try {
+  start("phrase");
+  pitches().forEach(key);
+  expect(document.activeElement).toBe(screen.getByRole("button",{name:en.exNext}));
+  act(()=>vi.advanceTimersByTime(700));
+  expect(screen.getByText("2 / 3")).toBeTruthy();
+  pitches().forEach(key);
+  fireEvent.click(screen.getByRole("button",{name:en.exPause}));
+  act(()=>vi.advanceTimersByTime(1400));
+  expect(screen.getByRole("heading",{name:en.exPaused})).toBeTruthy();
+  expect(screen.getByText("2 / 3")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button",{name:en.exResume}));
+  act(()=>vi.advanceTimersByTime(700));
+  expect(screen.getByText("3 / 3")).toBeTruthy();
+  cleanup();
+  act(()=>vi.runOnlyPendingTimers());
+ } finally { vi.useRealTimers(); }
+});
+it("offers a fresh independent short round after supported practice and keeps the earlier result",()=>{
+ render(<Exercises t={t} initialKind="phrase" initialMode="learn" initialCount={3} onBack={()=>{}} />);
+ fireEvent.click(screen.getByRole("button",{name:en.exStart}));
+ for(let i=0;i<3;i++){pitches().forEach(key);fireEvent.click(screen.getByRole("button",{name:i===2?en.exFinish:en.exNext}));}
+ fireEvent.click(screen.getByRole("button",{name:en.dailyIndependentNext}));
+ expect(screen.getByText("1 / 3")).toBeTruthy();
+ expect(screen.queryByText(new RegExp(en.exNoteNames))).toBeNull();
+ expect(screen.queryByLabelText(en.exMode)).toBeNull();
+ const nextNotes=pitches();nextNotes.forEach(key);
+ const data=readExercises();if(!data.ok)throw Error();
+ expect(data.data.records).toHaveLength(2);
+ expect(data.data.records.find((r)=>r.completed)).toMatchObject({mode:"learn",simulated:true});
+ expect(data.data.records.find((r)=>!r.completed)).toMatchObject({mode:"check",simulated:true});
+});

@@ -1,7 +1,7 @@
-import { chapterPlan, courseChapters, loadLearningProgress } from "./course";
-import { comparableChecks, loadDrillHistory, type DrillRecord } from "./drillHistory";
+import { chapterPlan, courseChapters, readLearningProgress } from "./course";
+import { comparableChecks, readDrillHistory, type DrillRecord } from "./drillHistory";
 import { createDrillPlan, type DrillKind } from "./drills";
-import { loadProgress } from "./progress";
+import { readProgress } from "./progress";
 
 export function skillScope(record: DrillRecord): string | null {
   const chapter = courseChapters.find((c) => chapterPlan(c).key === record.key);
@@ -20,13 +20,8 @@ export function skillEvidence(history: DrillRecord[], simulated: boolean, kind: 
 export function readSkillData(storage?: Pick<Storage, "getItem">) {
   try {
     const target=storage??globalThis.localStorage;
-    for (const [key, array] of [["mimi-kopi.drill-history.v1", true], ["mimi-kopi.learning.v1", false], ["mimi-kopi.lessons", false]] as const) {
-      const raw = target.getItem(key);
-      if (raw === null) continue;
-      if (raw.length > 3000000) throw new Error("Oversized history");
-      const data: unknown = JSON.parse(raw);
-      if (!data || typeof data !== "object" || Array.isArray(data) !== array) throw new Error("Invalid history");
-    }
-    return { ok: true as const, drills: loadDrillHistory(target), learning: loadLearningProgress(target), legacy: loadProgress(target) };
+    const history = readDrillHistory(target), learning = readLearningProgress(target), legacy = readProgress(target);
+    if (!history.ok || !learning.ok || !legacy.ok) return { ok: false as const };
+    return { ok: true as const, drills: history.records, learning: learning.progress, legacy: legacy.progress };
   } catch { return { ok: false as const }; }
 }
