@@ -7,7 +7,11 @@
 
 ## สถานะล่าสุด (2026-11-01)
 
-### 0.8.2 — เวลาละเอียดของโน้ต (กำลังตรวจและเผยแพร่)
+### เผยแพร่ 0.8.2 แล้ว — เวลาละเอียดของโน้ต
+
+- เผยแพร่ [v0.8.2](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.8.2) วันที่ 2026-11-01 เวลา 02:40:37 น. ไทย จาก main `a8824d25b6422a0ffb853d2e2438f442c2ec05fb` [CI 41234800784](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41234800784) ผ่านครบเว็บ/Rust/Windows และ [Release 41234800770](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41234800770) ผ่านครบ ไม่ push แทรกระหว่าง gate และเผยแพร่
+- ตรวจ latest endpoint ของแอปส่ง 0.8.2 มี exe/sig/manifest ไม่ใช่ draft/prerelease ดาวน์โหลดตัวติดตั้งจริง manifest signature ตรง sig และ Minisign ผ่านด้วย public key เดิมจาก `0aa40f1` ซึ่งตรง config ปัจจุบัน ไม่อ่าน private key ไม่กดติดตั้ง
+- `Mimi.Kopi_0.8.2_x64-setup.exe` ขนาด 3,574,606 bytes SHA-256 `a9156848a15501dc6a3d2e26abc8a0b3770eea9ed24acf49efe3dea671e2df02` ตรง GitHub digest พร้อมอัปเดตจากในแอป
 
 - ระหว่างตรวจไฟล์ส่วนตัวของเจ้าของ พบว่า 0.8.1 รับเฉพาะกริดและความยาวมาตรฐาน จึงรองรับ performance timing เพิ่มโดยไม่ปัดเวลา/ความยาว นำเข้า MIDI แล้วผ่าน schema JSON v2
 - JSON v1 ยังใช้ validation เดิม v2 รับ finite positive duration และ finite nonnegative start ภายในท้ายเพลง การส่งออกเลือก version 2 เฉพาะเพลงที่ต้องใช้เวลาละเอียด การอ่าน/เก็บในเครื่องไม่ปัดค่าแล้ว
@@ -15,11 +19,13 @@
 - MIDI tempo/meter map และ sustain ยังไม่รองรับ ไฟล์จากการวิเคราะห์วิดีโอใช้ฐานเวลาเดียวเก็บ wall-clock timing ในตัวโน้ต เพื่อคงความเร็วขึ้นลงโดยไม่ต้องทิ้งโน้ตหรือ quantize
 - งานส่วนตัวของเจ้าของและสคริปต์ตรวจวิดีโออยู่ภายนอกรีโปใน Downloads/piano-transcription/verified-two-pages ไม่มีเนื้อเพลง โน้ต วิดีโอ หรือ sample เสียงที่มีลิขสิทธิ์ใน source
 - ตรวจไฟล์ส่วนตัวจริงแล้ว MIDI/JSON 155 โน้ตให้ pitch/start/dur/hand ตรงกัน (เทียบ floating-point ถึง 10 ตำแหน่ง) และ export/reopen/storage ไม่เปลี่ยนข้อมูล เทสต์ชั่วคราวที่อ้างไฟล์ภายนอกลบก่อน commit ใช้เฉพาะข้อมูลสังเคราะห์ใน regression ประจำ
-- npm ci ผ่าน ไม่มี vulnerabilities; core fmt/clippy/56 tests และเว็บ typecheck/309 tests/39 files/build/3 release-helper tests ผ่านแล้วและจะดู CI/Release พร้อมตรวจ manifest/installer/signature ก่อนแจ้งพร้อมอัปเดต
+- Browser QA origin 1422 แยกจากข้อมูลเจ้าของ: นำเข้า MIDI/JSON จริงได้ เปิด editor ใหม่หลัง reload แล้วเลือกเพลง JSON กลับ พบ 155 note buttons และ notice เวลาละเอียด ไม่มี console error/warning ไม่กดเล่นหรือบันทึกผลฝึกจริง ปิดแท็บ QA และหยุด Vite PID17972 แล้ว ไม่แตะ origin ของเจ้าของ
+- npm ci ผ่าน ไม่มี vulnerabilities; core fmt/clippy/56 tests และเว็บ typecheck/309 tests/39 files/build/3 release-helper tests ผ่านแล้วCI/Release และการตรวจ updater ผ่านครบแล้ว
 
 ### งานต่อไป
 
-- ตรวจชุดทดสอบ push และรอ CI/Release 0.8.2 ตาม docs/RELEASING.md พร้อมบันทึกผลลง Handoff
+- งานไฟล์ส่วนตัวสองหน้าของเจ้าของเสร็จใน `C:/Users/Nekko/Downloads/piano-transcription/verified-two-pages/` มี MIDI/JSON v2/เสียงตรวจโน้ตสังเคราะห์/อ่านก่อน ไม่ได้ bundle ในแอป และไม่ใช่ MIDI ต้นฉบับที่รับรองความถูกต้อง 100%
+- ควรปรับพื้นที่ SVG สำหรับ ledger สูงของ editor ต่อ (โน้ตสูงชิดขอบบน) การแสดง glyph ยังเป็นภาพใกล้เคียง ไม่ใช่ engraving ต้นฉบับ
 - Native MIDI/เสียง/ติดตั้งจริงยังไม่ได้ทดสอบกับฮาร์ดแวร์ ความถูกต้องของการแกะวิดีโอไม่เท่ากับการเปิดไฟล์ได้ ควรให้เจ้าของเทียบคลิปด้วย
 
 ## ประวัติ 0.8.1 (2026-11-01)
