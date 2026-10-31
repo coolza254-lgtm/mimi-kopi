@@ -7,19 +7,24 @@
 
 ## สถานะล่าสุด (2026-11-01)
 
-### 0.8.1 — เพิ่มนำเข้า MIDI (กำลังตรวจและเผยแพร่)
+### เผยแพร่ 0.8.1 แล้ว — เพิ่มนำเข้า MIDI
+
+- เผยแพร่ [v0.8.1](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.8.1) วันที่ 2026-11-01 เวลา 02:00:46 น. ไทย จาก main `bed20be455bdcdfcab21468e757c79ced4d240a8` [CI 41231618274](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41231618274) ผ่านครบเว็บ/Rust/Windows และ [Release 41231618248](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41231618248) ผ่านครบ ไม่ push แทรกระหว่าง gate กับเผยแพร่
+- ตรวจ endpoint เดียวกับแอป `releases/latest/download/latest.json` เป็น 0.8.1 มี exe/sig/manifest ครบ ไม่ใช่ draft/prerelease ดาวน์โหลดตัวติดตั้งจริง ตรวจ manifest signature ตรงกับ sig และ Minisign ผ่านด้วย public key เดิมจาก `0aa40f1` ซึ่งยังตรงกับ config ปัจจุบัน ไม่อ่าน private key และไม่ได้กดติดตั้ง
+- `Mimi.Kopi_0.8.1_x64-setup.exe` ขนาด 3,568,757 bytes SHA-256 `2655307621c5deeaddc70c5036ff3104828b02eb05213696ef50218a13df3059` ตรงกับ GitHub digest พร้อมอัปเดตผ่านตั้งค่า → ตรวจหาอัปเดต → 0.8.1 แล้วนำเข้าในหน้าแกะโน้ต
 
 - เจ้าของเปิด MIDI ที่แกะจากภาพไม่ได้ เพราะ 0.8.0 รับเฉพาะ JSON เป็นข้อจำกัดของแอป ไม่ใช่หลักฐานว่า MIDI เสีย เพิ่ม parser format 0/1 PPQN แบบไม่ใช้ dependency และ native bounded binary reader บน worker
 - นำเข้า .mid/.midi เป็นเพลงใหม่ คง JSON backup เดิม ชื่อ Left/Right กำหนดมือก่อน fallback C4 มีข้อความสามภาษาให้ตรวจมือ ไม่เก็บ velocity/instruments/controllers ไม่อ้างว่าเดามือถูกเสมอ
 - ปฏิเสธไฟล์เสีย/โน้ตค้าง/format 2/SMPTE/tempo หรือ meter เปลี่ยน/เพดัล/pitch bend/percussion/จังหวะที่เก็บไม่ได้/นอกช่วง A0–C8 ไม่ quantize หรือกรองโน้ตทิ้งเงียบ ๆ ใช้ schema เดิมตรวจขาเข้าซ้ำก่อนเพิ่มเพลง
 - ไฟล์ผู้ใช้อยู่ Downloads/piano-transcription เท่านั้น ไม่ใส่เพลงในรีโป สร้าง piano-excerpt-draft.mimi.json ให้ใช้กับรุ่นเดิมได้ด้วย จังหวะในภาพมีข้อสงสัยตามที่แจ้งไว้เดิม
-- เพิ่ม 14 unit tests parser และ integration ว่านำเข้าล้มไม่ทับเพลงเดิม รวม Vitest 300/39 ไฟล์ ผ่านด้วย maxWorkers=2 (รอบ default ชน timeout สองเทสต์เดิมเมื่อรัน Rust build พร้อมกัน ไม่แก้หรือข้ามเทสต์) npm ci/typecheck/build/3 release-helper tests และ Rust fmt/core clippy/56 tests ผ่าน native clippy และ binary reader tests 4/4 ผ่านด้วย กำลังรอผล CI/Release
+- เพิ่ม 14 unit tests parser และ integration ว่านำเข้าล้มไม่ทับเพลงเดิม รวม Vitest 300/39 ไฟล์ ผ่านด้วย maxWorkers=2 (รอบ default ชน timeout สองเทสต์เดิมเมื่อรัน Rust build พร้อมกัน ไม่แก้หรือข้ามเทสต์) npm ci/typecheck/build/3 release-helper tests และ Rust fmt/core clippy/56 tests ผ่าน native clippy และ binary reader tests 4/4 ผ่านด้วย CI และ Release ผ่านครบแล้ว
 - ทดสอบไฟล์ MIDI ผู้ใช้จริงภายนอกรีโป อ่าน 66 โน้ต 80 BPM และเทียบ JSON แล้ว start/dur/pitch/hand ตรงทุกตัว ไม่ใส่ไฟล์ส่วนตัวลง source เทสต์ประจำใช้ MIDI สังเคราะห์เท่านั้น
-- ขณะตรวจพบการบันทึก encoding ทำให้ข้อความ Unicode ใน Rust test เปลี่ยน แก้คืนเป็นข้อความเดิมแล้ว native clippy ผ่าน ไม่ suppress lint
 
 ### งานต่อไป
 
-- ตรวจชุดทดสอบทั้งหมด push แล้วดู CI/Release 0.8.1 ตรวจ latest.json/exe/sig ด้วย public key เดิมตาม docs/RELEASING.md และบันทึกผล
+- งานนำเข้าไฟล์ MIDI ของเจ้าของเสร็จแล้ว ไฟล์จริงและ JSON สำรองอยู่ `C:/Users/Nekko/Downloads/piano-transcription/` ไม่อยู่ในรีโป
+- ถ้าขยาย MIDI import ต่อ ให้ทำ track mapping แบบเลือกเอง, tempo/meter map และ sustain โดยออกแบบ schema ก่อน ห้าม quantize/ทิ้งโน้ตเพื่อให้ดูว่านำเข้าสำเร็จ
+- จังหวะของท่อนที่แกะจากภาพยังเป็นฉบับร่าง ต้องมี PDF/เสียงอ้างอิงเพื่อยืนยัน ไม่ถือว่าการนำเข้าสำเร็จยืนยันการถอดโน้ตถูกต้อง
 - Native dialog/ติดตั้งและอุปกรณ์ MIDI จริงยังต้องให้เจ้าของตรวจ ไม่ถือว่า browser simulation เป็นผลจริง
 
 ## ประวัติ (2026-10-31)

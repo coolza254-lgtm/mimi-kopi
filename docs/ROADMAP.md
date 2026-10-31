@@ -1,4 +1,4 @@
-## เพิ่มเติม 2026-11-01 — MIDI import
+## เผยแพร่ 0.8.1 — MIDI import (2026-11-01)
 
 เพิ่ม MIDI format 0/1 ในหน้าแกะโน้ตแล้ว ใช้ตัวแก้โน้ตเดิม ฝึกมือซ้าย/ขวา/สองมือได้ นำเข้าเป็นเพลงใหม่เสมอ รองรับเฉพาะ fixed tempo/meter และความยาวตัวโน้ตที่เก็บได้ ไม่ใช่ Phase 3 MIDI library เต็มรูปแบบ ยังขาด track mapping แบบเลือกเอง, tempo map, sustain และ rhythm/latency calibration
 
