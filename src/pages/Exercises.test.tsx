@@ -6,6 +6,7 @@ import { readExercises, EXERCISE_KEY, type ExerciseKind } from "../features/less
 import { noteName } from "../features/midi/notes";
 import { en } from "../i18n/messages";
 import type { MidiEvent } from "../lib/backend";
+import { uiFeedback } from "../lib/uiFeedback";
 const {desktop,listeners,resets,play,stop,dispose,send}=vi.hoisted(()=>({desktop:vi.fn(()=>false),listeners:new Set<(e:MidiEvent)=>void>(),resets:new Set<()=>void>(),play:vi.fn(async()=>true),stop:vi.fn(),dispose:vi.fn(),send:vi.fn(async()=>{})}));
 vi.mock("../lib/exerciseAudio",()=>({ExerciseAudio:class{play=play;stop=stop;dispose=dispose;}}));
 vi.mock("../lib/backend",()=>({inDesktopApp:desktop,backend:{midiSimulate:send,onMidiEvent:async(cb:(e:MidiEvent)=>void)=>{listeners.add(cb);return()=>listeners.delete(cb);},onMidiReset:async(cb:()=>void)=>{resets.add(cb);return()=>resets.delete(cb);}}}));
@@ -24,9 +25,12 @@ it("stores an independent simulated phrase round only after all released answers
 });
 it("preserves errors and partial rounds through pause, help, resume and leaving",()=>{
  start("phrase");const notes=pitches(),wrong=[60,62,64,65,67].find((p)=>p!==notes[0])!;key(wrong);
- fireEvent.click(screen.getByRole("button",{name:en.exHint}));fireEvent.click(screen.getByRole("button",{name:en.exPause}));
+ expect(screen.getByRole("status").textContent).toContain(`you played ${noteName(wrong)} · Expected ${noteName(notes[0])}`);
+ expect(document.activeElement).toBe(screen.getByRole("button",{name:en.answerRetry}));
+ fireEvent.click(screen.getByRole("button",{name:en.exPause}));
  expect(screen.getByRole("heading",{name:en.exPaused})).toBeTruthy();fireEvent.click(screen.getByRole("button",{name:en.exResume}));
- key(wrong);notes.forEach(key);fireEvent.click(screen.getByRole("button",{name:en.exNext}));cleanup();
+ fireEvent.click(screen.getByRole("button",{name:en.answerRetry}));
+ key(wrong);fireEvent.click(screen.getByRole("button",{name:en.answerRetry}));notes.forEach(key);fireEvent.click(screen.getByRole("button",{name:en.exNext}));cleanup();
  const data=readExercises();if(!data.ok)throw Error();expect(data.data.records[0]).toMatchObject({completed:false,pauses:1});expect(data.data.records[0].trials[0]).toMatchObject({wrong:2,helped:true,finished:true});expect(dispose).toHaveBeenCalled();
 });
 it("requires listening and keeps guide events out of MIDI answers; reset cancels sound and subscriptions are cleaned",async()=>{
@@ -90,4 +94,65 @@ it("offers a fresh independent short round after supported practice and keeps th
  expect(data.data.records).toHaveLength(2);
  expect(data.data.records.find((r)=>r.completed)).toMatchObject({mode:"learn",simulated:true});
  expect(data.data.records.find((r)=>!r.completed)).toMatchObject({mode:"check",simulated:true});
+});
+it("automatically finishes the final released answer and retains the same keyboard element through feedback",()=>{
+ vi.useFakeTimers();
+ try {
+  start("phrase");
+  const keyboard=screen.getByRole("group",{name:"Piano keyboard"});
+  for(let i=0;i<3;i++){
+   pitches().forEach(key);
+   expect(screen.getByRole("group",{name:"Piano keyboard"})).toBe(keyboard);
+   act(()=>vi.advanceTimersByTime(700));
+  }
+  expect(screen.getByRole("heading",{name:en.exResults})).toBeTruthy();
+  const data=readExercises();if(!data.ok)throw Error();
+  expect(data.data.records[0]).toMatchObject({completed:true,simulated:true});
+ } finally { cleanup();vi.useRealTimers(); }
+});
+it("holds a wrong choice for review, ignores further answers, then records the correction honestly",()=>{
+ vi.useFakeTimers();
+ try {
+  start("rhythm");
+  const data=readExercises();if(!data.ok)throw Error();
+  const expected=Object.keys(data.data.seen).at(-1)!.split(":")[1];
+  const wrong=expected==="1"?"2":"1";
+  fireEvent.click(screen.getByRole("button",{name:en.exBeats.replace("{count}",wrong)}));
+  expect(screen.getByRole("status").textContent).toContain(`The answer is ${expected} beats`);
+  expect(screen.getByRole("button",{name:en.exBeats.replace("{count}",expected)})).toHaveProperty("disabled",true);
+  act(()=>vi.advanceTimersByTime(3000));expect(screen.getByText("1 / 3")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button",{name:en.answerRetry}));
+  fireEvent.click(screen.getByRole("button",{name:en.exBeats.replace("{count}",expected)}));
+  act(()=>vi.advanceTimersByTime(700));expect(screen.getByText("2 / 3")).toBeTruthy();
+  const saved=readExercises();if(!saved.ok)throw Error();
+  expect(saved.data.records[0].trials[0]).toMatchObject({wrong:1,helped:true,finished:true});
+ } finally { cleanup();vi.useRealTimers(); }
+});
+it("keeps a physical key held through review from becoming a fresh answer",async()=>{
+ desktop.mockReturnValue(true);start("phrase");await act(async()=>{});
+ const notes=pitches(),wrong=notes[0]===60?62:60;
+ const feed=(pitch:number,kind:"noteOn"|"noteOff")=>act(()=>listeners.forEach((cb)=>cb({pitch,kind,simulated:false} as MidiEvent)));
+ feed(wrong,"noteOn");
+ fireEvent.click(screen.getByRole("button",{name:en.answerRetry}));
+ feed(notes[0],"noteOn");
+ expect(screen.getByRole("status").textContent).toContain(en.answerRelease);
+ feed(wrong,"noteOff");feed(notes[0],"noteOff");
+ fireEvent.click(screen.getByRole("button",{name:en.answerRetry}));
+ for(const pitch of notes){feed(pitch,"noteOn");feed(pitch,"noteOff");}
+ expect(screen.getByRole("status").textContent).toContain(en.answerAuto);
+ const data=readExercises();if(!data.ok)throw Error();
+ expect(data.data.records[0].trials[0]).toMatchObject({wrong:2,finished:true,helped:true});
+});
+it("keeps answer effects silent in listening questions for both wrong and correct answers",async()=>{
+ const effect=vi.spyOn(uiFeedback,"play");
+ start("direction");
+ await act(async()=>fireEvent.click(screen.getByRole("button",{name:en.exListen})));
+ const notes=pitches(),answer=notes[1]>notes[0]?en.exUp:notes[1]<notes[0]?en.exDown:en.exSame;
+ fireEvent.click(screen.getByRole("button",{name:answer===en.exUp?en.exDown:en.exUp}));
+ expect(screen.getByRole("button",{name:en.answerRetry})).toBeTruthy();
+ fireEvent.click(screen.getByRole("button",{name:en.answerRetry}));
+ await act(async()=>fireEvent.click(screen.getByRole("button",{name:en.exReplay})));
+ fireEvent.click(screen.getByRole("button",{name:answer}));
+ expect(screen.getByRole("status").textContent).toContain(en.answerAuto);
+ expect(effect).not.toHaveBeenCalled();
 });

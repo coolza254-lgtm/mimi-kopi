@@ -19,6 +19,7 @@ import Today from "./pages/Today";
 import Skills from "./pages/Skills";
 import Learn from "./pages/Learn";
 import PracticePrograms from "./pages/PracticePrograms";
+import { uiFeedback } from "./lib/uiFeedback";
 
 type Page = "today" | "learn" | "practice" | "skills" | "free" | "editor" | "sound" | "settings";
 
@@ -70,6 +71,20 @@ export default function App() {
   const mainRef = useRef<HTMLElement>(null);
   const desktop = inDesktopApp();
   const t = (key: MessageKey) => locales[settings.locale][key];
+
+  useEffect(() => { uiFeedback.setEnabled(settings.uiSounds); }, [settings.uiSounds]);
+  useEffect(() => {
+    const click = (event: MouseEvent) => {
+      uiFeedback.unlock();
+      const target = event.target instanceof Element ? event.target : null;
+      const button = target?.closest("button");
+      if (button && !button.disabled && !target?.closest('.piano, [data-ui-sound="off"]')) uiFeedback.play("tap");
+    };
+    const stop = () => uiFeedback.stop();
+    document.addEventListener("click", click, true);
+    window.addEventListener("blur", stop);
+    return () => { document.removeEventListener("click", click, true); window.removeEventListener("blur", stop); uiFeedback.dispose(); };
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);

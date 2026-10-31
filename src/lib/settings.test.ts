@@ -12,8 +12,8 @@ function memoryStorage() {
 describe("settings", () => {
   it("round-trips through storage", () => {
     const storage = memoryStorage();
-    saveSettings({ locale: "ja", theme: "dark", autoUpdate: false }, storage);
-    expect(loadSettings(storage)).toEqual({ locale: "ja", theme: "dark", autoUpdate: false });
+    saveSettings({ locale: "ja", theme: "dark", autoUpdate: false, uiSounds: false }, storage);
+    expect(loadSettings(storage)).toEqual({ locale: "ja", theme: "dark", autoUpdate: false, uiSounds: false });
   });
 
   it("falls back to defaults for missing, invalid or unreadable data", () => {
@@ -29,6 +29,7 @@ describe("settings", () => {
       locale: "en",
       theme: "dark",
       autoUpdate: true,
+      uiSounds: true,
     });
   });
 

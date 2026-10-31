@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advanceDrill, chordTargets, createDrillPlan, inputDrill, pauseDrill, resetDrillInput, resumeDrill, startDrill, type DrillConfig } from "./drills";
+import { advanceDrill, chordTargets, createDrillPlan, inputDrill, pauseDrill, resetDrillInput, resumeDrill, retryDrill, startDrill, type DrillConfig } from "./drills";
 import { appendDrillHistory, comparableChecks, drillRecord, firstTryRate, HISTORY_LIMIT, loadDrillHistory, readDrillHistory, weakTargets } from "./drillHistory";
 
 const config: DrillConfig = { kind: "notes", level: 1, count: 12, mode: "check" };
@@ -24,6 +24,13 @@ describe("focused drill programs", () => {
     run = inputDrill(plan, run, note(pitch));
     expect(run.trials).toHaveLength(0);
     run = inputDrill(plan, run, note(1, "noteOff"));
+    expect(run.phase).toBe("review");
+    expect(advanceDrill(plan, run)).toBe(run);
+    expect(resumeDrill(pauseDrill(run)).phase).toBe("review");
+    run = retryDrill(run);
+    expect(run.phase).toBe("release");
+    run = inputDrill(plan, run, note(pitch, "noteOff"));
+    run = inputDrill(plan, run, note(pitch));
     expect(run.trials[0]).toEqual({ target: String(pitch), firstTry: false, wrong: 1 });
     expect(inputDrill(plan, run, note(pitch)).trials).toHaveLength(1);
     run = advanceDrill(plan, run);

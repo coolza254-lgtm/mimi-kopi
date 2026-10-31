@@ -68,7 +68,11 @@ describe("focused practice programs", () => {
     for (const p of [60, 62, 64, 65, 67]) expect(screen.getByLabelText(noteName(p), { exact: true }).textContent).toBe("");
     const wrong = plan.targets[0].pitches[0] === 60 ? 62 : 60;
     key(wrong);
-    expect(screen.getByRole("status").textContent).toContain(en.drillWrong);
+    expect(screen.getByRole("status").textContent).toContain(en.answerWrongTitle);
+    expect(screen.getByRole("status").textContent).toContain(`You played ${noteName(wrong)} · Expected ${noteName(plan.targets[0].pitches[0])}`);
+    act(() => vi.advanceTimersByTime(2000));
+    expect(screen.getByText(/1 \/ 12/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button",{name:en.answerRetry}));
     expect(loadDrillHistory()).toHaveLength(0);
     for (const target of plan.targets) {
       key(target.pitches[0]);

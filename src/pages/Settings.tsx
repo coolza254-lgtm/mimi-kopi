@@ -38,6 +38,11 @@ export default function Settings({ t, settings, onChange, version, desktop, upda
               <option value="dark">{t("themeDark")}</option>
             </select>
           </label>
+          <label className="check">
+            <input type="checkbox" checked={settings.uiSounds} onChange={(e) => onChange({ ...settings, uiSounds: e.target.checked })} />
+            {t("uiSounds")}
+          </label>
+          <p className="muted small">{t("uiSoundsHint")}</p>
         </section>
 
         <section className="card" aria-labelledby="updates">

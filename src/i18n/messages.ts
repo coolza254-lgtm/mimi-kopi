@@ -6,10 +6,12 @@ import { exerciseMessages } from "./exerciseMessages";
 import { editorMessages } from "./editorMessages";
 import { freePlayMessages } from "./freePlayMessages";
 import { dailyMessages } from "./dailyMessages";
+import { interactionMessages } from "./interactionMessages";
 
 // Thai is the source language (spec §12.5). The other locales are typed
 // against it, so a missing key is a compile error.
 export const th = {
+  ...interactionMessages.th,
   ...updateMessages.th,
   ...drillMessages.th,
   ...learnMessages.th,
@@ -347,6 +349,7 @@ export type MessageKey = keyof typeof th;
 export type Messages = Record<MessageKey, string>;
 
 export const en: Messages = {
+  ...interactionMessages.en,
   ...updateMessages.en,
   ...drillMessages.en,
   ...learnMessages.en,
@@ -681,6 +684,7 @@ export const en: Messages = {
 };
 
 export const ja: Messages = {
+  ...interactionMessages.ja,
   ...updateMessages.ja,
   ...drillMessages.ja,
   ...learnMessages.ja,

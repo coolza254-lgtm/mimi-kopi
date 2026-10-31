@@ -9,6 +9,7 @@ import "./styles/night.css";
 import "./styles/expression.css";
 import "./styles/tools-expression.css";
 import "./styles/palettes.css";
+import "./styles/interaction.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
