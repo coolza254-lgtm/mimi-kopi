@@ -121,3 +121,11 @@ describe("song storage", () => {
     expect(loadSongs({ getItem: () => "nope" })).toEqual([]);
   });
 });
+
+
+it("uses approximate glyphs without altering performance timing", async () => {
+  const { notationDuration, hasPerformanceTiming } = await import("./score");
+  expect(notationDuration(4.123)).toBe(4);
+  expect(notationDuration(6.01)).toBe(6);
+  expect(hasPerformanceTiming(song([{ id: "p", pitch: 60, start: 0.13, dur: 4.123, hand: "R" }]))).toBe(true);
+});

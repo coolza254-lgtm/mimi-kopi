@@ -255,3 +255,13 @@ it("imports MIDI as a new song and leaves existing songs intact on failure", asy
   expect(screen.getByText("songImportFailed")).toBeTruthy();
   expect(localStorage.getItem("mimi-kopi.songs")).toBe(previous);
 });
+
+
+it("renders approximate notation while preserving the precise song when reopened", async () => {
+  const precise = { ...newSong("precise", "test", new Date()), notes: [{ id: "p", pitch: 60, start: 0.123456, dur: 4.234567, hand: "R" as const }] };
+  localStorage.setItem("mimi-kopi.songs", JSON.stringify([precise]));
+  await mount();
+  expect(screen.getByText("songPerformanceTiming")).toBeTruthy();
+  expect(screen.getByRole("button", { name: "C4 durQuarter" })).toBeTruthy();
+  expect(saved()[0].notes).toEqual(precise.notes);
+});

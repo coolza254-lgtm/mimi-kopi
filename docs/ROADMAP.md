@@ -1,3 +1,7 @@
+## เพิ่มเวลาละเอียด 0.8.2 (2026-11-01)
+
+นำเข้าและสำรอง performance timing ได้โดยไม่ quantize แสดง glyph ใกล้เคียงพร้อมคำอธิบาย ยังไม่มี tempo map/sustain/track mapping แบบเลือกเอง และไม่ใช่ระบบ engraving ของชีทต้นฉบับ
+
 ## เผยแพร่ 0.8.1 — MIDI import (2026-11-01)
 
 เพิ่ม MIDI format 0/1 ในหน้าแกะโน้ตแล้ว ใช้ตัวแก้โน้ตเดิม ฝึกมือซ้าย/ขวา/สองมือได้ นำเข้าเป็นเพลงใหม่เสมอ รองรับเฉพาะ fixed tempo/meter และความยาวตัวโน้ตที่เก็บได้ ไม่ใช่ Phase 3 MIDI library เต็มรูปแบบ ยังขาด track mapping แบบเลือกเอง, tempo map, sustain และ rhythm/latency calibration

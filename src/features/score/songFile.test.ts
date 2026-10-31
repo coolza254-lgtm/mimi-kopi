@@ -29,7 +29,7 @@ describe("song files", () => {
     expect(parseSongFile(serializeSongFile(newSong("old", "", now)), "new", now).notes).toEqual([]);
   });
 
-  it.each(["nope", "null", "[]", JSON.stringify({ format: "mimi-kopi-song", version: 2, song: source }), JSON.stringify(source)])(
+  it.each(["nope", "null", "[]", JSON.stringify({ format: "mimi-kopi-song", version: 3, song: source }), JSON.stringify(source)])(
     "rejects malformed or unsupported files: %s", (text) => expect(() => parseSongFile(text, "new", now)).toThrow(),
   );
 
@@ -57,4 +57,22 @@ describe("song files", () => {
     ["เพลงแรก", "เพลงแรก.mimi.json"], ["a/b:c?", "a_b_c_.mimi.json"],
     ["CON", "song.mimi.json"], ["nul.txt", "song.mimi.json"], ["...", "song.mimi.json"], ["", "song.mimi.json"],
   ])("makes safe filenames: %s", (title, expected) => expect(songFilename(title)).toBe(expected));
+});
+
+
+it("round-trips precise performance timing through version 2, storage and export", () => {
+  const precise = { ...source, notes: [{ id: "p", pitch: 64, start: 0.123456, dur: 27.654321, hand: "R" as const }] };
+  const text = serializeSongFile(precise);
+  expect(JSON.parse(text).version).toBe(2);
+  const imported = parseSongFile(text, "precise", now);
+  expect(imported.notes[0]).toMatchObject({ start: 0.123456, dur: 27.654321 });
+  let raw: string | null = null;
+  const storage = { getItem: () => raw, setItem: (_: string, value: string) => { raw = value; } };
+  expect(saveSongs([imported], storage)).toBe(true);
+  expect(loadSongs(storage)[0].notes).toEqual(imported.notes);
+});
+
+it.each([0, -1, Infinity, NaN])("rejects invalid precise durations: %s", (dur) => {
+  const text = JSON.stringify({ format: "mimi-kopi-song", version: 2, song: { ...source, notes: [{ ...source.notes[0], dur }] } });
+  expect(() => parseSongFile(text, "bad", now)).toThrow();
 });

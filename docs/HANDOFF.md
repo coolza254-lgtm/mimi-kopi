@@ -7,6 +7,23 @@
 
 ## สถานะล่าสุด (2026-11-01)
 
+### 0.8.2 — เวลาละเอียดของโน้ต (กำลังตรวจและเผยแพร่)
+
+- ระหว่างตรวจไฟล์ส่วนตัวของเจ้าของ พบว่า 0.8.1 รับเฉพาะกริดและความยาวมาตรฐาน จึงรองรับ performance timing เพิ่มโดยไม่ปัดเวลา/ความยาว นำเข้า MIDI แล้วผ่าน schema JSON v2
+- JSON v1 ยังใช้ validation เดิม v2 รับ finite positive duration และ finite nonnegative start ภายในท้ายเพลง การส่งออกเลือก version 2 เฉพาะเพลงที่ต้องใช้เวลาละเอียด การอ่าน/เก็บในเครื่องไม่ปัดค่าแล้ว
+- Glyph ใน editor ใช้ตัวใกล้เคียงพร้อม notice แต่ playback/toSteps ใช้ข้อมูลจริง เพิ่ม regression สำหรับ import/export/reopen/storage/playback/การแสดงผล ไม่แก้คะแนนจังหวะ wait mode
+- MIDI tempo/meter map และ sustain ยังไม่รองรับ ไฟล์จากการวิเคราะห์วิดีโอใช้ฐานเวลาเดียวเก็บ wall-clock timing ในตัวโน้ต เพื่อคงความเร็วขึ้นลงโดยไม่ต้องทิ้งโน้ตหรือ quantize
+- งานส่วนตัวของเจ้าของและสคริปต์ตรวจวิดีโออยู่ภายนอกรีโปใน Downloads/piano-transcription/verified-two-pages ไม่มีเนื้อเพลง โน้ต วิดีโอ หรือ sample เสียงที่มีลิขสิทธิ์ใน source
+- ตรวจไฟล์ส่วนตัวจริงแล้ว MIDI/JSON 155 โน้ตให้ pitch/start/dur/hand ตรงกัน (เทียบ floating-point ถึง 10 ตำแหน่ง) และ export/reopen/storage ไม่เปลี่ยนข้อมูล เทสต์ชั่วคราวที่อ้างไฟล์ภายนอกลบก่อน commit ใช้เฉพาะข้อมูลสังเคราะห์ใน regression ประจำ
+- npm ci ผ่าน ไม่มี vulnerabilities; core fmt/clippy/56 tests และเว็บ typecheck/309 tests/39 files/build/3 release-helper tests ผ่านแล้วและจะดู CI/Release พร้อมตรวจ manifest/installer/signature ก่อนแจ้งพร้อมอัปเดต
+
+### งานต่อไป
+
+- ตรวจชุดทดสอบ push และรอ CI/Release 0.8.2 ตาม docs/RELEASING.md พร้อมบันทึกผลลง Handoff
+- Native MIDI/เสียง/ติดตั้งจริงยังไม่ได้ทดสอบกับฮาร์ดแวร์ ความถูกต้องของการแกะวิดีโอไม่เท่ากับการเปิดไฟล์ได้ ควรให้เจ้าของเทียบคลิปด้วย
+
+## ประวัติ 0.8.1 (2026-11-01)
+
 ### เผยแพร่ 0.8.1 แล้ว — เพิ่มนำเข้า MIDI
 
 - เผยแพร่ [v0.8.1](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.8.1) วันที่ 2026-11-01 เวลา 02:00:46 น. ไทย จาก main `bed20be455bdcdfcab21468e757c79ced4d240a8` [CI 41231618274](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41231618274) ผ่านครบเว็บ/Rust/Windows และ [Release 41231618248](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41231618248) ผ่านครบ ไม่ push แทรกระหว่าง gate กับเผยแพร่

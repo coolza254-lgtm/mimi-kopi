@@ -38,7 +38,7 @@ describe("MIDI import", () => {
     midi([[...note, ...end]], 0, 0xe728),
     midi([[0, 144, 60, 80, ...end]]),
     midi([[0, 128, 60, 0, ...end]]),
-    midi([[0, 144, 60, 80, 1, 128, 60, 0, ...end]]),
+    midi([[0, 144, 60, 80, 0, 128, 60, 0, ...end]]),
     midi([[0, 185, 64, 127, ...note, ...end]]),
     midi([[0, 153, 60, 80, 0x83, 0x60, 137, 60, 0, ...end]]),
     midi([[0, 255, 81, 3, 7, 161, 32, ...note, 0, 255, 81, 3, 11, 113, 176, ...end]]),
@@ -49,4 +49,12 @@ describe("MIDI import", () => {
   ])("rejects damaged or unrepresentable input without returning a partial song", (data) => {
     expect(() => parse(data)).toThrow();
   });
+});
+
+
+it("preserves unquantized starts and note lengths instead of rounding them", () => {
+  const song = parse(midi([[1, 144, 60, 80, 7, 128, 60, 0, ...end]], 0));
+  expect(song.notes[0]).toMatchObject({ start: 1 / 120, dur: 7 / 120 });
+  const reopened = parseSongFile(serializeSongFile(song), "again", new Date());
+  expect(reopened.notes[0]).toMatchObject({ start: 1 / 120, dur: 7 / 120 });
 });

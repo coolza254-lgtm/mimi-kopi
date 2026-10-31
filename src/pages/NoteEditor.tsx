@@ -5,6 +5,8 @@ import { readProgress, recordFor, recordRun, saveProgress, type Progress } from 
 import { noteName } from "../features/midi/notes";
 import {
   baseDuration,
+  notationDuration,
+  hasPerformanceTiming,
   DURATIONS,
   isDotted,
   KEYS,
@@ -304,7 +306,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
   const toggleDot = () => {
     const next = !dotted;
     setDotted(next);
-    if (selected) changeSelected((n) => ({ ...n, dur: next ? baseDuration(n.dur) * 1.5 : baseDuration(n.dur) }));
+    if (selected) changeSelected((n) => ({ ...n, dur: next ? baseDuration(notationDuration(n.dur)) * 1.5 : baseDuration(notationDuration(n.dur)) }));
   };
 
   const onKey = (e: KeyboardEvent) => {
@@ -537,7 +539,8 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
     const ledgers: number[] = [];
     for (let st = bottom - 2; st >= s.step; st -= 2) ledgers.push(st);
     for (let st = topLine + 2; st <= s.step; st += 2) ledgers.push(st);
-    const base = baseDuration(n.dur);
+    const shownDuration = notationDuration(n.dur);
+    const base = baseDuration(shownDuration);
     const up = s.step < middle;
     const stemX = up ? x + 6.5 : x - 6.5;
     const stemEnd = up ? y - 34 : y + 34;
@@ -568,7 +571,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
         {base <= 8 && <line className="stem" x1={stemX} x2={stemX} y1={y} y2={stemEnd} />}
         {base <= 2 && <path className="flag" d={`M${stemX} ${stemEnd} q2 ${up ? 8 : -8} 9 ${up ? 13 : -13}`} />}
         {base === 1 && <path className="flag" d={`M${stemX} ${stemEnd + (up ? 7 : -7)} q2 ${up ? 8 : -8} 9 ${up ? 13 : -13}`} />}
-        {isDotted(n.dur) && <circle className="dot" cx={x + 12} cy={s.step % 2 === 0 ? y - 3 : y} r="2.3" />}
+        {isDotted(shownDuration) && <circle className="dot" cx={x + 12} cy={s.step % 2 === 0 ? y - 3 : y} r="2.3" />}
         {id && <rect className="hit" x={x - 11} y={y - 9} width="22" height="18" />}
       </g>
     );
@@ -600,6 +603,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
         </div>
       </div>}
 
+      {hasPerformanceTiming(song) && <p className="small muted" role="note">{t("songPerformanceTiming")}</p>}
       <section className="card editor-song">
         <label className="field">
           {t("songPick")}

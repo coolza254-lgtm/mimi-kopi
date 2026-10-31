@@ -9,7 +9,7 @@ export interface ScoreNote {
   pitch: number;
   /** Start, in sixteenths from the beginning of the song. */
   start: number;
-  /** Length in sixteenths: 16 whole, 8 half, 4 quarter, 2 eighth, 1 sixteenth; ×1.5 when dotted. */
+  /** Length in sixteenths. Imported performance timing can use any positive finite length. */
   dur: number;
   hand: ScoreHand;
 }
@@ -29,6 +29,16 @@ export interface Song {
 }
 
 export const DURATIONS = [16, 8, 4, 2, 1] as const;
+
+/** Glyphs approximate imported timing; playback always retains the original duration. */
+export function notationDuration(duration: number): number {
+  return DURATIONS.flatMap((d) => [d, d * 1.5]).reduce((best, value) =>
+    Math.abs(value - duration) < Math.abs(best - duration) ? value : best);
+}
+
+export function hasPerformanceTiming(song: Pick<Song, "notes">): boolean {
+  return song.notes.some((n) => !Number.isInteger(n.start * 2) || notationDuration(n.dur) !== n.dur);
+}
 
 export const KEYS: { fifths: number; name: string }[] = [
   { fifths: 0, name: "C" },
@@ -151,8 +161,8 @@ function readSong(value: unknown): Song | null {
     notes.push({
       id: n.id,
       pitch: int(n.pitch, 21, 108, 60),
-      start: typeof n.start === "number" && Number.isFinite(n.start) ? Math.max(0, Math.min(100_000, Math.round(n.start * 2) / 2)) : 0,
-      dur: typeof n.dur === "number" && DURATIONS.some((d) => n.dur === d || n.dur === d * 1.5) ? n.dur : 4,
+      start: typeof n.start === "number" && Number.isFinite(n.start) ? Math.max(0, Math.min(9600, n.start)) : 0,
+      dur: typeof n.dur === "number" && Number.isFinite(n.dur) && n.dur > 0 && n.dur <= 9600 ? n.dur : 4,
       hand: n.hand,
     });
   }

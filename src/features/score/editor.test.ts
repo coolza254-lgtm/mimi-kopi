@@ -91,3 +91,11 @@ describe("playback and ranges", () => {
     ]);
   });
 });
+
+
+it("retains precise playback event times without notation quantization", () => {
+  const s = { ...newSong("precise", "test", now), notes: [{ id: "p", pitch: 60, start: 0.123456, dur: 4.234567, hand: "R" as const }] };
+  const events = playbackEvents(s, "both", 0, 16);
+  expect(events[0]).toEqual({ at: 0.123456, pitch: 60, on: true });
+  expect(events[1].at).toBeCloseTo(4.358023, 10);
+});

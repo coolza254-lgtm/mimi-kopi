@@ -1,4 +1,4 @@
-import { DURATIONS, type ScoreNote, type Song } from "./score";
+import { DURATIONS, hasPerformanceTiming, type ScoreNote, type Song } from "./score";
 
 export const MAX_SONG_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_NOTES = 20_000;
@@ -12,7 +12,7 @@ const integer = (v: unknown, min: number, max: number): v is number =>
 export function parseSongFile(text: string, id: string, now: Date): Song {
   if (new TextEncoder().encode(text).length > MAX_SONG_FILE_BYTES) throw new Error("Song file too large");
   const file: unknown = JSON.parse(text.replace(/^\uFEFF/, ""));
-  if (!object(file) || file.format !== "mimi-kopi-song" || file.version !== 1 || !object(file.song)) {
+  if (!object(file) || file.format !== "mimi-kopi-song" || (file.version !== 1 && file.version !== 2) || !object(file.song)) {
     throw new Error("Unsupported song file");
   }
   const s = file.song;
@@ -26,8 +26,8 @@ export function parseSongFile(text: string, id: string, now: Date): Song {
   const notes = s.notes.map((n: unknown, i: number): ScoreNote => {
     if (
       !object(n) || !integer(n.pitch, 21, 108) ||
-      typeof n.start !== "number" || !Number.isFinite(n.start) || n.start < 0 || !Number.isInteger(n.start * 2) ||
-      typeof n.dur !== "number" || !lengths.includes(n.dur) || n.start + n.dur > end ||
+      typeof n.start !== "number" || !Number.isFinite(n.start) || n.start < 0 || (file.version === 1 && !Number.isInteger(n.start * 2)) ||
+      typeof n.dur !== "number" || !Number.isFinite(n.dur) || n.dur <= 0 || (file.version === 1 && !lengths.includes(n.dur)) || n.start + n.dur > end ||
       (n.hand !== "R" && n.hand !== "L")
     ) throw new Error("Invalid song note");
     return { id: `${id}-${i}`, pitch: n.pitch, start: n.start, dur: n.dur, hand: n.hand };
@@ -39,7 +39,7 @@ export function parseSongFile(text: string, id: string, now: Date): Song {
 }
 
 export function serializeSongFile(song: Song): string {
-  return JSON.stringify({ format: "mimi-kopi-song", version: 1, song }, null, 2) + "\n";
+  return JSON.stringify({ format: "mimi-kopi-song", version: hasPerformanceTiming(song) ? 2 : 1, song }, null, 2) + "\n";
 }
 
 /** Safe default filename on Windows; the user can change it in the save dialog. */

@@ -1,7 +1,7 @@
 import { parseSongFile, MAX_SONG_FILE_BYTES } from "./songFile";
 import type { ScoreNote, Song } from "./score";
 
-/** Standard MIDI format 0/1, PPQN, fixed tempo/meter. Never silently quantize notes. */
+/** Standard MIDI format 0/1, PPQN, fixed tempo/meter. Preserves off-grid performance timing. */
 export function parseMidiFile(bytes: Uint8Array, title: string, id: string, now: Date): Song {
   const fail = (): never => { throw new Error("Unsupported or damaged MIDI file"); };
   if (bytes.length > MAX_SONG_FILE_BYTES) fail();
@@ -77,5 +77,5 @@ export function parseMidiFile(bytes: Uint8Array, title: string, id: string, now:
   const meter = beats ?? 4;
   const measures = Math.max(1, Math.ceil(Math.max(...notes.map((n) => n.start + n.dur)) / (meter * 4)));
   // Reuse the storage contract so an imported song always survives reopening/export.
-  return parseSongFile(JSON.stringify({ format: "mimi-kopi-song", version: 1, song: { title: title.replace(/\.(mid|midi)$/i, "").slice(0, 200), fifths: 0, beats: meter, tempo: bpm, measures, notes } }), id, now);
+  return parseSongFile(JSON.stringify({ format: "mimi-kopi-song", version: 2, song: { title: title.replace(/\.(mid|midi)$/i, "").slice(0, 200), fifths: 0, beats: meter, tempo: bpm, measures, notes } }), id, now);
 }
