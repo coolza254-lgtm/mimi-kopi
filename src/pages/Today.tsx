@@ -53,7 +53,7 @@ export default function Today({ t, locale, onPractice, onFreePlay, onEditor, onS
           : <span className="daily-round-label">{t("dailyChapterRound")}</span>}
         {suggestion.evidence && <span className="daily-source">{t(suggestion.evidence.simulated ? "pathSim" : "pathReal")} · {t(suggestion.evidence.mode === "learn" ? "exLearn" : "exCheck")}</span>}<div className="today-hero-actions"><button className="btn primary big" onClick={start}>{t(suggestion.step.chapter ? "pathContinue" : "dailyStart")}<AppIcon name="arrow" /></button><button className="btn text" onClick={() => onLearn ? onLearn() : onPractice(null)}>{t("dailyMap")}</button></div>
         {evidence && <details className="daily-evidence"><summary>{t("dailyLatest")}</summary><p>{date(evidence.at)} · {t(evidence.simulated ? "pathSim" : "pathReal")} · {t(evidence.mode === "learn" ? "exLearn" : "exCheck")}</p><p>{answered ? t("dailyLastResult").replace("{correct}", String(firstTry)).replace("{total}", String(answered)) : t("exNoInput")}</p></details>}
-      </div><PracticeArtwork />
+      </div><div className="daily-instrument"><PracticeArtwork /></div>
     </section> : <section className="card"><p role="alert">{t("pathLoadError")}</p><button className="btn" onClick={() => setData({ path: readSkillData(), exercises: readExercises() })}>{t("pathRetry")}</button></section>}
     <div className="daily-below">
       <section className="daily-options" aria-labelledby="daily-options-title"><h2 id="daily-options-title">{t("dailyChoose")}</h2>
@@ -63,7 +63,7 @@ export default function Today({ t, locale, onPractice, onFreePlay, onEditor, onS
         <details className="daily-more"><summary>{t("dailyMore")}</summary><button className="btn text" onClick={() => onPractice(null)}>{t("dailyPracticeOpen")}</button></details>
       </section>
       <section className="today-progress daily-progress" aria-labelledby="today-results"><h2 id="today-results">{t("pathCompleted")} · {t("pathReal")}</h2>
-        {done === null ? <p role="alert">{t("pathLoadError")}</p> : <><div className="today-progress-head"><strong>{done}</strong><span>/ {courseChapters.length}</span></div><div className="meter" role="progressbar" aria-label={t("pathCompleted")} aria-valuemin={0} aria-valuemax={courseChapters.length} aria-valuenow={done}><i style={{ width: `${done / courseChapters.length * 100}%` }} /></div></>}
+        {done === null ? <p role="alert">{t("pathLoadError")}</p> : <><div className="today-progress-head"><strong>{done}</strong><span>/ {courseChapters.length}</span></div><div className="studio-completion" aria-hidden="true">{courseChapters.map((chapter) => <i key={chapter.id} className={path.ok && learningStatus(chapter,path.learning,path.drills)==="completed"?"done":""} />)}</div><div className="meter" role="progressbar" aria-label={t("pathCompleted")} aria-valuemin={0} aria-valuemax={courseChapters.length} aria-valuenow={done}><i style={{ width: `${done / courseChapters.length * 100}%` }} /></div></>}
         <details className="today-progress-note"><summary>{t("dailyResultMeaning")}</summary><p>{t("pathNoMastery")}</p><p>{t("dailyActivityNote")}</p></details>
         <div className="daily-activity"><h3>{t("dailyActivity")}</h3>{activity ? activity.real + activity.simulated === 0 ? <p>{t("dailyActivityEmpty")}</p> : <p>{t("pathReal")} <strong>{activity.real}</strong> · {t("pathSim")} <strong>{activity.simulated}</strong></p> : <p role="alert">{t("pathLoadError")}</p>}</div>
       </section>

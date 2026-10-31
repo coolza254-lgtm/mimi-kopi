@@ -3,7 +3,6 @@ import PianoKeyboard from "../components/PianoKeyboard";
 import PhraseStaff from "../components/PhraseStaff";
 import RhythmNote from "../components/RhythmNote";
 import AnswerFeedback from "../components/AnswerFeedback";
-import { uiFeedback } from "../lib/uiFeedback";
 import { exercisePlan, exposeQuestion, readExercises, saveExercise, sequenceInput, sequenceStart, type ExerciseKind, type ExerciseQuestion, type ExerciseRecord, type ExerciseTrial, type SequenceInput } from "../features/lessons/exercises";
 import { noteName } from "../features/midi/notes";
 import type { MessageKey } from "../i18n/messages";
@@ -37,7 +36,7 @@ export default function Exercises({t,initialKind,initialMode="learn",initialCoun
     s.trial={question:q.id,wrong:0,plays:0,helped:s.mode==="learn",unseen,finished:false};if(unseen===null)s.saved=false;
   },[]);
   const pause=useCallback(()=>{
-    audio.stop();uiFeedback.stop();const physical=session.current?.input.held.filter((p)=>!screenKeys.current.has(p))??[];clearKeys();const s=session.current;
+    audio.stop();const physical=session.current?.input.held.filter((p)=>!screenKeys.current.has(p))??[];clearKeys();const s=session.current;
     if(s&&s.phase!=="results"&&s.phase!=="paused"){
       s.pauses++;s.input={...sequenceStart(),held:physical,release:physical.length>0};s.phase="paused";persist();
       if(live.current)redraw();
@@ -53,8 +52,8 @@ export default function Exercises({t,initialKind,initialMode="learn",initialCoun
     const q=s.questions[s.index],prior=s.trial?.wrong??s.input.wrong,position=s.input.cursor,overlap=s.input.release||s.input.held.length>0;
     s.input=sequenceInput({...s.input,wrong:s.trial?.wrong??0},q.pitches,pitch,down);
     if(s.trial)s.trial.wrong=Math.max(s.trial.wrong,s.input.wrong);
-    if(s.input.wrong>prior){s.feedback="wrong";s.phase="review";s.trial!.helped=true;s.correction=overlap?t("answerRelease"):t("answerSequence").replace("{index}",String(Math.min(position+1,q.pitches.length))).replace("{actual}",noteName(pitch)).replace("{expected}",noteName(q.pitches[Math.min(position,q.pitches.length-1)]));if(s.kind==="phrase")uiFeedback.play("wrong");persist();}
-    if(s.phase==="answer"&&s.input.cursor===q.pitches.length&&s.input.held.length===0){s.trial!.finished=true;s.feedback="good";s.phase="feedback";if(s.kind==="phrase")uiFeedback.play("correct");persist();}
+    if(s.input.wrong>prior){s.feedback="wrong";s.phase="review";s.trial!.helped=true;s.correction=overlap?t("answerRelease"):t("answerSequence").replace("{index}",String(Math.min(position+1,q.pitches.length))).replace("{actual}",noteName(pitch)).replace("{expected}",noteName(q.pitches[Math.min(position,q.pitches.length-1)]));persist();}
+    if(s.phase==="answer"&&s.input.cursor===q.pitches.length&&s.input.held.length===0){s.trial!.finished=true;s.feedback="good";s.phase="feedback";persist();}
     if(live.current)redraw();
   },[expose,persist,t]);
   useEffect(()=>{
@@ -69,7 +68,7 @@ export default function Exercises({t,initialKind,initialMode="learn",initialCoun
   useEffect(()=>{onFocusChange?.(playingFocus);return()=>onFocusChange?.(false);},[playingFocus,onFocusChange]);
   const listen=async()=>{
     const s=session.current;if(!s||s.phase==="playing"||s.phase==="results"||s.phase==="feedback"||s.phase==="review")return;
-    uiFeedback.stop();
+
     clearKeys();s.input={...sequenceStart(),wrong:s.trial?.wrong??0};s.feedback=null;expose();s.trial!.plays++;s.issue=false;s.phase="playing";persist();redraw();
     const q=s.questions[s.index];
     try{
@@ -86,10 +85,10 @@ export default function Exercises({t,initialKind,initialMode="learn",initialCoun
   };
   const answer=(value:string)=>{
     const s=session.current;if(!s||s.phase!=="answer")return;expose();s.simulated=true;s.sourceKnown=true;
-    if(value===s.questions[s.index].answer){s.trial!.finished=true;s.phase="feedback";s.feedback="good";if(s.kind==="rhythm")uiFeedback.play("correct");}else{
+    if(value===s.questions[s.index].answer){s.trial!.finished=true;s.phase="feedback";s.feedback="good";}else{
       s.trial!.wrong++;s.trial!.helped=true;s.feedback="wrong";s.phase="review";
       const label=(answer:string)=>s.kind==="rhythm"?t("exBeats").replace("{count}",answer):t(answer==="up"?"exUp":answer==="down"?"exDown":"exSame");
-      s.correction=t("answerChoice").replace("{actual}",label(value)).replace("{expected}",label(s.questions[s.index].answer));if(s.kind==="rhythm")uiFeedback.play("wrong");
+      s.correction=t("answerChoice").replace("{actual}",label(value)).replace("{expected}",label(s.questions[s.index].answer));
     }
     persist();redraw();
   };
@@ -134,9 +133,9 @@ export default function Exercises({t,initialKind,initialMode="learn",initialCoun
   }
 const q=s.questions[s.index],auditory=s.kind==="direction"||s.kind==="melody",helped=s.trial?.helped??s.mode==="learn";
   const issues=<>{s.issue&&<p role="alert">{t("exAudioError")}</p>}{!s.saved&&<p role="alert">{t("exSaveError")}</p>}</>;
-  return <div data-ui-sound="off" className={`exercise-focus exercise-kind-${s.kind}${s.feedback==="good"?" correct":""}`} ref={heading} tabIndex={-1}><header><button className="btn text" onClick={()=>{pause();onBack();}}>{t("exReturn")}</button><div className="session-progress"><span className="exercise-status">{s.index+1} / {s.questions.length}</span><progress aria-label={t("exCount")} value={s.index+(s.phase==="feedback"?1:0)} max={s.questions.length} /></div><button className="btn" onClick={pause}>{t("exPause")}</button></header>
+  return <div className={`exercise-focus exercise-kind-${s.kind}${s.feedback==="good"?" correct":""}`} ref={heading} tabIndex={-1}><header><button className="btn text" onClick={()=>{pause();onBack();}}>{t("exReturn")}</button><div className="session-progress"><span className="exercise-status">{s.index+1} / {s.questions.length}</span><progress aria-label={t("exCount")} value={s.index+(s.phase==="feedback"?1:0)} max={s.questions.length} /></div><button className="btn" onClick={pause}>{t("exPause")}</button></header>
     {s.phase==="paused"?<section className="exercise-question"><h1>{t("exPaused")}</h1><p>{t("exResumeHint")}</p>{(s.kind==="phrase"||s.kind==="melody")&&<label><input type="checkbox" checked={keyboard} onChange={(e)=>setKeyboard(e.target.checked)} />{t("exShowKeyboard")}</label>}<button className="btn primary" onClick={()=>{s.input={...sequenceStart(),held:s.input.held,release:s.input.held.length>0};s.phase=s.trial?.finished?"feedback":s.feedback==="wrong"?"review":auditory?"ready":"answer";redraw();}}>{t("exResume")}</button>{issues}</section>:<>
-    <section className="exercise-question"><span className="eyebrow">{t(exerciseTitles[s.kind])} · {t(!s.sourceKnown?"exNoInput":s.simulated?"pathSim":"pathReal")}</span><h1>{t(({direction:"exAnswerDirection",melody:"exAnswerMelody",phrase:"exAnswerPhrase",rhythm:"exAnswerRhythm"} as const)[s.kind])}</h1>
+    <section key={`${s.id}:${s.index}`} className="exercise-question"><span className="eyebrow">{t(exerciseTitles[s.kind])} · {t(!s.sourceKnown?"exNoInput":s.simulated?"pathSim":"pathReal")}</span><h1>{t(({direction:"exAnswerDirection",melody:"exAnswerMelody",phrase:"exAnswerPhrase",rhythm:"exAnswerRhythm"} as const)[s.kind])}</h1>
       {s.kind==="phrase"&&<PhraseStaff pitches={q.pitches} label={t("exAnswerPhrase")} />}
       {s.kind==="rhythm"&&<RhythmNote beats={q.beats??1} label={t("exAnswerRhythm")} />}
       {(auditory||s.kind==="rhythm")&&<button className="btn big" disabled={s.phase==="playing"||s.phase==="feedback"||s.phase==="review"} onClick={()=>void listen()}>{t(s.phase==="playing"?"exPlaying":s.trial?.plays?"exReplay":"exListen")}</button>}

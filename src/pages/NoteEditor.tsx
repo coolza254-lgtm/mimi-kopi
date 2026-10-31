@@ -672,7 +672,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
           }} />
         </div>
       </section>
-      <p className="muted small">{t("songBackupHint")}</p>
+      <details className="editor-backup-info"><summary>{t("studioBackup")}</summary><p className="muted small">{t("songBackupHint")}</p></details>
       {fileMessage && <p role={fileError ? "alert" : "status"}>{t(fileMessage)}</p>}
 
       <section className="card editor-tools" aria-label={t("editorTools")}>

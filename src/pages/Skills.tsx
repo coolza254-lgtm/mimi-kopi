@@ -10,7 +10,6 @@ import { readSkillData, skillEvidence, skillScope } from "../features/lessons/sk
 import { skillPracticeIntent, type PracticeIntent } from "../features/lessons/practiceNavigation";
 import type { Locale, MessageKey } from "../i18n/messages";
 import "../styles/path.css";
-import "../styles/learning-expression.css";
 
 interface Props { t: (key: MessageKey) => string; locale: Locale; onPractice: (intent?: PracticeIntent) => void }
 export const scopeMessage = (scope: string | null): MessageKey => ({ keyboard:"pathNarrow", treble:"pathTrebleRange", bass:"pathBassRange", chords:"pathChordThree", "range-1":"pathNarrow", "range-2":"pathMiddle", "range-3":"pathWide", "chords-1":"pathChordTwo", "chords-2":"pathChordThree", "chords-3":"pathChordFour" } as Record<string, MessageKey>)[scope ?? ""] ?? "pathNoData";
@@ -26,7 +25,7 @@ export default function Skills({ t, locale, onPractice }: Props) {
   return <div className="path-page skills-expression">
     <header><h1 className="title">{t("navSkills")}</h1></header>
     <div className="path-source" role="group" aria-label={t("pathFrom")}>{[false, true].map((value) => <button key={String(value)} className="btn" aria-pressed={simulated === value} onClick={() => setSimulated(value)}>{t(value ? "pathSim" : "pathReal")}</button>)}</div>
-    <section className="path-progress skills-completion"><div><span>{t("pathCompleted")} · {source}</span><strong>{done} / {courseChapters.length}</strong></div><p className="small muted">{t("pathNoMastery")}</p></section>
+    <section className="path-progress skills-completion"><div><span>{t("pathCompleted")} · {source}</span><strong>{done} / {courseChapters.length}</strong></div><progress value={done} max={courseChapters.length} aria-label={t("pathCompleted")} /><details><summary>{t("dailyResultMeaning")}</summary><p className="small muted">{t("pathNoMastery")}</p></details></section>
     <div className="skill-grid">{(["notes", "staff", "chords"] as const).map((kind) => {
       const { latest, previous } = skillEvidence(data.drills, simulated, kind);
       const intent = skillPracticeIntent(kind, latest);

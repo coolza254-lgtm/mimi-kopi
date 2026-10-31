@@ -3,7 +3,6 @@ import ChordFingerGuide from "../components/ChordFingerGuide";
 import PianoKeyboard from "../components/PianoKeyboard";
 import ReadingStaff from "../components/ReadingStaff";
 import AnswerFeedback from "../components/AnswerFeedback";
-import { uiFeedback } from "../lib/uiFeedback";
 import LearningPath from "../components/LearningPath";
 import Exercises from "./Exercises";
 import type { ExerciseKind } from "../features/lessons/exercises";
@@ -57,10 +56,10 @@ export default function Learn({ t, locale, initialStep, initialExercise, onFocus
   if (chapter) {
     const target = targets[step];
     const last = step === chapter.steps.length - 1;
-    return <div className={`learn-lesson learn-kind-${chapter.kind}`} data-ui-sound="off">
+    return <div className={`learn-lesson learn-kind-${chapter.kind}`}>
       <header className="learn-top"><button className="btn text" onClick={back}>{t("learnBack")}</button><span>{step + 1} / {chapter.steps.length}</span></header>
       <div className="learn-step-meter" aria-hidden="true">{chapter.steps.map((_, i) => <i key={i} className={i <= step ? "reached" : ""} />)}</div>
-      <section className="learn-explanation"><span className="eyebrow">{t(chapter.title)}</span><h1 className="title" ref={heading} tabIndex={-1}>{t("learnTry").replace("{note}", target.name ?? noteName(target.pitches[0]))}</h1><p>{t(chapter.steps[step])}</p></section>
+      <section key={`explain:${chapter.id}:${step}`} className="learn-explanation"><span className="eyebrow">{t(chapter.title)}</span><h1 className="title" ref={heading} tabIndex={-1}>{t("learnTry").replace("{note}", target.name ?? noteName(target.pitches[0]))}</h1><p>{t(chapter.steps[step])}</p></section>
       <LearningExample key={`${chapter.id}:${step}`} chapter={chapter} target={target} t={t} onSolved={solve} onReset={reset} />
       <footer className="learn-actions"><button className="btn text" disabled={step === 0} onClick={() => { setStep(step - 1); setSolved(false); }}>{t("learnPrevious")}</button>
         {onPractice && <button className="btn text" onClick={() => onPractice({ kind: "chapter", chapterId: chapter.id })}>{t("pathPractice")}</button>}
@@ -92,8 +91,8 @@ function LearningExample({ chapter, target, t, onSolved, onReset }: { chapter: C
     if (retryAwaitRelease.current) { if (!keys.current.size) retryAwaitRelease.current = false; return; }
     if (outcome.current === "wrong") return;
     if (outcome.current === "good") { if (!keys.current.size) onSolved(); return; }
-    if (down && !target.pitches.includes(pitch)) { outcome.current = "wrong"; setWrongPitch(pitch); setFeedback("wrong"); uiFeedback.play("wrong"); return; }
-    if (keys.current.size === target.pitches.length && target.pitches.every((p) => keys.current.has(p))) { outcome.current = "good"; setFeedback("good"); uiFeedback.play("correct"); }
+    if (down && !target.pitches.includes(pitch)) { outcome.current = "wrong"; setWrongPitch(pitch); setFeedback("wrong"); return; }
+    if (keys.current.size === target.pitches.length && target.pitches.every((p) => keys.current.has(p))) { outcome.current = "good"; setFeedback("good"); }
   }, [target, onSolved]);
   const send = useCallback((pitch: number, down: boolean) => {
     if (down) screenKeys.current.add(pitch); else screenKeys.current.delete(pitch);
@@ -121,6 +120,7 @@ function LearningExample({ chapter, target, t, onSolved, onReset }: { chapter: C
     screenKeys.current.clear(); keys.current = new Set(physical); setHeld(physical); retryAwaitRelease.current = physical.length > 0; outcome.current = null; setFeedback(null); setWrongPitch(null);
   };
   return <section className="learn-example">
+    {chapter.kind === "notes" && <div className="lesson-note-token" aria-hidden="true">{noteName(target.pitches[0])}</div>}
     {chapter.kind === "staff" && <ReadingStaff pitch={target.pitches[0]} label={noteName(target.pitches[0])} />}
     {chapter.kind === "chords" && <><span className="small muted">{t("learnScreen")} · {t("drillLatch")}</span><ChordFingerGuide target={target} t={t} keyboard={{ held, onPress: (p) => send(p, true), onRelease: (p) => send(p, false) }} /></>}
     <AnswerFeedback state={feedback === "good" ? "correct" : feedback} t={t} onRetry={retry} message={feedback === "wrong" && wrongPitch !== null ? t("answerPlayed").replace("{actual}", noteName(wrongPitch)).replace("{expected}", target.pitches.map(noteName).join(" + ")) : feedback === "good" && held.length ? t("answerReleaseNext") : retryAwaitRelease.current ? t("drillRelease") : undefined} />

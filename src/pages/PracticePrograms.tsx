@@ -4,7 +4,6 @@ import MidiConnection from "../components/MidiConnection";
 import PianoKeyboard from "../components/PianoKeyboard";
 import ReadingStaff from "../components/ReadingStaff";
 import AnswerFeedback from "../components/AnswerFeedback";
-import { uiFeedback } from "../lib/uiFeedback";
 import { courseChapters } from "../features/lessons/course";
 import { advanceDrill, createDrillPlan, drillPool, inputDrill, pauseDrill, resetDrillInput, resumeDrill, retryDrill, startDrill, type DrillConfig, type DrillKind, type DrillPlan, type DrillRun } from "../features/lessons/drills";
 import { appendDrillHistory, comparableChecks, drillRecord, firstTryRate, readDrillHistory, weakTargets, type DrillRecord } from "../features/lessons/drillHistory";
@@ -46,7 +45,6 @@ export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onF
   const screenHeld = useRef(new Set<number>());
   const runId = useRef("");
   const saved = useRef(false);
-  const lastCue = useRef("");
   const heading = useRef<HTMLHeadingElement>(null);
   const focus = !!plan && !result;
 
@@ -89,11 +87,6 @@ export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onF
     const timer = window.setTimeout(() => setRun((current) => advanceDrill(plan, current)), 450);
     return () => window.clearTimeout(timer);
   }, [plan, run.phase]);
-  useEffect(() => {
-    if (run.phase !== "feedback" && run.phase !== "review") return;
-    const key = `${runId.current}:${run.step}:${run.phase}:${run.wrong}`;
-    if (lastCue.current !== key) { lastCue.current = key; uiFeedback.play(run.phase === "feedback" ? "correct" : "wrong"); }
-  }, [run.step, run.phase, run.wrong]);
 
   const finish = useCallback((current: DrillRun) => {
     if (!plan || saved.current) return;
@@ -139,7 +132,7 @@ export default function PracticePrograms({ t, locale, onLegacy, onOpenSound, onF
     <div className="actions"><button type="button" className="btn primary" onClick={begin}>{t("drillRetry")}</button><button type="button" className="btn" onClick={course ? onLegacy : back}>{t(course ? "learnBack" : "drillExit")}</button></div>
   </div>;
 
-  if (plan && target) return <div data-ui-sound="off" className={`drill-focus${keyboard ? " with-keyboard" : ""}${run.phase === "feedback" ? " correct" : run.lastWrong !== null ? " incorrect" : ""}`}>
+  if (plan && target) return <div className={`drill-focus${keyboard ? " with-keyboard" : ""}${run.phase === "feedback" ? " correct" : run.lastWrong !== null ? " incorrect" : ""}`}>
     <header className="drill-focus-top"><div className="session-progress"><span>{Math.min(run.step + 1, plan.config.count)} / {plan.config.count}{run.simulated && ` · ${t("drillSimulated")}`}</span><progress aria-label={t("drillDone")} value={run.trials.length} max={plan.config.count} /></div>{run.phase !== "paused" && <button type="button" className="btn text" onClick={pause}>{t("drillPause")}</button>}</header>
     {run.phase === "paused" ? <section className="drill-paused">
       <h1 className="title" ref={heading} tabIndex={-1}>{t("drillPaused")}</h1>

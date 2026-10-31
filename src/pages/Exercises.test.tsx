@@ -6,7 +6,6 @@ import { readExercises, EXERCISE_KEY, type ExerciseKind } from "../features/less
 import { noteName } from "../features/midi/notes";
 import { en } from "../i18n/messages";
 import type { MidiEvent } from "../lib/backend";
-import { uiFeedback } from "../lib/uiFeedback";
 const {desktop,listeners,resets,play,stop,dispose,send}=vi.hoisted(()=>({desktop:vi.fn(()=>false),listeners:new Set<(e:MidiEvent)=>void>(),resets:new Set<()=>void>(),play:vi.fn(async()=>true),stop:vi.fn(),dispose:vi.fn(),send:vi.fn(async()=>{})}));
 vi.mock("../lib/exerciseAudio",()=>({ExerciseAudio:class{play=play;stop=stop;dispose=dispose;}}));
 vi.mock("../lib/backend",()=>({inDesktopApp:desktop,backend:{midiSimulate:send,onMidiEvent:async(cb:(e:MidiEvent)=>void)=>{listeners.add(cb);return()=>listeners.delete(cb);},onMidiReset:async(cb:()=>void)=>{resets.add(cb);return()=>resets.delete(cb);}}}));
@@ -143,8 +142,8 @@ it("keeps a physical key held through review from becoming a fresh answer",async
  const data=readExercises();if(!data.ok)throw Error();
  expect(data.data.records[0].trials[0]).toMatchObject({wrong:2,finished:true,helped:true});
 });
-it("keeps answer effects silent in listening questions for both wrong and correct answers",async()=>{
- const effect=vi.spyOn(uiFeedback,"play");
+it("only plays a listening question when requested, including after correction and auto advance",async()=>{
+ const initialPlays=play.mock.calls.length;
  start("direction");
  await act(async()=>fireEvent.click(screen.getByRole("button",{name:en.exListen})));
  const notes=pitches(),answer=notes[1]>notes[0]?en.exUp:notes[1]<notes[0]?en.exDown:en.exSame;
@@ -154,5 +153,15 @@ it("keeps answer effects silent in listening questions for both wrong and correc
  await act(async()=>fireEvent.click(screen.getByRole("button",{name:en.exReplay})));
  fireEvent.click(screen.getByRole("button",{name:answer}));
  expect(screen.getByRole("status").textContent).toContain(en.answerAuto);
- expect(effect).not.toHaveBeenCalled();
+ expect(play).toHaveBeenCalledTimes(initialPlays+2);
+});
+it("keeps phrase auto advance silent and never removes the keyboard while the question changes",()=>{
+ vi.useFakeTimers();
+ try {
+  start("phrase");const keyboard=screen.getByRole("group",{name:"Piano keyboard"});
+  pitches().forEach(key);act(()=>vi.advanceTimersByTime(700));
+  expect(screen.getByText("2 / 3")).toBeTruthy();
+  expect(screen.getByRole("group",{name:"Piano keyboard"})).toBe(keyboard);
+  expect(play).not.toHaveBeenCalled();
+ } finally {cleanup();vi.useRealTimers();}
 });

@@ -1,6 +1,5 @@
 const th = {
-  uiSounds: "เสียงเอฟเฟกต์ปุ่มและคำตอบ",
-  uiSoundsHint: "ปิดเสียงเอฟเฟกต์ได้ตลอด และไม่เล่นแทรกโจทย์ฟัง",
+  studioBackup: "การสำรองเพลง",
   answerRetry: "เข้าใจแล้ว ลองใหม่",
   answerWrongTitle: "ลองดูตรงนี้อีกนิด",
   answerPlayed: "คุณกด {actual} · ต้องการ {expected}",
@@ -13,8 +12,7 @@ const th = {
 };
 type Messages = { [K in keyof typeof th]: string };
 const en: Messages = {
-  uiSounds: "Button and answer sounds",
-  uiSoundsHint: "Mute effects anytime. Listening questions stay free of effects.",
+  studioBackup: "Song backups",
   answerRetry: "Got it, try again",
   answerWrongTitle: "Take another look",
   answerPlayed: "You played {actual} · Expected {expected}",
@@ -26,8 +24,7 @@ const en: Messages = {
   answerAutoHint: "Correct answers move on automatically",
 };
 const ja: Messages = {
-  uiSounds: "ボタンと回答の効果音",
-  uiSoundsHint: "効果音はいつでもオフにできます。聴く問題では鳴りません。",
+  studioBackup: "楽曲のバックアップ",
   answerRetry: "わかった、もう一度",
   answerWrongTitle: "ここを確認しましょう",
   answerPlayed: "弾いた音 {actual} · 正解 {expected}",

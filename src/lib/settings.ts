@@ -7,10 +7,9 @@ export interface Settings {
   theme: Theme;
   /** Look for a new version when the app starts (only reads GitHub Releases). */
   autoUpdate: boolean;
-  uiSounds: boolean;
 }
 
-export const defaultSettings: Settings = { locale: "th", theme: "light", autoUpdate: true, uiSounds: true };
+export const defaultSettings: Settings = { locale: "th", theme: "light", autoUpdate: true };
 
 const KEY = "mimi-kopi.settings";
 
@@ -25,7 +24,6 @@ export function loadSettings(storage: Pick<Storage, "getItem"> | undefined = glo
       locale: parsed.locale === "en" || parsed.locale === "ja" || parsed.locale === "th" ? parsed.locale : defaultSettings.locale,
       theme: parsed.theme === "dark" || parsed.theme === "light" ? parsed.theme : defaultSettings.theme,
       autoUpdate: typeof parsed.autoUpdate === "boolean" ? parsed.autoUpdate : defaultSettings.autoUpdate,
-      uiSounds: typeof parsed.uiSounds === "boolean" ? parsed.uiSounds : defaultSettings.uiSounds,
     };
   } catch {
     return defaultSettings;
