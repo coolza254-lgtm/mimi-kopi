@@ -5,6 +5,23 @@ use std::path::Path;
 const MAX_BYTES: u64 = 5 * 1024 * 1024;
 
 #[tauri::command]
+pub async fn midi_file_read(path: String) -> Result<Vec<u8>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let file = File::open(path).map_err(|e| e.to_string())?;
+        let mut bytes = Vec::new();
+        file.take(MAX_BYTES + 1)
+            .read_to_end(&mut bytes)
+            .map_err(|e| e.to_string())?;
+        if bytes.len() as u64 > MAX_BYTES {
+            return Err("MIDI file too large".into());
+        }
+        Ok(bytes)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
 pub async fn song_file_read(path: String) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || {
         let file = File::open(path).map_err(|e| e.to_string())?;
@@ -73,6 +90,18 @@ mod tests {
         ));
         assert!(result.is_err());
         assert_eq!(std::fs::read_to_string(path).unwrap(), "original");
+    }
+
+    #[test]
+    fn reads_binary_midi_without_utf8_conversion() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("test.mid");
+        let bytes = [b'M', b'T', b'h', b'd', 0xff, 0x80, 0];
+        std::fs::write(&path, bytes).unwrap();
+        let name = path.to_string_lossy().into_owned();
+        assert_eq!(block_on(midi_file_read(name.clone())).unwrap(), bytes);
+        std::fs::write(&path, vec![0; MAX_BYTES as usize + 1]).unwrap();
+        assert!(block_on(midi_file_read(name)).is_err());
     }
 
     #[test]

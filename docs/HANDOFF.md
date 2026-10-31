@@ -5,7 +5,24 @@
 **เจ้าของขอให้ทำแบบนี้ทุกครั้ง:** ทำงานเสร็จแต่ละชิ้นให้อัปเดตไฟล์นี้ทันที (ไม่ต้องรอจบรอบ) โดยเขียนทับหัวข้อ "สถานะล่าสุด" และ "งานต่อไป"
 แล้ว commit พร้อมโค้ด agent ตัวถัดไปจะได้ทำต่อได้ทันทีแม้โควตาของตัวก่อนหมดกลางคัน
 
-## สถานะล่าสุด (2026-10-31)
+## สถานะล่าสุด (2026-11-01)
+
+### 0.8.1 — เพิ่มนำเข้า MIDI (กำลังตรวจและเผยแพร่)
+
+- เจ้าของเปิด MIDI ที่แกะจากภาพไม่ได้ เพราะ 0.8.0 รับเฉพาะ JSON เป็นข้อจำกัดของแอป ไม่ใช่หลักฐานว่า MIDI เสีย เพิ่ม parser format 0/1 PPQN แบบไม่ใช้ dependency และ native bounded binary reader บน worker
+- นำเข้า .mid/.midi เป็นเพลงใหม่ คง JSON backup เดิม ชื่อ Left/Right กำหนดมือก่อน fallback C4 มีข้อความสามภาษาให้ตรวจมือ ไม่เก็บ velocity/instruments/controllers ไม่อ้างว่าเดามือถูกเสมอ
+- ปฏิเสธไฟล์เสีย/โน้ตค้าง/format 2/SMPTE/tempo หรือ meter เปลี่ยน/เพดัล/pitch bend/percussion/จังหวะที่เก็บไม่ได้/นอกช่วง A0–C8 ไม่ quantize หรือกรองโน้ตทิ้งเงียบ ๆ ใช้ schema เดิมตรวจขาเข้าซ้ำก่อนเพิ่มเพลง
+- ไฟล์ผู้ใช้อยู่ Downloads/piano-transcription เท่านั้น ไม่ใส่เพลงในรีโป สร้าง piano-excerpt-draft.mimi.json ให้ใช้กับรุ่นเดิมได้ด้วย จังหวะในภาพมีข้อสงสัยตามที่แจ้งไว้เดิม
+- เพิ่ม 14 unit tests parser และ integration ว่านำเข้าล้มไม่ทับเพลงเดิม รวม Vitest 300/39 ไฟล์ ผ่านด้วย maxWorkers=2 (รอบ default ชน timeout สองเทสต์เดิมเมื่อรัน Rust build พร้อมกัน ไม่แก้หรือข้ามเทสต์) npm ci/typecheck/build/3 release-helper tests และ Rust fmt/core clippy/56 tests ผ่าน native clippy และ binary reader tests 4/4 ผ่านด้วย กำลังรอผล CI/Release
+- ทดสอบไฟล์ MIDI ผู้ใช้จริงภายนอกรีโป อ่าน 66 โน้ต 80 BPM และเทียบ JSON แล้ว start/dur/pitch/hand ตรงทุกตัว ไม่ใส่ไฟล์ส่วนตัวลง source เทสต์ประจำใช้ MIDI สังเคราะห์เท่านั้น
+- ขณะตรวจพบการบันทึก encoding ทำให้ข้อความ Unicode ใน Rust test เปลี่ยน แก้คืนเป็นข้อความเดิมแล้ว native clippy ผ่าน ไม่ suppress lint
+
+### งานต่อไป
+
+- ตรวจชุดทดสอบทั้งหมด push แล้วดู CI/Release 0.8.1 ตรวจ latest.json/exe/sig ด้วย public key เดิมตาม docs/RELEASING.md และบันทึกผล
+- Native dialog/ติดตั้งและอุปกรณ์ MIDI จริงยังต้องให้เจ้าของตรวจ ไม่ถือว่า browser simulation เป็นผลจริง
+
+## ประวัติ (2026-10-31)
 
 ### เผยแพร่ 0.8.0 แล้ว — ออกแบบสตูดิโอใหม่และนำเสียงเอฟเฟกต์ออก
 

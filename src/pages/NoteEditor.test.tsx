@@ -8,15 +8,17 @@ import type { LessonRecord, RunResult } from "../features/lessons/progress";
 import { newSong } from "../features/score/score";
 import NoteEditor from "./NoteEditor";
 
-const { listeners, simulate, saveDialog, writeFile, renderPlayer } = vi.hoisted(() => ({
+const { listeners, simulate, saveDialog, writeFile, renderPlayer, openDialog, readMidi } = vi.hoisted(() => ({
   listeners: new Set<(event: MidiEvent) => void>(),
   simulate: vi.fn().mockResolvedValue(undefined),
   saveDialog: vi.fn(),
   writeFile: vi.fn(),
   renderPlayer: vi.fn(),
+  openDialog: vi.fn(),
+  readMidi: vi.fn(),
 }));
 
-vi.mock("@tauri-apps/plugin-dialog", () => ({ open: vi.fn(), save: saveDialog }));
+vi.mock("@tauri-apps/plugin-dialog", () => ({ open: openDialog, save: saveDialog }));
 vi.mock("../lib/backend", () => ({
   inDesktopApp: () => true,
   backend: {
@@ -26,6 +28,7 @@ vi.mock("../lib/backend", () => ({
     },
     midiSimulate: simulate,
     songFileWrite: writeFile,
+    midiFileRead: readMidi,
   },
 }));
 vi.mock("./Practice", () => ({ LessonPlayer: (props: unknown) => { renderPlayer(props); return <div>Playing lesson</div>; } }));
@@ -44,6 +47,8 @@ beforeEach(() => {
   saveDialog.mockReset().mockResolvedValue("C:\\backup.json");
   writeFile.mockReset().mockResolvedValue(undefined);
   renderPlayer.mockClear();
+  openDialog.mockReset();
+  readMidi.mockReset();
   vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
   vi.stubGlobal("cancelAnimationFrame", vi.fn());
 });
@@ -232,4 +237,21 @@ describe("note editor MIDI lifecycle", () => {
     expect(screen.getByLabelText("songTempo")).toHaveProperty("value", "81");
     expect(screen.queryByText("editorLoadError")).toBeNull();
   });
+});
+
+it("imports MIDI as a new song and leaves existing songs intact on failure", async () => {
+  const ascii = (s: string) => [...s].map((c) => c.charCodeAt(0));
+  const events = [0, 144, 60, 80, 0x83, 0x60, 128, 60, 0, 0, 255, 47, 0];
+  readMidi.mockResolvedValue([...ascii("MThd"), 0, 0, 0, 6, 0, 0, 0, 1, 1, 224, ...ascii("MTrk"), 0, 0, 0, events.length, ...events]);
+  openDialog.mockResolvedValue("C:\\music\\example.mid");
+  await mount();
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "songImport" })); });
+  expect(saved()).toHaveLength(2);
+  expect(saved()[1]).toMatchObject({ title: "example", notes: [expect.objectContaining({ pitch: 60, dur: 4, hand: "R" })] });
+  expect(screen.getByText("songMidiImported")).toBeTruthy();
+  const previous = localStorage.getItem("mimi-kopi.songs");
+  readMidi.mockResolvedValue([0, 1, 2]);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "songImport" })); });
+  expect(screen.getByText("songImportFailed")).toBeTruthy();
+  expect(localStorage.getItem("mimi-kopi.songs")).toBe(previous);
 });

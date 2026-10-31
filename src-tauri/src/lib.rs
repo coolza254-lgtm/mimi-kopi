@@ -206,6 +206,7 @@ pub fn run() {
             audio_use_basic,
             audio_test_sound,
             song_files::song_file_read,
+            song_files::midi_file_read,
             song_files::song_file_write,
         ])
         .run(tauri::generate_context!())

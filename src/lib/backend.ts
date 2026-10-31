@@ -56,6 +56,7 @@ export type GainChannel = "master" | "piano" | "metronome" | "backing";
 export const inDesktopApp = (): boolean => isTauri();
 
 export const backend = {
+  midiFileRead: (path: string) => invoke<number[]>("midi_file_read", { path }),
   songFileRead: (path: string) => invoke<string>("song_file_read", { path }),
   songFileWrite: (path: string, contents: string) => invoke<void>("song_file_write", { path, contents }),
   appInfo: () => invoke<AppInfo>("app_info"),

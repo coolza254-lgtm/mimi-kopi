@@ -23,6 +23,7 @@ import {
   type Song,
 } from "../features/score/score";
 import { MAX_SONG_FILE_BYTES, parseSongFile, serializeSongFile, songFilename } from "../features/score/songFile";
+import { parseMidiFile } from "../features/score/midiFile";
 import { clampMeasureRange, enterMidiNote, playbackEvents } from "../features/score/editor";
 import type { Locale, MessageKey } from "../i18n/messages";
 import { backend, inDesktopApp } from "../lib/backend";
@@ -418,13 +419,14 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
     lastInput.current = null;
   };
 
-  const importSong = (text: string) => {
-    const imported = parseSongFile(text, uid(), new Date());
+  const importSong = (source: string | Uint8Array, filename = "song.mid") => {
+    const midi = source instanceof Uint8Array;
+    const imported = midi ? parseMidiFile(source, filename, uid(), new Date()) : parseSongFile(source, uid(), new Date());
     selectSong(imported.id);
     setRange({ from: 0, to: Math.min(3, imported.measures - 1) });
     setSongs((all) => [...all, imported]);
     setFileError(false);
-    setFileMessage("songImported");
+    setFileMessage(midi ? "songMidiImported" : "songImported");
   };
 
   const importDesktop = async () => {
@@ -432,8 +434,11 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
     setFileMessage(null);
     stop();
     try {
-      const path = await open({ multiple: false, filters: [{ name: t("songFileType"), extensions: ["json"] }] });
-      if (typeof path === "string") importSong(await backend.songFileRead(path));
+      const path = await open({ multiple: false, filters: [{ name: t("songFileType"), extensions: ["json", "mid", "midi"] }] });
+      if (typeof path === "string") {
+        if (/\.(mid|midi)$/i.test(path)) importSong(new Uint8Array(await backend.midiFileRead(path)), path.split(/[\\/]/).pop());
+        else importSong(await backend.songFileRead(path));
+      }
     } catch {
       setFileError(true);
       setFileMessage("songImportFailed");
@@ -653,7 +658,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
           <button type="button" className="btn" disabled={fileBusy} onClick={() => void exportSong()}>
             {t("songExport")}
           </button>
-          <input ref={fileInput} type="file" accept=".json,application/json" hidden onChange={async (e) => {
+          <input ref={fileInput} type="file" accept=".json,.mid,.midi,application/json,audio/midi,audio/x-midi" hidden onChange={async (e) => {
             const file = e.target.files?.[0];
             e.target.value = "";
             if (!file) return;
@@ -662,7 +667,8 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
             stop();
             try {
               if (file.size > MAX_SONG_FILE_BYTES) throw new Error("Song file too large");
-              importSong(await file.text());
+              if (/\.(mid|midi)$/i.test(file.name)) importSong(new Uint8Array(await file.arrayBuffer()), file.name);
+              else importSong(await file.text());
             } catch {
               setFileError(true);
               setFileMessage("songImportFailed");
