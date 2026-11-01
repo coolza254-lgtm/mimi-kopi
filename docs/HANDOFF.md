@@ -7,8 +7,10 @@
 
 ## สถานะล่าสุด (2026-11-01)
 
-### 0.9.0 — ฝึกโน้ตตก (กำลังพัฒนา/ยังไม่เผยแพร่)
+### เผยแพร่ 0.9.0 แล้ว — ฝึกโน้ตตก
 
+- โค้ด main `7618af125de0f899ec2829143844b676f11661fd` push แล้ว [CI 41274739370](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41274739370) ผ่านครบเว็บ/Rust/Windows [Release 41274739434](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41274739434) ผ่านครบ เผยแพร่ 2026-11-01 เวลา12:00:09น. ไทย ไม่ push แทรกระหว่าง gate กับเผยแพร่
+- [v0.9.0](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.9.0) ตรวจ latest endpoint เป็น0.9.0 exe/sig/manifestครบ ไม่ใช่draft/prerelease ลายเซ็น manifest ตรง sig และ Minisign ผ่าน public key เดิม ตัวติดตั้ง3,578,564 bytes SHA-256 `f9cbec5aa2f56e96c795eac1af49be344e70f33a3454e0c696f6c44c033f1e83` ตรง GitHub digest ไม่อ่าน private key ไม่ติดตั้งจริง
 - เจ้าของขอโหมดฝึกเพลงแบบโน้ตตกที่สวยและใช้ฝึกจริง เพิ่มทางเข้าจากหน้าแกะโน้ต ใช้เพลง/มือ/ช่วงห้องที่เลือก ไม่มีเพลงที่มีลิขสิทธิ์ bundle ในแอป
 - ทำ rollPlan เก็บ start/dur จริงและเลือกมือ/ตัดช่วง, geometry ตรง PianoKeyboard, wait-state รอคีย์ครบคอร์ด ต้องปล่อยแล้วกดใหม่สำหรับโน้ตซ้ำ ไม่มีคะแนนจังหวะ/ความยาวที่กดค้าง
 - มีรอฉันและฟังตัวอย่าง, ความเร็ว 25/50/75/100%, ชื่อโน้ต, วนช่วงซ้ำ, ลดการเคลื่อนไหวตามระบบพร้อมให้เลือกเปิดการเคลื่อนโน้ตเอง ซ้ายเขียว/ขวาน้ำเงินทั้งแท่งและคีย์ (เป็นสีบอกมือในธีมขาวดำ) คีย์ยังขาว
@@ -20,8 +22,10 @@
 
 ### งานต่อไป
 
-- ตรวจ UI รอบสุดท้าย: ผ่าน dark 1024×640 ไม่มี overflow, synthetic3/3ผิด1ติดป้ายจำลอง, listen/loop, หน้าตั้งค่าเปิดทั้ง155โน้ต18ห้องได้แล้ว เพิ่มปรับช่วงในโหมดและส่งช่วงจริงให้ storage
-- รัน AGENTS checks, อัปเดต CHANGELOG/ROADMAP/MIDI_AUDIO_TEST_PLAN/release notes, push ดู CI/Release 0.9.0 และตรวจ manifest/installer/signature ตาม docs/RELEASING.md
+- UI ผ่านทั้งสองธีม 1024×640 ไม่มี overflow, synthetic3/3ผิด1ติดป้ายจำลอง, listen/loop, เปิดทั้ง155โน้ต18ห้องได้ ปรับช่วงภายในโหมดส่งช่วงจริงให้ storage มี regression เพิ่ม
+- พรีวิวสด http://127.0.0.1:1421/ cmd PID15368 เปิดหน้าเตรียมฝึกพร้อมไฟล์ส่วนตัวสองหน้าที่เจ้าของขอไว้แล้ว ไม่ตอบโจทย์หรือสร้างประวัติฝึกบน origin นี้ ปิดแท็บ QA และหยุด Vite listener1422 แล้ว ภาพหลักฐานอยู่ C:/Users/Nekko/.codex/visualizations/2026/11/01/mimi-falling-notes
+- งาน0.9.0 เสร็จพร้อมอัปเดตในแอป checks/CI/Release/manifest/ลายเซ็นครบ
+- เจ้าของขอแกะ I WISH คลิป https://www.youtube.com/watch?v=0EAJmn322jE ทั้ง3ระดับ Easy0:40 Medium3:42 Freestyle7:43 เพื่อฝึกส่วนตัว เตรียม MIDI/JSON แยกนอกรีโป กำลังเริ่มดึงข้อมูลและตรวจวิดีโอ อย่านำเพลงเข้าsource
 - Native MIDI/เสียง/ติดตั้งจริงยังไม่ได้ทดสอบกับ Badger ไม่อ้างว่า hardware verified
 
 ## ประวัติ 0.8.2 (2026-11-01)
