@@ -7,6 +7,25 @@
 
 ## สถานะล่าสุด (2026-11-01)
 
+### 0.9.0 — ฝึกโน้ตตก (กำลังพัฒนา/ยังไม่เผยแพร่)
+
+- เจ้าของขอโหมดฝึกเพลงแบบโน้ตตกที่สวยและใช้ฝึกจริง เพิ่มทางเข้าจากหน้าแกะโน้ต ใช้เพลง/มือ/ช่วงห้องที่เลือก ไม่มีเพลงที่มีลิขสิทธิ์ bundle ในแอป
+- ทำ rollPlan เก็บ start/dur จริงและเลือกมือ/ตัดช่วง, geometry ตรง PianoKeyboard, wait-state รอคีย์ครบคอร์ด ต้องปล่อยแล้วกดใหม่สำหรับโน้ตซ้ำ ไม่มีคะแนนจังหวะ/ความยาวที่กดค้าง
+- มีรอฉันและฟังตัวอย่าง, ความเร็ว 25/50/75/100%, ชื่อโน้ต, วนช่วงซ้ำ, ลดการเคลื่อนไหวตามระบบพร้อมให้เลือกเปิดการเคลื่อนโน้ตเอง ซ้ายเขียว/ขวาน้ำเงินทั้งแท่งและคีย์ (เป็นสีบอกมือในธีมขาวดำ) คีย์ยังขาว
+- canvas เต็มเวที ข้อความโจทย์อยู่เหนือ canvas ไม่บังโน้ต ใช้เวลาจริงจากไฟล์ ไม่มี UI click sounds เสียงพรีวิวในเว็บเป็น oscillator สร้างเอง ในแอปใช้เครื่องดนตรีที่ตั้งไว้ผ่าน backend เดิม ไม่แก้ Rust audio callback
+- พักเมื่อ blur/hidden/MIDI reset/RAF สะดุด/เสียงหรือ subscription ล้ม เคลียร์คีย์จำลองและเสียงที่โหมดนี้ถืออยู่ ไม่ให้เวลาเพลงกระโดดตอนกลับมา มี retry จัดการ promise เสียงที่กลับมาช้าหลัง stop
+- ไม่รับ event จำลองจาก guide/echo เป็นคำตอบ หน้าจอ feed จำลองโดยตรงและ latch ทั้งรอบ ผสมจริง+จำลองยังเป็นจำลอง ฟังตัวอย่างไม่บันทึกผล รอบรอที่จบเก็บเฉพาะ completed run ผ่าน progress เดิม โดย accuracy/durationMs เป็น null ไม่อ้างความคล่อง
+- เพิ่ม unit/state/geometry, DOM teardown/pause/guide isolation/จริง-จำลอง/save retry และ parent storage tests เว็บ typecheck/328 tests ใน42ไฟล์/build/3 release-helper tests ผ่านแล้ว Rust fmt/core clippy/56 tests ผ่านแล้ว กำลังตรวจ UI รอบสุดท้ายก่อน push
+- Browser QA ที่ 1422 เลือกไฟล์ส่วนตัวเดิม ตอบคอร์ดแรกบนจอได้และไปข้อถัดไป ตรวจภาพสองมือแล้ว ไม่มีข้อมูลส่วนตัวใน source พรีวิว agent-owned Vite QA เดิมหยุดแล้ว เปิดใหม่ด้วย cmd PID2988; Live เดิมหยุดแล้ว จะเปิดใหม่ก่อนส่งมอบ ต้องเก็บ live ไว้และหยุด QA หลังเสร็จ
+
+### งานต่อไป
+
+- ตรวจ UI รอบสุดท้าย: ผ่าน dark 1024×640 ไม่มี overflow, synthetic3/3ผิด1ติดป้ายจำลอง, listen/loop, หน้าตั้งค่าเปิดทั้ง155โน้ต18ห้องได้แล้ว เพิ่มปรับช่วงในโหมดและส่งช่วงจริงให้ storage
+- รัน AGENTS checks, อัปเดต CHANGELOG/ROADMAP/MIDI_AUDIO_TEST_PLAN/release notes, push ดู CI/Release 0.9.0 และตรวจ manifest/installer/signature ตาม docs/RELEASING.md
+- Native MIDI/เสียง/ติดตั้งจริงยังไม่ได้ทดสอบกับ Badger ไม่อ้างว่า hardware verified
+
+## ประวัติ 0.8.2 (2026-11-01)
+
 ### เผยแพร่ 0.8.2 แล้ว — เวลาละเอียดของโน้ต
 
 - เผยแพร่ [v0.8.2](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.8.2) วันที่ 2026-11-01 เวลา 02:40:37 น. ไทย จาก main `a8824d25b6422a0ffb853d2e2438f442c2ec05fb` [CI 41234800784](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41234800784) ผ่านครบเว็บ/Rust/Windows และ [Release 41234800770](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41234800770) ผ่านครบ ไม่ push แทรกระหว่าง gate และเผยแพร่

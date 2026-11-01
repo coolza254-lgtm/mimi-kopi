@@ -6,6 +6,7 @@ interface Props {
   /** Keys the player should press next, drawn with an outline. */
   targets?: readonly number[];
   leftTargets?: readonly number[];
+  leftHeld?: readonly number[];
   latch?: boolean;
   /** Text shown on a key instead of its name, e.g. a finger number. */
   labels?: Readonly<Record<number, string>>;
@@ -19,6 +20,7 @@ export default function PianoKeyboard({
   held,
   targets = [],
   leftTargets,
+  leftHeld,
   latch = false,
   labels = {},
   onPress,
@@ -37,7 +39,7 @@ export default function PianoKeyboard({
   const heldSet = new Set(held);
   const targetSet = new Set(targets);
   const classes = (base: string, p: number) =>
-    `${base}${heldSet.has(p) ? " on" : ""}${targetSet.has(p) ? ` target${leftTargets ? leftTargets.includes(p) ? " target-left" : " target-right" : ""}` : ""}`;
+    `${base}${heldSet.has(p) ? ` on${leftHeld ? leftHeld.includes(p) ? " on-left" : " on-right" : ""}` : ""}${targetSet.has(p) ? ` target${leftTargets ? leftTargets.includes(p) ? " target-left" : " target-right" : ""}` : ""}`;
 
   const press = (p: number) => {
     if (latch && down.current.has(p)) { down.current.delete(p); onRelease(p); return; }

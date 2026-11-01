@@ -8,7 +8,7 @@ import type { LessonRecord, RunResult } from "../features/lessons/progress";
 import { newSong } from "../features/score/score";
 import NoteEditor from "./NoteEditor";
 
-const { listeners, simulate, saveDialog, writeFile, renderPlayer, openDialog, readMidi } = vi.hoisted(() => ({
+const { listeners, simulate, saveDialog, writeFile, renderPlayer, openDialog, readMidi, renderRoll } = vi.hoisted(() => ({
   listeners: new Set<(event: MidiEvent) => void>(),
   simulate: vi.fn().mockResolvedValue(undefined),
   saveDialog: vi.fn(),
@@ -16,6 +16,7 @@ const { listeners, simulate, saveDialog, writeFile, renderPlayer, openDialog, re
   renderPlayer: vi.fn(),
   openDialog: vi.fn(),
   readMidi: vi.fn(),
+  renderRoll: vi.fn(),
 }));
 
 vi.mock("@tauri-apps/plugin-dialog", () => ({ open: openDialog, save: saveDialog }));
@@ -31,6 +32,7 @@ vi.mock("../lib/backend", () => ({
     midiFileRead: readMidi,
   },
 }));
+vi.mock("./FallingPractice", () => ({ default: (props: unknown) => { renderRoll(props); return <div>Falling stage</div>; } }));
 vi.mock("./Practice", () => ({ LessonPlayer: (props: unknown) => { renderPlayer(props); return <div>Playing lesson</div>; } }));
 
 const event = { kind: "noteOn", pitch: 60, velocity: 80, simulated: false } as MidiEvent;
@@ -47,6 +49,7 @@ beforeEach(() => {
   saveDialog.mockReset().mockResolvedValue("C:\\backup.json");
   writeFile.mockReset().mockResolvedValue(undefined);
   renderPlayer.mockClear();
+  renderRoll.mockClear();
   openDialog.mockReset();
   readMidi.mockReset();
   vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
@@ -264,4 +267,19 @@ it("renders approximate notation while preserving the precise song when reopened
   expect(screen.getByText("songPerformanceTiming")).toBeTruthy();
   expect(screen.getByRole("button", { name: "C4 durQuarter" })).toBeTruthy();
   expect(saved()[0].notes).toEqual(precise.notes);
+});
+
+it("opens falling practice without changing the song and saves only completion evidence",async()=>{
+ await mount();await send();const before=localStorage.getItem("mimi-kopi.songs");
+ fireEvent.click(screen.getByRole("button",{name:/rollOpen/}));
+ expect(screen.getByText("Falling stage")).toBeTruthy();expect(localStorage.getItem("mimi-kopi.songs")).toBe(before);
+ const props=renderRoll.mock.lastCall![0] as {onComplete:(simulated:boolean)=>boolean};
+ await act(async()=>{expect(props.onComplete(true)).toBe(true);});
+ const history=JSON.parse(localStorage.getItem("mimi-kopi.lessons")!);const record=Object.values(history)[0];
+ expect(record).toMatchObject({screenRuns:1,pianoRuns:0,bestAccuracy:null,bestTimeMs:null});
+});
+it("does not replace corrupt practice history with a falling-mode result",async()=>{
+ localStorage.setItem("mimi-kopi.lessons","damaged history");await mount();await send();fireEvent.click(screen.getByRole("button",{name:/rollOpen/}));
+ const props=renderRoll.mock.lastCall![0] as {onComplete:(simulated:boolean)=>boolean};expect(props.onComplete(false)).toBe(false);
+ expect(localStorage.getItem("mimi-kopi.lessons")).toBe("damaged history");
 });

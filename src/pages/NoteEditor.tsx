@@ -30,6 +30,7 @@ import { clampMeasureRange, enterMidiNote, playbackEvents } from "../features/sc
 import type { Locale, MessageKey } from "../i18n/messages";
 import { backend, inDesktopApp } from "../lib/backend";
 import { LessonPlayer } from "./Practice";
+import FallingPractice from "./FallingPractice";
 
 interface Props {
   t: (key: MessageKey) => string;
@@ -132,6 +133,8 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
   const [playhead, setPlayhead] = useState<number | null>(null);
   const [hands, setHands] = useState<Hands>("both");
   const [practice, setPractice] = useState<Lesson | null>(null);
+  const [falling, setFalling] = useState(false);
+  const [fallingRange, setFallingRange] = useState({ from: 0, to: 0 });
   const [fileBusy, setFileBusy] = useState(false);
   const [fileMessage, setFileMessage] = useState<MessageKey | null>(null);
   const [fileError, setFileError] = useState(false);
@@ -501,6 +504,15 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
 
   const [progressData] = useState(readProgress);
   const [progress, setProgress] = useState<Progress>(() => progressData.ok ? progressData.progress : {});
+  if (falling) return <FallingPractice song={song} hands={hands} from={fallingRange.from} to={fallingRange.to} speed={speed} t={t} onBack={() => setFalling(false)} onFocusChange={onFocusChange} onComplete={(simulated, selected = fallingRange) => {
+    if (!progressData.ok) return false;
+    const identity = JSON.stringify({ notes: song.notes, tempo: song.tempo, hands, from: selected.from, to: selected.to });
+    const version = [...identity].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 1_000_003, 0);
+    const lesson: Lesson = { id: `falling-${song.id}-${hands}-${selected.from}-${selected.to}`, version, unit: "song", hand: hands === "L" ? "left" : hands === "R" ? "right" : "both", title: { th: song.title, en: song.title, ja: song.title }, goal: { th: "", en: "", ja: "" }, steps: [] };
+    const latest = readProgress(); if (!latest.ok) return false;
+    const next = recordRun(latest.progress, lesson, { accuracy: null, durationMs: null, simulated }, new Date());
+    const saved = saveProgress(next); if (saved) setProgress(next); return saved;
+  }} />;
   if (practice) {
     return (
       <LessonPlayer
@@ -592,7 +604,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
           <h1 className="title">{t("editorTitle")}</h1>
           <p className="muted">{t("editorIntro")}</p>
         </div>
-        <span className="badge">{t("editorPrivate")}</span>
+        <div className="actions"><span className="badge">{t("editorPrivate")}</span><button type="button" className="btn primary" disabled={!song.notes.length} onClick={() => { stop(); setFallingRange({from:0,to:Math.max(0,lastUsedMeasure(song))}); setFalling(true); }}>{t("rollOpen")} ↓</button></div>
       </header>
 
       {saveFailed && <div className="notice error" role="alert">
@@ -926,6 +938,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
               ■ {t("playStop")}
             </button>
           )}
+          <button type="button" className="btn primary" disabled={toSteps(song, hands, range.from, range.to).length === 0} onClick={() => { stop(); setFallingRange(range); setFalling(true); }}>{t("rollSelected")} ↓</button>
           <button type="button" className="btn" disabled={toSteps(song, hands, range.from, range.to).length === 0} onClick={startPractice}>
             {t("practiceThis")} ›
           </button>
