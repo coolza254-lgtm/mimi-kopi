@@ -4,6 +4,7 @@ interface Props {
   /** Pitches to show together; C4 and above go on the treble staff. */
   pitches: readonly number[];
   label: string;
+  flats?: boolean;
 }
 
 const HALF = 7;
@@ -25,13 +26,13 @@ function ledgers(step: number, bottom: number, top: number): number[] {
 }
 
 /** A grand staff with the given notes, for reading along with the keys. */
-export default function MiniStaff({ pitches, label }: Props) {
+export default function MiniStaff({ pitches, label, flats = false }: Props) {
   const lines = (y: (s: number) => number, from: number) =>
     [0, 2, 4, 6, 8].map((d) => <line key={d} x1="8" x2="292" y1={y(from + d)} y2={y(from + d)} />);
   const placed = [...pitches]
     .sort((a, b) => a - b)
     .map((p) => {
-      const step = staffStep(p);
+      const step = staffStep(p) + (flats && isBlackKey(p) ? 1 : 0);
       const treble = p >= 60;
       return { p, step, treble, y: treble ? trebleY(step) : bassY(step) };
     });
@@ -65,7 +66,7 @@ export default function MiniStaff({ pitches, label }: Props) {
             ))}
             {isBlackKey(n.p) && (
               <text className="accidental" x={xs[i] - 28} y={n.y + 7} fontSize="22" aria-hidden="true">
-                ♯
+                {flats ? "♭" : "♯"}
               </text>
             )}
             <ellipse cx={xs[i]} cy={n.y} rx="9" ry="6.5" transform={`rotate(-20 ${xs[i]} ${n.y})`} />

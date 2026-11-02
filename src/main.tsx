@@ -8,6 +8,7 @@ import "./styles/studio.css";
 import "./styles/night.css";
 import "./styles/interaction.css";
 import "./styles/atelier.css";
+import "./styles/training.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -121,6 +121,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
   const [history, setHistory] = useState<{ undo: Song[]; redo: Song[] }>({ undo: [], redo: [] });
   const [dur, setDur] = useState(4);
   const [dotted, setDotted] = useState(false);
+  const [largeScore, setLargeScore] = useState(false);
   const [accidental, setAccidental] = useState<Accidental>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [hover, setHover] = useState<{ pitch: number; start: number; hand: ScoreHand } | null>(null);
@@ -627,6 +628,9 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
             ))}
           </select>
         </label>
+        <details className="editor-settings" open>
+          <summary>{t("trainingSettings")}</summary>
+          <div className="editor-settings-grid">
         <label className="field grow">
           {t("songTitle")}
           <input maxLength={200} value={song.title} onChange={(e) => update((s) => ({ ...s, title: e.target.value }), false)} />
@@ -661,6 +665,8 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
             onChange={(e) => update((s) => ({ ...s, tempo: Math.round(Math.max(30, Math.min(240, Number(e.target.value) || 80))) }), false)}
           />
         </label>
+          </div>
+        </details>
         <div className="actions">
           <button type="button" className="btn" onClick={addSong}>
             {t("songNew")}
@@ -762,10 +768,12 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
       </section>
 
       <section className="card score-card">
+        <button type="button" className="btn" aria-pressed={largeScore} onClick={() => setLargeScore(!largeScore)}>{t("trainingZoom")}</button>
         <div className="score-scroll" tabIndex={0} aria-label={t("editorScore")}>
           <svg
             ref={svgRef}
             className="score"
+            style={largeScore ? { width: width * 1.4, height: height * 1.4, maxWidth: "none" } : undefined}
             viewBox={`0 0 ${width} ${height}`}
             width={width}
             height={height}

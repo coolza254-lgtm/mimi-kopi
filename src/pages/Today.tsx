@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AppIcon from "../components/AppIcon";
+import TrainingStudio from "../components/TrainingStudio";
 import PracticeArtwork from "../components/PracticeArtwork";
 import MidiConnection from "../components/MidiConnection";
 import type { Lesson } from "../features/lessons/lessons";
@@ -42,7 +43,7 @@ export default function Today({ t, locale, onPractice, onFreePlay, onEditor, onS
   const firstTry = evidence?.trials.filter((q) => evidence.mode === "check" ? independentTrial(q, evidence.kind) : q.finished && q.wrong === 0).length ?? 0;
 
   return <div className={`today daily-page${inDesktopApp() ? " has-midi" : ""}`}>
-    <header className="today-heading"><h1 className="title">{t("dailyTitle")}</h1></header>
+    <TrainingStudio t={t} onLearn={(id) => onLearn ? onLearn(id) : onPractice(null)} onEditor={onEditor} />
     {inDesktopApp() && <MidiConnection t={t} onOpenSound={onSound} />}
     {suggestion ? <section className="today-hero daily-hero" aria-labelledby="today-next">
       <div className="today-hero-copy">
