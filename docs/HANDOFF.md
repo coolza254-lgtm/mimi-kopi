@@ -7,9 +7,12 @@
 
 ## สถานะล่าสุด (2026-11-03)
 
-### กำลังออก 0.10.1 ตามคำสั่งเจ้าของ
+### เผยแพร่ 0.10.1 แล้วตามคำสั่งเจ้าของ
 
-- เพิ่มเลขเวอร์ชันและ release notes สำหรับเส้นทางเรียนใหม่ รอตรวจครบก่อน push และรอ CI/Release พร้อมตรวจ manifest และลายเซ็นก่อนแจ้งว่าอัปเดตพร้อม
+- Release commit `6f04db4` เพิ่มเลขเวอร์ชันตรงกันทั้ง3ไฟล์และlockfiles พร้อมrelease notesภาษาไทย ตรวจtypecheck/เว็บ360/core56/helper3/build/fmt/clippyผ่าน คำเตือนbundleเดิมยังอยู่
+- [CI41646288843](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41646288843) และ [Release41646289017](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41646289017) สำเร็จ เผยแพร่ [v0.10.1](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.10.1) แล้ว
+- ตรวจlatest.jsonชี้0.10.1และWindows exeถูกต้อง exe/sigครบ signatureในmanifestตรง.sig ตรวจด้วยpublic keyเดิมผ่านและเปลี่ยน1byteถูกปฏิเสธ SHA-256ตัวติดตั้ง `68cebae0a9d14e6dc065632cb3aa1964e28cbb4cf83fdf229e71e42dd8922875` อัปเดตในแอปจากตั้งค่า→ตรวจหาอัปเดตได้ ไม่ติดตั้งแทนเจ้าของ ไม่ถือเป็นผลMIDIจริง
+- งานถัดไป: ให้เจ้าของลองอัปเดตและเส้นทางเรียน หลักสูตรใหม่8หน่วยยังเป็นข้อเสนอ ไม่มีงานเผยแพร่ค้าง
 
 
 ### เส้นทางเรียนแบบเห็นภาพ — เสร็จและ CI ผ่าน
