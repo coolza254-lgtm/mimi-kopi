@@ -14,6 +14,13 @@ export const learningPath:readonly PathStep[]=[
  {id:"bass",chapter:"bass",title:"learnBass",goal:"learnBassIntro"},
  {id:"chords",chapter:"chords",title:"learnChords",goal:"learnChordsIntro"},
 ];
+/** Presentation groups retain the existing teaching order and assessment scope. */
+export const pathSections = [
+ { title: "journeyStage1", goal: "journeyStage1Goal", steps: ["keyboard", "direction"] },
+ { title: "journeyStage2", goal: "journeyStage2Goal", steps: ["rhythm", "treble"] },
+ { title: "journeyStage3", goal: "journeyStage3Goal", steps: ["phrase", "melody"] },
+ { title: "journeyStage4", goal: "journeyStage4Goal", steps: ["bass", "chords"] },
+] as const satisfies readonly { title: MessageKey; goal: MessageKey; steps: readonly string[] }[];
 export function pathStepStatus(step:PathStep,progress:LearningProgress,drills:DrillRecord[],exercises:ExerciseRecord[]):"new"|"completed"|"simulated"{
  if(step.chapter){const chapter=courseChapters.find((c)=>c.id===step.chapter)!;return learningStatus(chapter,progress,drills);}
  const rounds=exercises.filter((r)=>r.kind===step.exercise&&r.completed);

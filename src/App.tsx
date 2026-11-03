@@ -19,6 +19,7 @@ import Today from "./pages/Today";
 import Skills from "./pages/Skills";
 import Learn from "./pages/Learn";
 import PracticePrograms from "./pages/PracticePrograms";
+import PracticeJourney from "./pages/PracticeJourney";
 
 type Page = "today" | "learn" | "practice" | "skills" | "free" | "editor" | "sound" | "settings";
 
@@ -217,7 +218,8 @@ export default function App() {
           <SoundMidi t={t} />
         ) : page === "practice" ? (
           practiceIntent ? <PracticePrograms key={practiceVisit} t={t} locale={settings.locale} initialConfig={practiceIntent.kind === "drill" ? practiceIntent.config : undefined} course={chapterPractice} onLegacy={() => openPractice()} onOpenSound={() => navigate("sound")} onFocusChange={setPracticeFocus} />
-            : <Practice key={practiceVisit} t={t} locale={settings.locale} initialLesson={initialLesson} onOpenSound={() => navigate("sound")} onFocusChange={setPracticeFocus} />
+            : initialLesson ? <Practice key={practiceVisit} t={t} locale={settings.locale} initialLesson={initialLesson} onOpenSound={() => navigate("sound")} onFocusChange={setPracticeFocus} />
+              : <PracticeJourney key={practiceVisit} t={t} locale={settings.locale} onLearn={openLearning} onSkills={() => navigate("skills")} onPractice={openPractice} onOpenSound={() => navigate("sound")} onFocusChange={setPracticeFocus} />
         ) : (
           <Today t={t} locale={settings.locale}
             onPractice={(lesson) => navigate("practice", lesson)}

@@ -16,6 +16,18 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe("practice navigation", () => {
+  it("opens practice as a learning journey, retains custom practice and returns to the path", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: en.navPractice }));
+    expect(screen.getByRole("list", { name: en.pathTitle })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: en.journeyBrowse }));
+    expect(screen.getByRole("heading", { name: en.drillTitle })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: en.journeyBack }));
+    expect(screen.getByRole("list", { name: en.pathTitle })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: en.pathContinue }));
+    expect(screen.getByRole("heading", { name: en.learnTry.replace("{note}", "C4") })).toBeTruthy();
+    expect(localStorage.getItem("mimi-kopi.learning.v1")).toBeNull();
+  });
   it("starts Today's suggested chapter directly and the learning sidebar returns to the path", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: en.pathContinue }));
@@ -35,18 +47,19 @@ describe("practice navigation", () => {
     expect(screen.getByRole("img", { name: `${en.drillReadPrompt}: C3` })).toBeTruthy();
     expect(localStorage.getItem("mimi-kopi.learning.v1")).toBeNull();
     fireEvent.click(within(screen.getByRole("navigation", { name: en.navSectionPractice })).getByRole("button", { name: en.navPractice }));
-    expect(screen.getByRole("heading", { name: en.drillTitle })).toBeTruthy();
+    expect(screen.getByRole("list", { name: en.pathTitle })).toBeTruthy();
   });
   it("returns from an open lesson to the curriculum through the same sidebar page", () => {
     render(<App />);
     fireEvent.click(within(screen.getByRole("navigation", { name: en.navSectionPractice })).getByRole("button", { name: en.navPractice }));
+    fireEvent.click(screen.getByRole("button", { name: en.journeyBrowse }));
     fireEvent.click(screen.getByRole("button", { name: en.drillLegacyOpen }));
     const last = lessons.at(-1)!;
     fireEvent.click(screen.getByRole("button", { name: new RegExp(last.title.en) }));
     expect(screen.getByRole("heading", { name: last.title.en })).toBeTruthy();
     expect(window.scrollTo).toHaveBeenLastCalledWith(0, 0);
     fireEvent.click(within(screen.getByRole("navigation", { name: en.navSectionPractice })).getByRole("button", { name: en.navPractice }));
-    expect(screen.getByRole("heading", { name: en.drillTitle })).toBeTruthy();
+    expect(screen.getByRole("list", { name: en.pathTitle })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: en.lessonSetup })).toBeNull();
     expect(document.activeElement).toBe(screen.getByRole("main"));
   });

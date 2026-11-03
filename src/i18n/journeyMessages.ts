@@ -1,0 +1,47 @@
+const th = {
+  journeyEyebrow: "PIANO JOURNEY",
+  journeySection: "ช่วงที่ {number}",
+  journeyStage1: "รู้จักคีย์และเสียง",
+  journeyStage1Goal: "หาคีย์ให้เจอ ฟังทิศทางให้ออก",
+  journeyStage2: "จังหวะและบรรทัดโน้ต",
+  journeyStage2Goal: "รู้ค่าจังหวะ แล้วเริ่มอ่านกุญแจซอล",
+  journeyStage3: "ต่อเสียงเป็นทำนอง",
+  journeyStage3Goal: "อ่านเป็นวลี และฟังแล้วเล่นตาม",
+  journeyStage4: "มือซ้ายและคอร์ด",
+  journeyStage4Goal: "อ่านกุญแจฟา และรู้จักเสียงคอร์ด",
+  journeyBrowse: "เลือกแบบฝึกเอง",
+  journeyBack: "กลับเส้นทางเรียน",
+  journeySuggested: "เริ่มตรงนี้",
+  journeySelected: "บทที่เลือก",
+  journeyProgress: "ผลบทเรียนที่บันทึก",
+  journeyLessonCount: "{count} บทในเส้นทางนี้",
+  journeyReady: "พร้อมเริ่ม",
+  journeyPianoEvidence: "มีผลจากเปียโนจริง",
+  journeySimEvidence: "มีผลจำลอง",
+  journeyLessonType: "เรียนรู้ · ลองเล่น · ท้ายบท",
+  journeyExerciseType: "ทำความเข้าใจ · ลองตอบเอง",
+};
+type JourneyMessages = { [K in keyof typeof th]: string };
+const en: JourneyMessages = {
+  journeyEyebrow: "PIANO JOURNEY", journeySection: "Stage {number}",
+  journeyStage1: "Keys & sounds", journeyStage1Goal: "Find your keys. Hear where notes move.",
+  journeyStage2: "Rhythm & notation", journeyStage2Goal: "Meet rhythm, then read the treble staff.",
+  journeyStage3: "Shape a melody", journeyStage3Goal: "Read phrases. Listen and play them back.",
+  journeyStage4: "Left hand & chords", journeyStage4Goal: "Read bass notes and explore chord sounds.",
+  journeyBrowse: "Choose a practice", journeyBack: "Back to learning path", journeySuggested: "Start here",
+  journeySelected: "Selected lesson", journeyProgress: "Recorded lesson results", journeyLessonCount: "{count} steps on your path",
+  journeyReady: "Ready to start", journeyPianoEvidence: "Piano result recorded", journeySimEvidence: "Simulated result recorded",
+  journeyLessonType: "Learn · try · end-of-lesson practice", journeyExerciseType: "Understand · try independently",
+};
+const ja: JourneyMessages = {
+  journeyEyebrow: "PIANO JOURNEY", journeySection: "ステージ {number}",
+  journeyStage1: "鍵盤と音を知る", journeyStage1Goal: "鍵盤を見つけ、音の動きを聴く。",
+  journeyStage2: "リズムと楽譜", journeyStage2Goal: "音の長さを知り、ト音記号を読む。",
+  journeyStage3: "音をメロディーに", journeyStage3Goal: "フレーズを読み、聴いて弾く。",
+  journeyStage4: "左手とコード", journeyStage4Goal: "ヘ音記号とコードの響きを知る。",
+  journeyBrowse: "練習を自分で選ぶ", journeyBack: "学習ルートに戻る", journeySuggested: "ここから",
+  journeySelected: "選んだレッスン", journeyProgress: "記録されたレッスン結果", journeyLessonCount: "全{count}ステップ",
+  journeyReady: "始められます", journeyPianoEvidence: "実鍵盤の結果あり", journeySimEvidence: "模擬練習の結果あり",
+  journeyLessonType: "学ぶ・弾いてみる・確認する", journeyExerciseType: "理解する・自分で答える",
+};
+export const journeyMessages = { th, en, ja };

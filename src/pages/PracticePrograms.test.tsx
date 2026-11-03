@@ -167,6 +167,7 @@ describe("focused practice programs", () => {
     localStorage.setItem("mimi-kopi.settings", JSON.stringify({ locale: "en", theme: "dark", autoUpdate: false }));
     render(<App />);
     fireEvent.click(within(screen.getByRole("navigation", { name: en.navSectionPractice })).getByRole("button", { name: en.navPractice }));
+    fireEvent.click(screen.getByRole("button", { name: en.journeyBrowse }));
     fireEvent.click(screen.getByRole("button", { name: en.drillBegin }));
     expect(document.querySelector(".shell")?.getAttribute("data-focus")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: en.drillPause }));

@@ -67,7 +67,7 @@ export default function Learn({ t, locale, initialStep, initialExercise, onFocus
       </footer>
     </div>;
   }
-  return <LearningPath t={t} onChapter={(item)=>{setStep(0);setSolved(false);setChapter(item);}} onExercise={(kind)=>{setExerciseOptions(undefined);setExercise(kind);}} onSkills={onSkills??(()=>{})} onPractice={onPractice??(()=>{})} />;
+  return <LearningPath t={t} onChapter={(item)=>{setStep(0);setSolved(false);setChapter(item);}} onExercise={(kind, options)=>{setExerciseOptions(options);setExercise(kind);}} onSkills={onSkills??(()=>{})} onPractice={onPractice??(()=>{})} />;
 }
 
 function courseChaptersForEntry(id?: string): CourseChapter | null {

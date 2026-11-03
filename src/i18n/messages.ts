@@ -1,4 +1,5 @@
 import { trainingMessages } from "./trainingMessages";
+import { journeyMessages } from "./journeyMessages";
 import { rollMessages } from "./rollMessages";
 import { drillMessages } from "./drillMessages";
 import { learnMessages } from "./learnMessages";
@@ -24,6 +25,7 @@ export const th = {
   ...freePlayMessages.th,
   ...dailyMessages.th,
   ...trainingMessages.th,
+  ...journeyMessages.th,
   midiConnectionConnected: "เชื่อมต่อ MIDI แล้ว",
   midiConnectionDisconnected: "ยังไม่ได้เชื่อมต่อเปียโน",
   midiConnectionWaiting: "กำลังรอเปียโนเชื่อมต่อกลับมา",
@@ -366,6 +368,7 @@ export const en: Messages = {
   ...freePlayMessages.en,
   ...dailyMessages.en,
   ...trainingMessages.en,
+  ...journeyMessages.en,
   midiConnectionConnected: "MIDI connected",
   midiConnectionDisconnected: "No piano connected",
   midiConnectionWaiting: "Waiting for your piano to reconnect",
@@ -705,6 +708,7 @@ export const ja: Messages = {
   ...freePlayMessages.ja,
   ...dailyMessages.ja,
   ...trainingMessages.ja,
+  ...journeyMessages.ja,
   midiConnectionConnected: "MIDI接続済み",
   midiConnectionDisconnected: "ピアノは未接続です",
   midiConnectionWaiting: "ピアノの再接続を待っています",
