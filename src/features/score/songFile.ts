@@ -1,4 +1,5 @@
 import { DURATIONS, hasPerformanceTiming, type ScoreNote, type Song } from "./score";
+import { isSongCover, MAX_SONG_MEMO } from "./songMetadata";
 
 export const MAX_SONG_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_NOTES = 20_000;
@@ -22,6 +23,8 @@ export function parseSongFile(text: string, id: string, now: Date): Song {
     !integer(s.tempo, 30, 240) || !integer(s.measures, 1, 400) ||
     !Array.isArray(s.notes) || s.notes.length > MAX_NOTES
   ) throw new Error("Invalid song settings");
+  if (s.memo !== undefined && (typeof s.memo !== "string" || s.memo.length > MAX_SONG_MEMO)) throw new Error("Invalid song memo");
+  if (s.cover !== undefined && !isSongCover(s.cover)) throw new Error("Invalid song cover");
   const end = s.measures * s.beats * 4;
   const notes = s.notes.map((n: unknown, i: number): ScoreNote => {
     if (
@@ -35,6 +38,8 @@ export function parseSongFile(text: string, id: string, now: Date): Song {
   return {
     id, title: s.title, fifths: s.fifths, beats: s.beats, tempo: s.tempo,
     measures: s.measures, notes, updatedAt: now.toISOString(),
+    ...(s.memo !== undefined ? { memo: s.memo as string } : {}),
+    ...(s.cover !== undefined ? { cover: s.cover as string } : {}),
   };
 }
 

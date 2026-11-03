@@ -76,3 +76,19 @@ it.each([0, -1, Infinity, NaN])("rejects invalid precise durations: %s", (dur) =
   const text = JSON.stringify({ format: "mimi-kopi-song", version: 2, song: { ...source, notes: [{ ...source.notes[0], dur }] } });
   expect(() => parseSongFile(text, "bad", now)).toThrow();
 });
+
+it("preserves private notes and a local cover across storage and file export", () => {
+  const annotated = { ...source, memo: "Continue at bar 5 · 0:42", cover: "data:image/jpeg;base64,/9j/AA==" };
+  const imported = parseSongFile(serializeSongFile(annotated), "new", now);
+  expect(imported).toMatchObject({ memo: annotated.memo, cover: annotated.cover });
+  let raw: string | null = null;
+  const storage = { getItem: () => raw, setItem: (_: string, value: string) => { raw = value; } };
+  expect(saveSongs([imported], storage)).toBe(true);
+  expect(loadSongs(storage)).toEqual([imported]);
+});
+
+it.each([{ memo: 1 }, { memo: "x".repeat(4001) }, { cover: "https://example.com/a.jpg" }, { cover: "data:image/svg+xml;base64,PHN2Zz4=" }])("rejects invalid metadata without changing existing songs: %j", (change) => {
+  expect(() => parseSongFile(file({ ...source, ...change }), "bad", now)).toThrow();
+  const raw = JSON.stringify([{ ...source, ...change }]);
+  expect(saveSongs([source], { getItem: () => raw, setItem: () => { throw new Error("Must not overwrite"); } })).toBe(false);
+});

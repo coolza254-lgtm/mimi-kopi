@@ -283,3 +283,22 @@ it("does not replace corrupt practice history with a falling-mode result",async(
  const props=renderRoll.mock.lastCall![0] as {onComplete:(simulated:boolean)=>boolean};expect(props.onComplete(false)).toBe(false);
  expect(localStorage.getItem("mimi-kopi.lessons")).toBe("damaged history");
 });
+
+it("keeps notebook text and insertion position when reopening the last song", async () => {
+  const first = newSong("first", "First song", new Date());
+  const second = newSong("second", "Second song", new Date());
+  localStorage.setItem("mimi-kopi.songs", JSON.stringify([first, second]));
+  await mount();
+  fireEvent.change(screen.getByLabelText("songPick"), { target: { value: "second" } });
+  fireEvent.change(screen.getByLabelText("songMemo"), { target: { value: "Continue at bar 5" } });
+  const notebook = screen.getByLabelText("songMemo");
+  fireEvent.keyDown(notebook, { key: "Delete" });
+  await send();
+  await act(async () => cleanup());
+  await mount();
+  expect(screen.getByLabelText("songTitle")).toHaveProperty("value", "Second song");
+  expect(screen.getByLabelText("songMemo")).toHaveProperty("value", "Continue at bar 5");
+  await send();
+  expect(saved()[1].notes.map((note: { start: number }) => note.start)).toEqual([0, 4]);
+  expect(saved()[0].notes).toEqual([]);
+});

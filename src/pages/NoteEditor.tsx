@@ -26,6 +26,8 @@ import {
 } from "../features/score/score";
 import { MAX_SONG_FILE_BYTES, parseSongFile, serializeSongFile, songFilename } from "../features/score/songFile";
 import { parseMidiFile } from "../features/score/midiFile";
+import { readEditorSession, saveEditorSession } from "../features/score/editorSession";
+import { makeSongCover, MAX_SONG_MEMO } from "../features/score/songMetadata";
 import { clampMeasureRange, enterMidiNote, playbackEvents } from "../features/score/editor";
 import type { Locale, MessageKey } from "../i18n/messages";
 import { backend, inDesktopApp } from "../lib/backend";
@@ -116,7 +118,9 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
     return initialSongs.length > 0 ? initialSongs : [newSong(uid(), t("songUntitled"), new Date())];
   });
   const [saveFailed, setSaveFailed] = useState(false);
-  const [songId, setSongId] = useState(() => songs[0].id);
+  const [session] = useState(() => readEditorSession(songs));
+  const [songId, setSongId] = useState(() => session?.songId ?? songs[0].id);
+  const [sessionFailed, setSessionFailed] = useState(false);
   const song = songs.find((s) => s.id === songId) ?? songs[0];
   const [history, setHistory] = useState<{ undo: Song[]; redo: Song[] }>({ undo: [], redo: [] });
   const [dur, setDur] = useState(4);
@@ -126,8 +130,8 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
   const [selected, setSelected] = useState<string | null>(null);
   const [hover, setHover] = useState<{ pitch: number; start: number; hand: ScoreHand } | null>(null);
   const [midiInput, setMidiInput] = useState(true);
-  const [cursor, setCursor] = useState<number | null>(null);
-  const [requestedRange, setRange] = useState({ from: 0, to: 3 });
+  const [cursor, setCursor] = useState<number | null>(session?.cursor ?? null);
+  const [requestedRange, setRange] = useState(session?.range ?? { from: 0, to: 3 });
   const range = clampMeasureRange(song.measures, requestedRange);
   const [loop, setLoop] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -140,6 +144,8 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
   const [fileMessage, setFileMessage] = useState<MessageKey | null>(null);
   const [fileError, setFileError] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const coverInput = useRef<HTMLInputElement>(null);
+  const [coverBusy, setCoverBusy] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ id: string; moved: boolean } | null>(null);
   const lastInput = useRef<{ time: number; start: number } | null>(null);
@@ -159,6 +165,9 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
   useEffect(() => { lastInput.current = null; }, [songId, noteDur, midiInput, practice, fileBusy]);
 
   useEffect(() => { setSaveFailed(!saveSongs(songs)); }, [songs]);
+  useEffect(() => {
+    setSessionFailed(!saveEditorSession({ songId: song.id, cursor, range }));
+  }, [song.id, cursor, range.from, range.to]);
   useEffect(() => {
     if (!saveFailed) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
@@ -314,7 +323,7 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
   };
 
   const onKey = (e: KeyboardEvent) => {
-    if ((e.target as HTMLElement).closest("input, select")) return;
+    if ((e.target as HTMLElement).closest("input, select, textarea")) return;
     const sel = song.notes.find((n) => n.id === selected);
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
       e.preventDefault();
@@ -603,7 +612,6 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
       <header className="page-head">
         <div>
           <h1 className="title">{t("editorTitle")}</h1>
-          <p className="muted">{t("editorIntro")}</p>
         </div>
         <div className="actions"><span className="badge">{t("editorPrivate")}</span><button type="button" className="btn primary" disabled={!song.notes.length} onClick={() => { stop(); setFallingRange({from:0,to:Math.max(0,lastUsedMeasure(song))}); setFalling(true); }}>{t("rollOpen")} ↓</button></div>
       </header>
@@ -618,6 +626,36 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
 
       {hasPerformanceTiming(song) && <p className="small muted" role="note">{t("songPerformanceTiming")}</p>}
       <section className="card editor-song">
+        <div className="editor-notebook-heading">
+          <button type="button" className="editor-cover" aria-label={t(song.cover ? "songCoverChange" : "songCoverAdd")} disabled={coverBusy} onClick={() => coverInput.current?.click()}>
+            {song.cover ? <img src={song.cover} alt="" /> : <span aria-hidden="true">＋</span>}
+            <span>{t(song.cover ? "songCoverChange" : "songCoverAdd")}</span>
+          </button>
+          <input ref={coverInput} type="file" accept="image/jpeg,image/png,image/webp" aria-label={t("songCoverFile")} hidden onChange={async (e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (!file) return;
+            const target = song.id;
+            setCoverBusy(true);
+            setFileMessage(null);
+            try {
+              const cover = await makeSongCover(file);
+              setSongs((all) => all.map((s) => s.id === target ? { ...s, cover, updatedAt: new Date().toISOString() } : s));
+            } catch {
+              setFileError(true);
+              setFileMessage("songCoverError");
+            } finally {
+              setCoverBusy(false);
+            }
+          }} />
+          <div className="editor-notebook-title">
+            <label className="field grow">
+              {t("songTitle")}
+              <input maxLength={200} value={song.title} onChange={(e) => update((s) => ({ ...s, title: e.target.value }), false)} />
+            </label>
+            <span className="small muted" role="status">{t(saveFailed ? "songStorageSaveError" : sessionFailed ? "songResumeError" : "songDraftSaved")}</span>
+          </div>
+        </div>
         <label className="field">
           {t("songPick")}
           <select value={song.id} onChange={(e) => selectSong(e.target.value)}>
@@ -628,13 +666,38 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
             ))}
           </select>
         </label>
-        <details className="editor-settings" open>
-          <summary>{t("trainingSettings")}</summary>
+        <div className="actions editor-file-actions">
+          <button type="button" className="btn" onClick={addSong}>
+            {t("songNew")}
+          </button>
+          <button type="button" className="btn" disabled={fileBusy} onClick={() => desktop ? void importDesktop() : fileInput.current?.click()}>
+            {t("songImport")}
+          </button>
+          <button type="button" className="btn" disabled={fileBusy} onClick={() => void exportSong()}>
+            {t("songExport")}
+          </button>
+          <input ref={fileInput} type="file" accept=".json,.mid,.midi,application/json,audio/midi,audio/x-midi" hidden onChange={async (e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (!file) return;
+            setFileBusy(true);
+            setFileMessage(null);
+            stop();
+            try {
+              if (file.size > MAX_SONG_FILE_BYTES) throw new Error("Song file too large");
+              if (/\.(mid|midi)$/i.test(file.name)) importSong(new Uint8Array(await file.arrayBuffer()), file.name);
+              else importSong(await file.text());
+            } catch {
+              setFileError(true);
+              setFileMessage("songImportFailed");
+            } finally {
+              setFileBusy(false);
+            }
+          }} />
+        </div>
+        <details className="editor-settings">
+          <summary>{t("songMore")}</summary>
           <div className="editor-settings-grid">
-        <label className="field grow">
-          {t("songTitle")}
-          <input maxLength={200} value={song.title} onChange={(e) => update((s) => ({ ...s, title: e.target.value }), false)} />
-        </label>
         <label className="field">
           {t("songKey")}
           <select value={song.fifths} onChange={(e) => update((s) => ({ ...s, fifths: Number(e.target.value) }))}>
@@ -666,39 +729,16 @@ function Editor({ t, locale, onFocusChange, initialSongs }: Props & { initialSon
           />
         </label>
           </div>
+          {song.cover && <button type="button" className="btn" onClick={() => update((s) => { const next = { ...s }; delete next.cover; return next; }, false)}>{t("songCoverRemove")}</button>}
+          <button type="button" className="btn" onClick={deleteSong}>{t("songDelete")}</button>
         </details>
-        <div className="actions">
-          <button type="button" className="btn" onClick={addSong}>
-            {t("songNew")}
-          </button>
-          <button type="button" className="btn" onClick={deleteSong}>
-            {t("songDelete")}
-          </button>
-          <button type="button" className="btn" disabled={fileBusy} onClick={() => desktop ? void importDesktop() : fileInput.current?.click()}>
-            {t("songImport")}
-          </button>
-          <button type="button" className="btn" disabled={fileBusy} onClick={() => void exportSong()}>
-            {t("songExport")}
-          </button>
-          <input ref={fileInput} type="file" accept=".json,.mid,.midi,application/json,audio/midi,audio/x-midi" hidden onChange={async (e) => {
-            const file = e.target.files?.[0];
-            e.target.value = "";
-            if (!file) return;
-            setFileBusy(true);
-            setFileMessage(null);
-            stop();
-            try {
-              if (file.size > MAX_SONG_FILE_BYTES) throw new Error("Song file too large");
-              if (/\.(mid|midi)$/i.test(file.name)) importSong(new Uint8Array(await file.arrayBuffer()), file.name);
-              else importSong(await file.text());
-            } catch {
-              setFileError(true);
-              setFileMessage("songImportFailed");
-            } finally {
-              setFileBusy(false);
-            }
-          }} />
-        </div>
+        <details key={song.id} className="editor-settings editor-memo">
+          <summary>{t("songMemo")}</summary>
+          <label className="field">
+            <span className="sr-only">{t("songMemo")}</span>
+            <textarea maxLength={MAX_SONG_MEMO} rows={3} value={song.memo ?? ""} placeholder={t("songMemoHint")} onChange={(e) => update((s) => ({ ...s, memo: e.target.value }), false)} />
+          </label>
+        </details>
       </section>
       <details className="editor-backup-info"><summary>{t("studioBackup")}</summary><p className="muted small">{t("songBackupHint")}</p></details>
       {fileMessage && <p role={fileError ? "alert" : "status"}>{t(fileMessage)}</p>}

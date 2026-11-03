@@ -1,6 +1,8 @@
 // Songs the player writes down themselves in the note editor ("แกะโน้ต"),
 // for private practice. Times are counted in sixteenth notes.
 
+import { isSongCover, MAX_SONG_MEMO } from "./songMetadata";
+
 export type ScoreHand = "R" | "L";
 
 export interface ScoreNote {
@@ -26,6 +28,8 @@ export interface Song {
   measures: number;
   notes: ScoreNote[];
   updatedAt: string;
+  memo?: string;
+  cover?: string;
 }
 
 export const DURATIONS = [16, 8, 4, 2, 1] as const;
@@ -153,6 +157,8 @@ function readSong(value: unknown): Song | null {
   const int = (x: unknown, lo: number, hi: number, fallback: number) =>
     typeof x === "number" && Number.isFinite(x) ? Math.min(hi, Math.max(lo, Math.round(x))) : fallback;
   if (typeof v.id !== "string" || !Array.isArray(v.notes)) return null;
+  if (v.memo !== undefined && (typeof v.memo !== "string" || v.memo.length > MAX_SONG_MEMO)) return null;
+  if (v.cover !== undefined && !isSongCover(v.cover)) return null;
   const beats = int(v.beats, 2, 6, 4);
   const notes: ScoreNote[] = [];
   for (const raw of v.notes as unknown[]) {
@@ -175,6 +181,8 @@ function readSong(value: unknown): Song | null {
     measures: int(v.measures, 1, 400, 8),
     notes,
     updatedAt: typeof v.updatedAt === "string" ? v.updatedAt : "",
+    ...(v.memo !== undefined ? { memo: v.memo as string } : {}),
+    ...(v.cover !== undefined ? { cover: v.cover as string } : {}),
   };
 }
 
