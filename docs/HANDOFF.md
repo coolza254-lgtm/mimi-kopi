@@ -7,12 +7,14 @@
 
 ## สถานะล่าสุด (2026-11-03)
 
-### เตรียมเผยแพร่ 0.10.0 ตามคำสั่งเจ้าของ
+### เผยแพร่ 0.10.0 แล้วตามคำสั่งเจ้าของ
 
 - เจ้าของอนุมัติ Release แล้ว ยกระดับจาก0.9.0เป็น0.10.0 รวม Training Studio 3แกน ปุ่ม/ตัวอักษร/บรรทัดใหญ่ขึ้น และสมุดแกะโน้ตพร้อมmemo/cover/จำตำแหน่ง ไม่เพิ่มเพลงหรืออ้างว่าหลักสูตร8หน่วยพัฒนาครบแล้ว
-- เปลี่ยนเลขในpackage.json/Cargo.toml/tauri.conf.json และlockfileทั้งสอง ย้ายUnreleasedเป็น0.10.0 เขียนrelease notesภาษาไทย อ่านdocs/RELEASING.mdแล้ว ตรวจnpm install/npm ci (0vulnerabilities), typecheck, เว็บ355เทสต์45ไฟล์, release-helper3เทสต์, build, Rust fmt/clippy/core56ผ่านครบ คำเตือนbundleเดิมยังอยู่ รอCIของcommitเดียวกันก่อนRelease และไม่pushแทรกระหว่างgateกับการเผยแพร่
+- เปลี่ยนเลขในpackage.json/Cargo.toml/tauri.conf.json และlockfileทั้งสอง ย้ายUnreleasedเป็น0.10.0 เขียนrelease notesภาษาไทย ทำตามdocs/RELEASING.md ตรวจnpm install/npm ci (0vulnerabilities), typecheck, เว็บ355เทสต์45ไฟล์, release-helper3เทสต์, build, Rust fmt/clippy/core56ผ่านครบ คำเตือนbundleเดิมยังอยู่ ไม่pushแทรกระหว่างgateกับการเผยแพร่
 - เตรียมตัวตรวจลายเซ็นด้วยminisign-verify0.3.0จากdependencyเดิมแบบofflineนอกรีโปที่visualizations/release-check ทดสอบกับตัวติดตั้ง0.9.0และpublic keyเดิมผ่าน พร้อมตรวจว่าตัวติดตั้งที่เปลี่ยน1byteต้องถูกปฏิเสธ ไม่เปิดกุญแจส่วนตัว
-- ขั้นต่อไป: ตรวจCI/Releaseทุกjob ตรวจlatest manifest/exe/sigและลายเซ็นด้วยpublic keyเดิมก่อนแจ้งว่าอัปเดตในแอปได้ ไม่อ่านกุญแจส่วนตัว ไม่ติดตั้งแอปแทนผู้ใช้
+- Release commit `7bca751e9b0f4dce8fac6c251797519825e43579` pushแล้ว [CI41613202917](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41613202917) ผ่านครบ3job [Release41613202979](https://github.com/coolza254-lgtm/mimi-kopi/actions/runs/41613202979) ผ่านทุกjob เผยแพร่ [v0.10.0](https://github.com/coolza254-lgtm/mimi-kopi/releases/tag/v0.10.0) 2026-11-03 เวลา16:50:04น.ไทย ไม่ใช่draft/prerelease
+- ตรวจURL `releases/latest/download/latest.json` ชี้0.10.0และWindows URLถูกต้อง .exe/.sigครบ ตัวติดตั้ง3,581,625bytes SHA-256 `7790dfc10bd9eaa171c6325e57d6a2d73255313df9228908cf9e43aeed1c8c0d` ตรงGitHub digest ลายเซ็นในmanifestตรงกับ.sig ตรวจMinisignผ่านpublic keyเดิมและทดสอบเปลี่ยน1byteแล้วถูกปฏิเสธจริง ไม่อ่านกุญแจส่วนตัว ไม่ติดตั้งแอปแทนผู้ใช้ รายงาน `release-0.10.0-verification.json` และตัวตรวจอยู่visualizationsโฟลเดอร์เดิม ไฟล์ที่ดาวน์โหลดตรวจอยู่.git/release-verificationไม่commit
+- อัปเดตในแอปพร้อมจากตั้งค่า→ตรวจหาอัปเดต เจ้าของยังเป็นผู้ทดลองติดตั้ง/MIDI/เสียงจริง พรีวิว1422รีสตาร์ตหลังnpm ciแล้ว งานต่อไปเป็นการออกแบบเนื้อหาพื้นฐานตามหัวข้อถัดไป ไม่มีงานเผยแพร่ค้าง
 
 ### เปลี่ยนโฟกัสเป็นพื้นฐานงบศูนย์ + สมุดแกะโน้ต
 
@@ -27,7 +29,7 @@
 ### งานต่อไปของรอบนี้
 
 - ส่งข้อเสนอแหล่งเรียนฟรีและลำดับ8หน่วยให้เจ้าของเลือกก่อนพัฒนาหลักสูตรใหม่ครบชุด ขั้นถัดไปเป็นคำอธิบายไทยและวลีต้นฉบับอ่านสองกุญแจ+จังหวะ พร้อมประเมินข้อใหม่/ลดคำใบ้/ทวนหลังเว้นช่วง ไม่คัดลอกบทเรียนหรือชีตจากแหล่งเหล่านั้นลงรีโป
-- ผลCIของชุดนี้ดูcommitที่ push รอบนี้ใน [CI บน main](https://github.com/coolza254-lgtm/mimi-kopi/actions/workflows/ci.yml?query=branch%3Amain) ก่อนอ้างว่าตัวติดตั้งพร้อม ไม่มีการเพิ่มเลขเวอร์ชันหรือปล่อยหลักสูตรใหม่ครบชุดในรอบนี้
+- งานสมุดและTraining Studioเผยแพร่ใน0.10.0แล้ว ดูผลตรวจเผยแพร่ด้านบน หลักสูตร8หน่วยยังเป็นข้อเสนอ ไม่ถือว่าปล่อยเนื้อหาใหม่ครบชุดแล้ว
 
 ## ประวัติงานหาเพลง (ยกเลิกตามคำขอ 2026-11-03)
 
